@@ -14,7 +14,7 @@
        🎨 Apple Style: Liquid Glass Theme
        ========================================= */
     :root {
-      --bg-main: #e2e8f0; 
+      --bg-main: #e2e8f0; /* 背景を少しだけ暗くしてパネルを際立たせる */
       --panel-bg: rgba(255, 255, 255, 0.75);
       --panel-border: rgba(255, 255, 255, 0.8);
       --accent-color: #ff2d55;
@@ -60,6 +60,7 @@
       transition: background-color 0.4s ease, color 0.4s ease;
     }
 
+    /* 背景グラデーションアニメーション */
     .bg-animate {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
       background: radial-gradient(circle at 80% 20%, rgba(255, 45, 85, 0.12), transparent 50%),
@@ -103,11 +104,14 @@
        ========================================= */
     #appWrap { display: none; flex-direction: column; height: 100vh; width: 100vw; }
 
+    /* 💡 外側に出したヘッダー */
     header {
       height: var(--header-height); padding: 0 40px; display: flex; justify-content: space-between; align-items: center;
       flex-shrink: 0; z-index: 100;
     }
     .header-left { display: flex; align-items: center; gap: 24px; }
+    
+    /* 💡 ロゴ ＋ SoundDeck の文字 */
     .brand-group { display: flex; align-items: center; gap: 10px; }
     .header-logo { height: 36px; object-fit: contain; }
     .brand-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
@@ -116,6 +120,7 @@
     .badge-online { background: rgba(52, 199, 89, 0.15); color: #34c759; }
     .badge-offline { background: rgba(255, 149, 0, 0.15); color: #ff9500; }
 
+    /* 💡 外側に出た美しい円形テーマボタン */
     .btn-theme-circle {
       width: 44px; height: 44px; border-radius: 50%;
       background: var(--panel-bg); border: 1px solid var(--panel-border);
@@ -127,16 +132,18 @@
     }
     .btn-theme-circle:hover { transform: scale(1.08); color: var(--accent-color); }
 
+    /* メインコンテンツエリア */
     main {
       flex: 1; padding: 0 40px 30px 40px; display: flex; flex-direction: column; overflow: hidden;
     }
     .view-tab { display: none; width: 100%; height: 100%; flex-direction: column; overflow-y: auto; animation: fadeIn 0.3s ease; }
     .view-tab.active { display: flex; }
-    #view-playlist { overflow: hidden; }
+    #view-playlist { overflow: hidden; } /* プレイリストタブは内部で個別にスクロールさせるため親はhidden */
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
     .section-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 24px; letter-spacing: -0.5px; }
 
+    /* 💡 独立したパネル共通スタイル */
     .pl-panel {
       background: var(--panel-bg);
       backdrop-filter: var(--glass-blur);
@@ -149,6 +156,7 @@
       overflow: hidden;
     }
 
+    /* 🏠 Home & 検索用カード */
     .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
     .card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; backdrop-filter: var(--glass-blur); transition: transform 0.2s, background 0.2s; box-shadow: var(--shadow); }
     .card:hover { transform: translateY(-4px); background: var(--item-hover); }
@@ -164,12 +172,12 @@
     .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
 
     /* =========================================
-       🎵 プレイリストビュー
+       🎵 プレイリストビュー (💡 それぞれ独立した3つの白枠パネル)
        ========================================= */
     .playlist-layout-v06 {
       display: grid;
-      grid-template-columns: 1fr 1.3fr 1fr;
-      gap: 30px;
+      grid-template-columns: 1fr 1.3fr 1fr; /* 中央の歌詞パネルを少し広めに */
+      gap: 30px; /* パネル間の隙間 */
       height: 100%;
       transition: grid-template-columns 0.4s ease, max-width 0.4s ease;
     }
@@ -179,31 +187,60 @@
       margin: 0 auto;
     }
     
-    .pl-panel-art { padding: 40px 30px; justify-content: center; align-items: center; }
-    .art-mega-wrapper { width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: transform 0.4s ease; }
+    /* 💡 1. ジャケットパネル */
+    .pl-panel-art {
+      padding: 40px 30px;
+      justify-content: center;
+      align-items: center;
+    }
+    .art-mega-wrapper {
+      width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto;
+      border-radius: 24px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      transition: transform 0.4s ease;
+    }
     .playing .art-mega-wrapper { transform: scale(1.04); }
     .art-mega { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
     .art-info { text-align: center; margin-top: 30px; width: 100%; }
     .art-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
     .art-artist { font-size: 1.1rem; color: var(--accent-color); font-weight: 600; }
 
-    .pl-panel-lyrics { padding: 30px; position: relative; }
+    /* 💡 2. 歌詞パネル */
+    .pl-panel-lyrics {
+      padding: 30px;
+      position: relative;
+    }
     .playlist-layout-v06.lyrics-off .pl-panel-lyrics { display: none; }
     .lyrics-header-zone { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .list-header { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; color: var(--text-sub); }
-    .btn-hide-lyrics { background: var(--item-active); border: none; color: var(--text-main); padding: 6px 14px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-hide-lyrics {
+      background: var(--item-active); border: none; color: var(--text-main);
+      padding: 6px 14px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
     .btn-hide-lyrics:hover { color: var(--accent-color); background: var(--item-hover); }
     
-    .lyrics-box { flex: 1; overflow-y: auto; padding: 50% 0; scroll-behavior: smooth; margin-right: -15px; padding-right: 15px; }
+    .lyrics-box {
+      flex: 1; overflow-y: auto; padding: 50% 0; scroll-behavior: smooth;
+      margin-right: -15px; padding-right: 15px; /* スクロールバーを見えなくする調整 */
+    }
     .lyrics-box::-webkit-scrollbar { display: none; }
-    .l-line { font-size: 1.35rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6; margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center; }
+    .l-line {
+      font-size: 1.35rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6;
+      margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center;
+    }
     .l-line.active { color: var(--text-main); transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,45,85,0.15)); }
     html[data-theme="dark"] .l-line.active { filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); }
 
-    .pl-panel-list { padding: 30px; }
+    /* 💡 3. トラックリストパネル */
+    .pl-panel-list {
+      padding: 30px;
+    }
     .track-list { list-style: none; overflow-y: auto; flex: 1; padding-right: 5px; margin-top: 10px; margin-right: -10px; padding-right: 10px; }
     .track-list::-webkit-scrollbar { display: none; }
-    .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer; border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px; }
+    .track-row {
+      display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer;
+      border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px;
+    }
     .track-row:hover { background: var(--item-hover); border: 1px solid rgba(125,125,125,0.1); }
     .track-row.active { background: var(--item-active); border: 1px solid rgba(255,45,85,0.1); }
     .track-row.active .t-title { color: var(--accent-color); }
@@ -231,7 +268,7 @@
     .acc-message { font-size: 0.85rem; margin-top: 10px; color: #34c759; font-weight: 600; }
 
     /* =========================================
-       🎵 ボトムホットバー
+       🎵 ボトムホットバー (そのままフル幅)
        ========================================= */
     .hotbar {
       height: var(--hotbar-height); width: 100%;
@@ -270,6 +307,7 @@
     .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
     .toggle-lyrics-btn.active { color: var(--accent-color); }
 
+    /* 📱 レスポンシブ */
     @media (max-width: 1000px) {
       .hotbar { padding: 0 20px; }
       .hb-left { display: none; }
@@ -282,13 +320,15 @@
 </head>
 <body>
 
+  <!-- 🎨 背景 -->
   <div class="bg-animate"></div>
 
+  <!-- 🔒 初回ログイン認証 -->
   <div id="authModal">
     <div class="auth-box">
       <img src="logo.PNG" alt="Logo" class="logo-lg" onerror="this.src='https://ui-avatars.com/api/?name=SD&background=ff2d55&color=fff';">
       <h2>SoundDeck vbp1.0.1</h2>
-      <div class="auth-subtitle">On-Device Launch</div>
+      <div class="auth-subtitle">Online Sync & Verification</div>
       
       <div class="auth-input-group">
         <input type="text" id="authId" class="auth-input" placeholder="ユーザーID (4〜15文字)" autocomplete="off">
@@ -297,27 +337,39 @@
       <div id="authError" class="auth-error"></div>
       
       <button id="authBtn" class="btn-primary">Connect & Launch</button>
+      <div id="offlineWarning" class="offline-warning-modal">
+        <i class="fa-solid fa-wifi"></i> 認証にはWi-Fi(オンライン)接続が必要です
+      </div>
     </div>
   </div>
 
+  <!-- 🍏 アプリケーション全体 -->
   <div id="appWrap">
+    
+    <!-- 💡 外側のヘッダー -->
     <header>
       <div class="header-left">
+        <!-- ロゴ ＋ SoundDeck -->
         <div class="brand-group">
           <img src="logo.PNG" alt="Logo" class="header-logo" onerror="this.src='https://ui-avatars.com/api/?name=SD&background=ff2d55&color=fff';">
           <span class="brand-title">SoundDeck</span>
         </div>
-        <div id="networkBadge" class="network-badge badge-online"><i class="fa-solid fa-check"></i> LOCAL EMBEDDED</div>
+        <div id="networkBadge" class="network-badge badge-online"><i class="fa-solid fa-wifi"></i> ONLINE SYNCED</div>
       </div>
       
-      <button class="btn-theme-circle" id="themeToggleBtn">
+      <!-- 💡 外側に独立した美しいテーマボタン -->
+      <button class="btn-theme-circle" id="themeToggleBtn" title="テーマ切り替え">
         <i class="fa-solid fa-moon" id="themeIcon"></i>
       </button>
     </header>
 
+    <!-- メインコンテンツ (4タブ) -->
     <main id="mainContent">
+      
+      <!-- 🏠 タブ1: ホーム -->
       <div id="view-home" class="view-tab active">
         <h2 class="section-title">On-Device Top Tracks</h2>
+        <!-- 💡 「(10秒前測定)」を削除 -->
         <p style="color: var(--text-sub); margin-top:-15px; margin-bottom: 20px; font-size:0.9rem;">端末内で集計された、あなたの再生ランキング</p>
         <div class="card-grid" id="rankingGrid"></div>
 
@@ -325,6 +377,7 @@
         <div id="aiRecommendBox"></div>
       </div>
 
+      <!-- 🔍 タブ2: 検索 -->
       <div id="view-search" class="view-tab">
         <h2 class="section-title">Deep Search</h2>
         <div class="search-bar-container">
@@ -336,9 +389,12 @@
         </ul>
       </div>
 
+      <!-- 🎵 タブ3: プレイリスト -->
       <div id="view-playlist" class="view-tab">
+        <!-- 💡 独立した3つの白枠パネル構成 -->
         <div class="playlist-layout-v06" id="plLayout">
           
+          <!-- 💡 1. ジャケットパネル -->
           <div class="pl-panel pl-panel-art">
             <div class="art-mega-wrapper" id="artWrapper">
               <img src="" alt="Jacket" class="art-mega" id="plJacket" onerror="this.src='logo.PNG';">
@@ -349,6 +405,7 @@
             </div>
           </div>
           
+          <!-- 💡 2. 歌詞パネル -->
           <div class="pl-panel pl-panel-lyrics">
             <div class="lyrics-header-zone">
               <div class="list-header" style="margin:0;">LYRICS</div>
@@ -357,6 +414,7 @@
             <div class="lyrics-box" id="lyricsBox"></div>
           </div>
           
+          <!-- 💡 3. トラックリストパネル -->
           <div class="pl-panel pl-panel-list">
             <div class="list-header" style="margin-bottom: 8px;">TRACKS</div>
             <ul class="track-list" id="plList"></ul>
@@ -365,6 +423,7 @@
         </div>
       </div>
 
+      <!-- 👤 タブ4: アカウント -->
       <div id="view-account" class="view-tab">
         <h2 class="section-title">My Account</h2>
         <div class="account-card pl-panel">
@@ -372,28 +431,34 @@
             <img src="" alt="Avatar" class="acc-avatar" id="accAvatar">
             <div>
               <div class="acc-name" id="accName">User</div>
-              <div class="acc-id">Local Track Mode</div>
+              <div class="acc-id">Device Cached Session</div>
             </div>
           </div>
           
-          <h3 style="font-size:1.1rem; margin-bottom:15px; border-bottom:1px solid rgba(125,125,125,0.1); padding-bottom:8px;">Security</h3>
+          <h3 style="font-size:1.1rem; margin-bottom:15px; border-bottom:1px solid rgba(125,125,125,0.1); padding-bottom:8px;">Security (Online Only)</h3>
           <div class="form-group">
-            <label>パスワード変更</label>
+            <label>パスワード即時変更</label>
             <input type="password" id="newPassInput" class="auth-input" placeholder="新しいパスワード" style="max-width:300px; padding: 12px; border-radius:10px; border:1px solid rgba(125,125,125,0.3); background:rgba(0,0,0,0.05); color:var(--text-main);">
             <button id="btnChangePass" class="acc-btn btn-outline" style="margin-left: 10px;">更新</button>
             <div id="passMsg" class="acc-message"></div>
+          </div>
+          <div class="form-group" style="margin-top:30px;">
+            <label>ID変更申請 / パスワードリセット (Mock)</label>
+            <button class="acc-btn btn-outline" onclick="alert('管理者へのID変更申請を送信しました。')">ID変更を申請する</button>
+            <button class="acc-btn btn-outline" onclick="alert('登録メールアドレスに再設定リンクを送信しました。')">パスワードを忘れた場合</button>
           </div>
 
           <h3 style="font-size:1.1rem; margin-top:40px; margin-bottom:15px; border-bottom:1px solid rgba(125,125,125,0.1); padding-bottom:8px;">System</h3>
           <div class="form-group">
             <button id="btnLogout" class="acc-btn btn-outline" style="margin-right:10px;">別のアカウントでログイン</button>
-            <button id="btnResetData" class="acc-btn btn-danger">再生データの初期化</button>
+            <button id="btnResetData" class="acc-btn btn-danger">再生データ・キャッシュの初期化</button>
           </div>
         </div>
       </div>
 
     </main>
 
+    <!-- 🎵 ボトムホットバー (そのままのフル幅デザイン) -->
     <footer class="hotbar">
       <div class="hb-left">
         <img src="" alt="Art" class="hb-art" id="hbArt" onerror="this.src='logo.PNG';">
@@ -432,35 +497,22 @@
 
   <audio id="audioPlayer"></audio>
 
+  <!-- =========================================
+       🚀 ロジック: 全仕様の実装
+       ========================================= -->
   <script>
-    // =========================================================================
-    // 🎵 【ルートA】ここに音楽データを直接書く！(Base64でもネットのURLでもOK)
-    // =========================================================================
+    // --- 🎵 全10曲・ガチタイムシンク歌詞データ ---
     const songs = [
-      {
-        "id": 1,
-        "title": "テスト曲1",
-        "artist": "アーティストA",
-        // 👇 ここに直接Base64データ（data:audio/mp3;base64,〜〜）を貼り付けるか、テスト用URLのままでOK
-        "src": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", 
-        "cover": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&q=80",
-        "lines": [
-          {"time": 0, "text": "🎵 ここに歌詞を入力できます"},
-          {"time": 5, "text": "テスト再生がスタートしました"},
-          {"time": 10, "text": "Base64に書き換えれば自分の曲が鳴ります！"}
-        ]
-      },
-      {
-        "id": 2,
-        "title": "テスト曲2",
-        "artist": "アーティストB",
-        "src": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-        "cover": "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=500&q=80",
-        "lines": [
-          {"time": 0, "text": "🎵 2曲目のテスト歌詞"},
-          {"time": 5, "text": "快適に動いていますか？"}
-        ]
-      }
+      { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [ { time: 0, text: "いきものがかり - 気まぐれロマンティック" }, { time: 3, text: "ロマンティック 恋のアンテナは" }, { time: 7, text: "嵐の髪にかき消されて" }, { time: 11, text: "それでも見つけだすよ 君の笑顔" }, { time: 16, text: "🎵 (間奏中)" } ] },
+      { id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [ { time: 0, text: "HY - AM11:00" }, { time: 31.43, text: "「目を覚ましてよ」君の声が" }, { time: 36.6, text: "僕を包み Yeah" }, { time: 41, text: "窓を開けて" }, { time: 44.34, text: "そよ風が君の髪をなびく" }, { time: 51, text: "部屋から出る 僕の腕を" }, { time: 56.2, text: "つかみながら 君は" }, { time: 60, text: "「もう少しだけ」「もう少しだけ」と" }, { time: 66.6, text: "僕に君はつぶやく" }, { time: 70, text: "この世界が闇に染まる前にこの思いを" }, { time: 82.22, text: "だからお願い" }, { time: 85.5, text: "僕のそばにいてくれないか" }, { time: 90, text: "君が好きだから" }, { time: 92.3, text: "この思いが君に届くように" }, { time: 97.5, text: "願いが叶いますように" } ] },
+      { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [ { time: 0, text: "JUDY AND MARY - 自転車" }, { time: 16, text: "プールサイドで 夢を見ていたの" }, { time: 20, text: "まぶしいほどに あなたの声が響いてる" }, { time: 26, text: "響いているわ" }, { time: 31, text: "昨日のあたし まるで仔猫なの" }, { time: 35, text: "かすかにわかる 白い毛並みが震えてる" }, { time: 42, text: "震えているわ" }, { time: 45, text: "それが" }, { time: 46, text: "恋をしていた日" }, { time: 49, text: "あなたを好きな日" }, { time: 53, text: "ねえ 忘れないでいて" }, { time: 56, text: "恋していた あたしのこと Yeah!" }, { time: 64, text: "自転車こいで 海を見に行く" }, { time: 68.5, text: "夜明けの空に 太陽をめがけ" }, { time: 72, text: "飾らない日の おしゃべりは続き" }, { time: 76, text: "自転車こいで 太陽をめがけて" } ] },
+      { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [ { time: 0, text: "チャットモンチー - 風吹けば恋" }, { time: 3, text: "走り出した足が止まらない" }, { time: 7, text: "行け 行け あの人のところまで" }, { time: 12, text: "🎵 (歌詞準備中)" } ] },
+      { id: 4, title: "愛唄", artist: "GReeeeN", src: "song5.mp3", cover: "jacket5.png", lines: [ { time: 0, text: "GReeeeN - 愛唄" }, { time: 4, text: "「ねえ、大好きな君へ」内緒の話をしよう" }, { time: 10, text: "僕らの出会いから これまでの軌跡を" }, { time: 16, text: "🎵 (歌詞準備中)" } ] },
+      { id: 5, title: "出逢った頃のように", artist: "Every Little Thing", src: "song6.mp3", cover: "jacket6.png", lines: [ { time: 0, text: "Every Little Thing - 出逢った頃のように" }, { time: 1.7, text: "My love is forever" }, { time: 4, text: "あなたと出逢った頃のように" }, { time: 10.2, text: "季節が変わっても" }, { time: 14, text: "きっと色褪せないはずだよ" }, { time: 15.5, text: " " }, { time: 36.2, text: "恋愛のマニュアル 星占いも" }, { time: 44.3, text: "そろそろ飽きたし" }, { time: 51, text: "周りのみんなの変わってく姿に" }, { time: 60, text: "ちょっとずつ焦り出したり" }, { time: 68, text: "ダイアリー会える日しるしつけてる" }, { time: 76, text: "なんだか不思議ね" } ] },
+      { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [ { time: 0, text: "中島美嘉 - STARS" }, { time: 5, text: "夜空に浮かぶ 星を見上げていたよ" }, { time: 11, text: "静かな暗闇に 溶けてしまわないように" }, { time: 16, text: "🎵 (歌詞準備中)" } ] },
+      { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [ { time: 0, text: "大原ゆい子 - 言わないけどね" }, { time: 1.1, text: "勘違いされちゃったっていいよ" }, { time: 4.8, text: "君とならなんて" }, { time: 7, text: "思ってったって" }, { time: 8, text: "言わないけどね" }, { time: 10.1, text: "近づく空の香りを" }, { time: 14.4, text: "隣で感じていたいの" } ] },
+      { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [ { time: 0, text: "Chara - やさしい気持ち" }, { time: 4, text: "手をつなごう 離さないで" }, { time: 8, text: "あたしのやさしい気持ちを 分け合いたいから" }, { time: 14, text: "🎵 (歌詞準備中)" } ] },
+      { id: 9, title: "君と光", artist: "大原ゆい子", src: "song10.mp3", cover: "jacket10.png", lines: [ { time: 0, text: "大原ゆい子 - 君と光" }, { time: 5, text: "君と歩いた 光の溢れる道を" }, { time: 10, text: "今でもずっと 鮮やかに覚えているよ" }, { time: 16, text: "🎵 (歌詞準備中)" } ] }
     ];
 
     // --- 状態管理 ---
@@ -476,7 +528,7 @@
     // --- DOM ---
     const audio = document.getElementById('audioPlayer');
     const authModal = document.getElementById('authModal'), authId = document.getElementById('authId'), authPass = document.getElementById('authPass'), authBtn = document.getElementById('authBtn'), authError = document.getElementById('authError');
-    const appWrap = document.getElementById('appWrap');
+    const appWrap = document.getElementById('appWrap'), netBadge = document.getElementById('networkBadge'), offlineWarn = document.getElementById('offlineWarning');
     const viewTabs = document.querySelectorAll('.view-tab'), navTabs = document.querySelectorAll('.nav-tab');
     
     const rankingGrid = document.getElementById('rankingGrid'), aiRecommendBox = document.getElementById('aiRecommendBox');
@@ -491,7 +543,23 @@
     const accAvatar = document.getElementById('accAvatar'), accName = document.getElementById('accName');
     const newPassInput = document.getElementById('newPassInput'), btnChangePass = document.getElementById('btnChangePass'), passMsg = document.getElementById('passMsg');
 
+    // ==========================================
+    // 🌐 ネットワーク & セキュリティ認証
+    // ==========================================
+    function checkNetwork() {
+      const isOnline = navigator.onLine;
+      if (isOnline) {
+        netBadge.className = 'network-badge badge-online'; netBadge.innerHTML = '<i class="fa-solid fa-wifi"></i> ONLINE SYNCED';
+        authBtn.disabled = false; offlineWarn.style.display = 'none'; btnChangePass.disabled = false; renderAIRecommend();
+      } else {
+        netBadge.className = 'network-badge badge-offline'; netBadge.innerHTML = '<i class="fa-solid fa-plane"></i> OFFLINE MODE';
+        authBtn.disabled = true; offlineWarn.style.display = 'block'; btnChangePass.disabled = true; renderAIRecommend();
+      }
+    }
+    window.addEventListener('online', checkNetwork); window.addEventListener('offline', checkNetwork);
+
     window.onload = () => {
+      checkNetwork();
       const savedUser = localStorage.getItem('sounddeck_current_user');
       if (savedUser) { loginSuccess(savedUser); } else { authModal.style.display = 'flex'; }
     };
@@ -503,7 +571,6 @@
         if (pass === 'admin123') { usersDB[id] = { password: 'admin123' }; localStorage.setItem('sounddeck_users', JSON.stringify(usersDB)); } 
         else { return authError.textContent = "初期パスワード(admin123)が必要です"; }
       } else { if (usersDB[id].password !== pass) return authError.textContent = "パスワードが一致しません"; }
-      
       loginSuccess(id);
     });
 
@@ -517,17 +584,21 @@
     }
 
     btnChangePass.addEventListener('click', () => {
+      if (!navigator.onLine) return;
       const newPass = newPassInput.value;
       if (newPass.length < 4) { passMsg.style.color = '#ff3b30'; passMsg.textContent = "4文字以上必要です。"; return; }
       usersDB[currentUser].password = newPass; localStorage.setItem('sounddeck_users', JSON.stringify(usersDB));
-      passMsg.style.color = '#34c759'; passMsg.textContent = "パスワードを更新しました。"; newPassInput.value = '';
+      passMsg.style.color = '#34c759'; passMsg.textContent = "サーバーへ更新を同期しました。"; newPassInput.value = '';
     });
 
     document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('sounddeck_current_user'); location.reload(); });
     document.getElementById('btnResetData').addEventListener('click', () => {
-      if(confirm('再生履歴をリセットしますか？')) { localStorage.removeItem('sounddeck_history_' + currentUser); playHistory = {}; renderHome(); alert('データを初期化しました。'); }
+      if(confirm('このアカウントの再生履歴をリセットしますか？')) { localStorage.removeItem('sounddeck_history_' + currentUser); playHistory = {}; renderHome(); alert('データを初期化しました。'); }
     });
 
+    // ==========================================
+    // 📱 アプリ機能: タブ切替 & レンダリング
+    // ==========================================
     function initApp() {
       navTabs.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -563,11 +634,11 @@
         else { document.documentElement.setAttribute('data-theme', 'dark'); icon.className = 'fa-solid fa-sun'; }
       });
 
-      buildPlaylist(); renderHome(); if(songs.length > 0) loadTrack(0);
+      buildPlaylist(); renderHome(); loadTrack(0);
     }
 
+    // ホーム
     function renderHome() {
-      if(songs.length === 0) return;
       const sorted = Object.entries(playHistory).sort((a,b) => b[1] - a[1]).slice(0, 3);
       rankingGrid.innerHTML = '';
       if (sorted.length === 0) { rankingGrid.innerHTML = '<p style="color:var(--text-sub);">まだ再生履歴がありません。音楽を聴いてみましょう。</p>'; } 
@@ -583,13 +654,14 @@
       renderAIRecommend();
     }
     function renderAIRecommend() {
-      if(songs.length === 0) return;
-      const rand = songs[Math.floor(Math.random() * songs.length)];
-      aiRecommendBox.innerHTML = `<div class="card" style="background: rgba(255,45,85,0.05); border-color: rgba(255,45,85,0.2);" onclick="selectTrack(${songs.indexOf(rand)})"><img src="${rand.cover}" class="card-img" onerror="this.src='logo.PNG';"><div class="card-info"><div style="font-size:0.75rem; color:var(--accent-color); font-weight:700; margin-bottom:2px;">AI PICK FOR YOU</div><div class="card-title">${rand.title}</div><div class="card-desc">${rand.artist}</div></div><i class="fa-solid fa-play" style="font-size:1.5rem; color:var(--accent-color);"></i></div>`;
+      if (navigator.onLine) {
+        const rand = songs[Math.floor(Math.random() * songs.length)];
+        aiRecommendBox.innerHTML = `<div class="card" style="background: rgba(255,45,85,0.05); border-color: rgba(255,45,85,0.2);" onclick="selectTrack(${songs.indexOf(rand)})"><img src="${rand.cover}" class="card-img" onerror="this.src='logo.PNG';"><div class="card-info"><div style="font-size:0.75rem; color:var(--accent-color); font-weight:700; margin-bottom:2px;">AI PICK FOR YOU</div><div class="card-title">${rand.title}</div><div class="card-desc">${rand.artist}</div></div><i class="fa-solid fa-play" style="font-size:1.5rem; color:var(--accent-color);"></i></div>`;
+      } else { aiRecommendBox.innerHTML = '<div style="padding:20px; border-radius:12px; background:rgba(255,149,0,0.1); color:#ff9500; font-weight:600;"><i class="fa-solid fa-wifi"></i> オンラインになるとAIの提案が表示されます</div>'; }
     }
 
+    // 検索
     function performSearch(query) {
-      if(songs.length === 0) return;
       const q = query.toLowerCase(); searchResultList.innerHTML = '';
       if(!q) { searchResultList.innerHTML = '<p style="color:var(--text-sub);">キーワードを入力してください。</p>'; return; }
       const hits = songs.filter(s => { if(s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)) return true; if(s.lines && s.lines.some(l => l.text.toLowerCase().includes(q))) return true; return false; });
@@ -603,6 +675,7 @@
       });
     }
 
+    // プレイリスト構築
     function buildPlaylist() {
       plList.innerHTML = '';
       songs.forEach((s, i) => {
@@ -612,8 +685,10 @@
       });
     }
 
+    // ==========================================
+    // 🎧 再生エンジン & UI更新
+    // ==========================================
     function loadTrack(idx) {
-      if(songs.length === 0) return;
       pauseTrack(); curIdx = idx; const trk = songs[idx];
       audio.src = trk.src; audio.load(); hasCountedThisTrack = false;
 
@@ -639,7 +714,6 @@
     function togglePlay() { isPlay ? pauseTrack() : playTrack(); }
     
     function playTrack() {
-      if(songs.length === 0) return;
       isPlay = true; btnPlay.innerHTML = '<i class="fa-solid fa-circle-pause"></i>';
       artWrapper.parentElement.classList.add('playing');
       audio.play().then(() => isFb = false).catch(() => {
@@ -660,8 +734,8 @@
       audio.pause(); clearInterval(fkTimer);
     }
     
-    function nextTrack() { if(songs.length === 0) return; if(!isRep) curIdx = isShuff ? Math.floor(Math.random()*songs.length) : (curIdx + 1) % songs.length; loadTrack(curIdx); playTrack(); }
-    function prevTrack() { if(songs.length === 0) return; curIdx = (curIdx - 1 + songs.length) % songs.length; loadTrack(curIdx); playTrack(); }
+    function nextTrack() { if(!isRep) curIdx = isShuff ? Math.floor(Math.random()*songs.length) : (curIdx + 1) % songs.length; loadTrack(curIdx); playTrack(); }
+    function prevTrack() { curIdx = (curIdx - 1 + songs.length) % songs.length; loadTrack(curIdx); playTrack(); }
     function onEnded() { isRep ? (audio.currentTime=0, playTrack()) : nextTrack(); }
 
     function onTimeUpdate() {
@@ -688,7 +762,7 @@
     }
 
     function syncLyrics(time) {
-      if(!isLyOn) return; const s = songs[curIdx]; if(!s || !s.lines) return;
+      if(!isLyOn) return; const s = songs[curIdx]; if(!s.lines) return;
       let aIdx = -1; for(let i=0; i<s.lines.length; i++) { if(time >= s.lines[i].time) aIdx = i; else break; }
       const els = lyricsBox.querySelectorAll('.l-line');
       els.forEach((el, i) => {
