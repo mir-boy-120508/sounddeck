@@ -1,0 +1,16 @@
+{
+  "short_name": "SoundDeck",
+  "name": "SoundDeck Music Player",
+  "icons": [
+    {
+      "src": "logo.PNG",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#e2e8f0",
+  "theme_color": "#ff2d55",
+  "display": "standalone",
+  "orientation": "portrait"
+}

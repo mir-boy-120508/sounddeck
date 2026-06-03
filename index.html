@@ -776,6 +776,15 @@
     }
 
     function formatTime(s) { const m = Math.floor(s/60), sc = Math.floor(s%60); return `${m}:${sc<10?'0':''}${sc}`; }
+
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('オフライン再生の準備が完了しました！', reg))
+          .catch(err => console.log('エラーが発生しました:', err));
+      });
+    }
   </script>
 </body>
 </html>
