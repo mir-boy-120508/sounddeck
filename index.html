@@ -320,10 +320,8 @@
 </head>
 <body>
 
-  <!-- 🎨 背景 -->
   <div class="bg-animate"></div>
 
-  <!-- 🔒 初回ログイン認証 -->
   <div id="authModal">
     <div class="auth-box">
       <img src="logo.PNG" alt="Logo" class="logo-lg" onerror="this.src='https://ui-avatars.com/api/?name=SD&background=ff2d55&color=fff';">
@@ -343,13 +341,10 @@
     </div>
   </div>
 
-  <!-- 🍏 アプリケーション全体 -->
   <div id="appWrap">
     
-    <!-- 💡 外側のヘッダー -->
     <header>
       <div class="header-left">
-        <!-- ロゴ ＋ SoundDeck -->
         <div class="brand-group">
           <img src="logo.PNG" alt="Logo" class="header-logo" onerror="this.src='https://ui-avatars.com/api/?name=SD&background=ff2d55&color=fff';">
           <span class="brand-title">SoundDeck</span>
@@ -357,19 +352,15 @@
         <div id="networkBadge" class="network-badge badge-online"><i class="fa-solid fa-wifi"></i> ONLINE SYNCED</div>
       </div>
       
-      <!-- 💡 外側に独立した美しいテーマボタン -->
       <button class="btn-theme-circle" id="themeToggleBtn" title="テーマ切り替え">
         <i class="fa-solid fa-moon" id="themeIcon"></i>
       </button>
     </header>
 
-    <!-- メインコンテンツ (4タブ) -->
     <main id="mainContent">
       
-      <!-- 🏠 タブ1: ホーム -->
       <div id="view-home" class="view-tab active">
         <h2 class="section-title">On-Device Top Tracks</h2>
-        <!-- 💡 「(10秒前測定)」を削除 -->
         <p style="color: var(--text-sub); margin-top:-15px; margin-bottom: 20px; font-size:0.9rem;">端末内で集計された、あなたの再生ランキング</p>
         <div class="card-grid" id="rankingGrid"></div>
 
@@ -377,7 +368,6 @@
         <div id="aiRecommendBox"></div>
       </div>
 
-      <!-- 🔍 タブ2: 検索 -->
       <div id="view-search" class="view-tab">
         <h2 class="section-title">Deep Search</h2>
         <div class="search-bar-container">
@@ -389,12 +379,9 @@
         </ul>
       </div>
 
-      <!-- 🎵 タブ3: プレイリスト -->
       <div id="view-playlist" class="view-tab">
-        <!-- 💡 独立した3つの白枠パネル構成 -->
         <div class="playlist-layout-v06" id="plLayout">
           
-          <!-- 💡 1. ジャケットパネル -->
           <div class="pl-panel pl-panel-art">
             <div class="art-mega-wrapper" id="artWrapper">
               <img src="" alt="Jacket" class="art-mega" id="plJacket" onerror="this.src='logo.PNG';">
@@ -405,7 +392,6 @@
             </div>
           </div>
           
-          <!-- 💡 2. 歌詞パネル -->
           <div class="pl-panel pl-panel-lyrics">
             <div class="lyrics-header-zone">
               <div class="list-header" style="margin:0;">LYRICS</div>
@@ -414,7 +400,6 @@
             <div class="lyrics-box" id="lyricsBox"></div>
           </div>
           
-          <!-- 💡 3. トラックリストパネル -->
           <div class="pl-panel pl-panel-list">
             <div class="list-header" style="margin-bottom: 8px;">TRACKS</div>
             <ul class="track-list" id="plList"></ul>
@@ -423,7 +408,6 @@
         </div>
       </div>
 
-      <!-- 👤 タブ4: アカウント -->
       <div id="view-account" class="view-tab">
         <h2 class="section-title">My Account</h2>
         <div class="account-card pl-panel">
@@ -458,7 +442,6 @@
 
     </main>
 
-    <!-- 🎵 ボトムホットバー (そのままのフル幅デザイン) -->
     <footer class="hotbar">
       <div class="hb-left">
         <img src="" alt="Art" class="hb-art" id="hbArt" onerror="this.src='logo.PNG';">
@@ -497,12 +480,8 @@
 
   <audio id="audioPlayer"></audio>
 
-  <!-- =========================================
-       🚀 ロジック: 全仕様の実装
-       ========================================= -->
   <script>
-// --- 🎵 全10曲・ガチタイムシンク歌詞データ ---
-    // 💡 ここは元の形（songsという名前の配列）のまま置いておきます！
+    // --- 🎵 全10曲・ガチタイムシンク歌詞データ ---
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [ { time: 0, text: "いきものがかり - 気まぐれロマンティック" }, { time: 3, text: "ロマンティック 恋のアンテナは" }, { time: 7, text: "嵐の髪にかき消されて" }, { time: 11, text: "それでも見つけだすよ 君の笑顔" }, { time: 16, text: "🎵 (間奏中)" } ] },
       { id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [ { time: 0, text: "HY - AM11:00" }, { time: 31.43, text: "「目を覚ましてよ」君の声が" }, { time: 36.6, text: "僕を包み Yeah" }, { time: 41, text: "窓を開けて" }, { time: 44.34, text: "そよ風が君の髪をなびく" }, { time: 51, text: "部屋から出る 僕の腕を" }, { time: 56.2, text: "つかみながら 君は" }, { time: 60, text: "「もう少しだけ」「もう少しだけ」と" }, { time: 66.6, text: "僕に君はつぶやく" }, { time: 70, text: "この世界が闇に染まる前にこの思いを" }, { time: 82.22, text: "だからお願い" }, { time: 85.5, text: "僕のそばにいてくれないか" }, { time: 90, text: "君が好きだから" }, { time: 92.3, text: "この思いが君に届くように" }, { time: 97.5, text: "願いが叶いますように" } ] },
@@ -515,42 +494,6 @@
       { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [ { time: 0, text: "Chara - やさしい気持ち" }, { time: 4, text: "手をつなごう 離さないで" }, { time: 8, text: "あたしのやさしい気持ちを 分け合いたいから" }, { time: 14, text: "🎵 (歌詞準備中)" } ] },
       { id: 9, title: "君と光", artist: "大原ゆい子", src: "song10.mp3", cover: "jacket10.png", lines: [ { time: 0, text: "大原ゆい子 - 君と光" }, { time: 5, text: "君と歩いた 光の溢れる道を" }, { time: 10, text: "今でもずっと 鮮やかに覚えているよ" }, { time: 16, text: "🎵 (歌詞準備中)" } ] }
     ];
-
-    // 🌟 【ここを追加！】ログインした時に、そのユーザーの曲だけに「絞り込む」処理
-    function filterUserPlaylist(userId) {
-      const userMaps = window.SOUNDDECK_USER_MAPS || {};
-      const mySerialNumbers = userMaps[userId];
-      
-      // もし user_maps.js にIDが登録されていて、曲の指定がある場合だけ絞り込む
-      if (mySerialNumbers && mySerialNumbers.length > 0) {
-        // 元々ある10曲の中から、シリアルコード(ユーザーマップで指定された曲名など)に一致するものだけ残す
-        // 簡単にするため、今回は「割り当てられた曲の順番(ID)」で絞り込めるようにします。
-        // ※もし動かないと困るので、music-lover7 の中身を ["SN-105724"] 等ではなく
-        // 以下のように、元の10曲のタイトル名が含まれているかをチェックして自動判定させます。
-        
-        const songTitlesInMap = {
-          "example13": ["気まぐれロマンティック", "AM11:00", "自転車", "風吹けば恋", "愛唄", "出逢った頃のように", "STARS", "言わないけどね", "やさしい気持ち", "君と光"],
-          "music-lover7": ["AM11:00", "自転車", "愛唄"] // 🌟ここに新しいユーザーが聴ける曲名を入れておくと確実です！
-        };
-        
-        const allowedTitles = songTitlesInMap[userId] || songTitlesInMap["example13"];
-        
-        // 許可されたタイトルだけの新しい配列を作って、songs を上書きする
-        let filtered = [];
-        let newId = 0;
-        songs.forEach(s => {
-          if (allowedTitles.includes(s.title)) {
-            let copy = Object.assign({}, s, { id: newId });
-            filtered.push(copy);
-            newId++;
-          }
-        });
-        
-        if (filtered.length > 0) {
-          songs = filtered;
-        }
-      }
-    }
 
     // --- 状態管理 ---
     let currentUser = null;
@@ -612,14 +555,28 @@
     });
 
     function loginSuccess(id) {
-function loginSuccess(id) {
-      currentUser = id;
-      localStorage.setItem('sounddeck_current_user', id);
+      currentUser = id; localStorage.setItem('sounddeck_current_user', id);
       playHistory = JSON.parse(localStorage.getItem('sounddeck_history_' + id)) || {};
       
-      // 🌟 ここにこの1行を差し込んでください！
-      filterUserPlaylist(id);
-      
+      // 🌟【ここから追加】ユーザーごとの曲絞り込み
+      const songTitlesInMap = {
+        "example13": ["気まぐれロマンティック", "AM11:00", "自転車", "風吹けば恋", "愛唄", "出逢った頃のように", "STARS", "言わないけどね", "やさしい気持ち", "君と光"],
+        "music-lover7": ["AM11:00", "自転車", "愛唄"] // 別のユーザー
+      };
+      const allowedTitles = songTitlesInMap[id];
+      if (allowedTitles && allowedTitles.length > 0) {
+        let filtered = [];
+        let newId = 0;
+        songs.forEach(s => {
+          if (allowedTitles.includes(s.title)) {
+            filtered.push(Object.assign({}, s, { id: newId }));
+            newId++;
+          }
+        });
+        if (filtered.length > 0) songs = filtered;
+      }
+      // 🌟【ここまで追加】
+
       authModal.style.display = 'none'; appWrap.style.display = 'flex';
       accName.textContent = id; accAvatar.src = `https://ui-avatars.com/api/?name=${id}&background=000&color=fff`;
       initApp();
@@ -740,7 +697,8 @@ function loginSuccess(id) {
       document.querySelectorAll('#plList .track-row').forEach((el, i) => el.classList.toggle('active', i === curIdx));
       
       fkDur = (trk.lines && trk.lines.length) ? trk.lines[trk.lines.length-1].time + 8 : 180;
-      isFb = true; progress.max = fkDur; progress.value = 0; fkCur = 0;
+      // isFb = true; 
+      progress.max = fkDur; progress.value = 0; fkCur = 0;
       txtCur.textContent = "0:00"; txtDur.textContent = formatTime(fkDur);
 
       buildLyrics(trk); syncLyrics(0);
