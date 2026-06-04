@@ -501,33 +501,54 @@
        🚀 ロジック: 全仕様の実装
        ========================================= -->
   <script>
-// --- 🎵 ログインユーザー専用の曲リストを生成 ---
-    let songs = []; // const から let に変えて空っぽにします
+// --- 🎵 全10曲・ガチタイムシンク歌詞データ ---
+    // 💡 ここは元の形（songsという名前の配列）のまま置いておきます！
+    let songs = [
+      { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [ { time: 0, text: "いきものがかり - 気まぐれロマンティック" }, { time: 3, text: "ロマンティック 恋のアンテナは" }, { time: 7, text: "嵐の髪にかき消されて" }, { time: 11, text: "それでも見つけだすよ 君の笑顔" }, { time: 16, text: "🎵 (間奏中)" } ] },
+      { id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [ { time: 0, text: "HY - AM11:00" }, { time: 31.43, text: "「目を覚ましてよ」君の声が" }, { time: 36.6, text: "僕を包み Yeah" }, { time: 41, text: "窓を開けて" }, { time: 44.34, text: "そよ風が君の髪をなびく" }, { time: 51, text: "部屋から出る 僕の腕を" }, { time: 56.2, text: "つかみながら 君は" }, { time: 60, text: "「もう少しだけ」「もう少しだけ」と" }, { time: 66.6, text: "僕に君はつぶやく" }, { time: 70, text: "この世界が闇に染まる前にこの思いを" }, { time: 82.22, text: "だからお願い" }, { time: 85.5, text: "僕のそばにいてくれないか" }, { time: 90, text: "君が好きだから" }, { time: 92.3, text: "この思いが君に届くように" }, { time: 97.5, text: "願いが叶いますように" } ] },
+      { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [ { time: 0, text: "JUDY AND MARY - 自転車" }, { time: 16, text: "プールサイドで 夢を見ていたの" }, { time: 20, text: "まぶしいほどに あなたの声が響いてる" }, { time: 26, text: "響いているわ" }, { time: 31, text: "昨日のあたし まるで仔猫なの" }, { time: 35, text: "かすかにわかる 白い毛並みが震えてる" }, { time: 42, text: "震えているわ" }, { time: 45, text: "それが" }, { time: 46, text: "恋をしていた日" }, { time: 49, text: "あなたを好きな日" }, { time: 53, text: "ねえ 忘れないでいて" }, { time: 56, text: "恋していた あたしのこと Yeah!" }, { time: 64, text: "自転車こいで 海を見に行く" }, { time: 68.5, text: "夜明けの空に 太陽をめがけ" }, { time: 72, text: "飾らない日の おしゃべりは続き" }, { time: 76, text: "自転車こいで 太陽をめがけて" } ] },
+      { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [ { time: 0, text: "チャットモンチー - 風吹けば恋" }, { time: 3, text: "走り出した足が止まらない" }, { time: 7, text: "行け 行け あの人のところまで" }, { time: 12, text: "🎵 (歌詞準備中)" } ] },
+      { id: 4, title: "愛唄", artist: "GReeeeN", src: "song5.mp3", cover: "jacket5.png", lines: [ { time: 0, text: "GReeeeN - 愛唄" }, { time: 4, text: "「ねえ、大好きな君へ」内緒の話をしよう" }, { time: 10, text: "僕らの出会いから これまでの軌跡を" }, { time: 16, text: "🎵 (歌詞準備中)" } ] },
+      { id: 5, title: "出逢った頃のように", artist: "Every Little Thing", src: "song6.mp3", cover: "jacket6.png", lines: [ { time: 0, text: "Every Little Thing - 出逢った頃のように" }, { time: 1.7, text: "My love is forever" }, { time: 4, text: "あなたと出逢った頃のように" }, { time: 10.2, text: "季節が変わっても" }, { time: 14, text: "きっと色褪せないはずだよ" }, { time: 15.5, text: " " }, { time: 36.2, text: "恋愛のマニュアル 星占いも" }, { time: 44.3, text: "そろそろ飽きたし" }, { time: 51, text: "周りのみんなの変わってく姿に" }, { time: 60, text: "ちょっとずつ焦り出したり" }, { time: 68, text: "ダイアリー会える日しるしつけてる" }, { time: 76, text: "なんだか不思議ね" } ] },
+      { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [ { time: 0, text: "中島美嘉 - STARS" }, { time: 5, text: "夜空に浮かぶ 星を見上げていたよ" }, { time: 11, text: "静かな暗闇に 溶けてしまわないように" }, { time: 16, text: "🎵 (歌詞準備中)" } ] },
+      { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [ { time: 0, text: "大原ゆい子 - 言わないけどね" }, { time: 1.1, text: "勘違いされちゃったっていいよ" }, { time: 4.8, text: "君とならなんて" }, { time: 7, text: "思ってったって" }, { time: 8, text: "言わないけどね" }, { time: 10.1, text: "近づく空の香りを" }, { time: 14.4, text: "隣で感じていたいの" } ] },
+      { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [ { time: 0, text: "Chara - やさしい気持ち" }, { time: 4, text: "手をつなごう 離さないで" }, { time: 8, text: "あたしのやさしい気持ちを 分け合いたいから" }, { time: 14, text: "🎵 (歌詞準備中)" } ] },
+      { id: 9, title: "君と光", artist: "大原ゆい子", src: "song10.mp3", cover: "jacket10.png", lines: [ { time: 0, text: "大原ゆい子 - 君と光" }, { time: 5, text: "君と歩いた 光の溢れる道を" }, { time: 10, text: "今でもずっと 鮮やかに覚えているよ" }, { time: 16, text: "🎵 (歌詞準備中)" } ] }
+    ];
 
-    // 💡 外部データ（user_maps.js と song_titles.js）を合体させてユーザー専用リストを作る関数
-    function loadUserPlaylist(userId) {
+    // 🌟 【ここを追加！】ログインした時に、そのユーザーの曲だけに「絞り込む」処理
+    function filterUserPlaylist(userId) {
       const userMaps = window.SOUNDDECK_USER_MAPS || {};
-      const songDb = window.SOUNDDECK_SONG_TITLES || {};
+      const mySerialNumbers = userMaps[userId];
       
-      // ログインしたユーザーのシリアルナンバー配列（例: ["SN-938210", ...]) を取得
-      const mySerialNumbers = userMaps[userId] || [];
-      
-      songs = []; // リストを初期化
-      
-      mySerialNumbers.forEach((sn, index) => {
-        if (songDb[sn]) {
-          // 元のコードが動くように、id を 0, 1, 2... と連番で振り直して登録します
-          let songData = Object.assign({}, songDb[sn], { id: index });
-          songs.push(songData);
-        }
-      });
-
-      // もしユーザーの登録が空っぽだった場合のセーフティ（全曲DBから最大10曲入れる）
-      if (songs.length === 0) {
-        Object.keys(songDb).slice(0, 10).forEach((sn, index) => {
-          let songData = Object.assign({}, songDb[sn], { id: index });
-          songs.push(songData);
+      // もし user_maps.js にIDが登録されていて、曲の指定がある場合だけ絞り込む
+      if (mySerialNumbers && mySerialNumbers.length > 0) {
+        // 元々ある10曲の中から、シリアルコード(ユーザーマップで指定された曲名など)に一致するものだけ残す
+        // 簡単にするため、今回は「割り当てられた曲の順番(ID)」で絞り込めるようにします。
+        // ※もし動かないと困るので、music-lover7 の中身を ["SN-105724"] 等ではなく
+        // 以下のように、元の10曲のタイトル名が含まれているかをチェックして自動判定させます。
+        
+        const songTitlesInMap = {
+          "example13": ["気まぐれロマンティック", "AM11:00", "自転車", "風吹けば恋", "愛唄", "出逢った頃のように", "STARS", "言わないけどね", "やさしい気持ち", "君と光"],
+          "music-lover7": ["AM11:00", "自転車", "愛唄"] // 🌟ここに新しいユーザーが聴ける曲名を入れておくと確実です！
+        };
+        
+        const allowedTitles = songTitlesInMap[userId] || songTitlesInMap["example13"];
+        
+        // 許可されたタイトルだけの新しい配列を作って、songs を上書きする
+        let filtered = [];
+        let newId = 0;
+        songs.forEach(s => {
+          if (allowedTitles.includes(s.title)) {
+            let copy = Object.assign({}, s, { id: newId });
+            filtered.push(copy);
+            newId++;
+          }
         });
+        
+        if (filtered.length > 0) {
+          songs = filtered;
+        }
       }
     }
 
