@@ -617,6 +617,9 @@ function loginSuccess(id) {
       localStorage.setItem('sounddeck_current_user', id);
       playHistory = JSON.parse(localStorage.getItem('sounddeck_history_' + id)) || {};
       
+      // 🌟 ここにこの1行を差し込んでください！
+      filterUserPlaylist(id);
+      
       authModal.style.display = 'none'; appWrap.style.display = 'flex';
       accName.textContent = id; accAvatar.src = `https://ui-avatars.com/api/?name=${id}&background=000&color=fff`;
       initApp();
