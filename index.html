@@ -591,7 +591,9 @@
     });
 
     function loginSuccess(id) {
-      currentUser = id; localStorage.setItem('sounddeck_current_user', id);
+function loginSuccess(id) {
+      currentUser = id;
+      localStorage.setItem('sounddeck_current_user', id);
       playHistory = JSON.parse(localStorage.getItem('sounddeck_history_' + id)) || {};
       
       authModal.style.display = 'none'; appWrap.style.display = 'flex';
