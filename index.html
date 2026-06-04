@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoundDeck vbp1.0.3</title>
+  <title>SoundDeck vbp1.0.1</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
@@ -19,7 +19,7 @@
        🎨 Apple Style: Liquid Glass Theme
        ========================================= */
     :root {
-      --bg-main: #e2e8f0; 
+      --bg-main: #e2e8f0; /* 背景を少しだけ暗くしてパネルを際立たせる */
       --panel-bg: rgba(255, 255, 255, 0.75);
       --panel-border: rgba(255, 255, 255, 0.8);
       --accent-color: #ff2d55;
@@ -272,7 +272,7 @@
   <audio id="audioPlayer" preload="auto"></audio>
 
   <script>
-    // ⚙️ 外部の各種JSファイルからデータを安全に吸い込む
+    // ⚙️ 外部JSから吸い込むグローバルデータ
     const USER_PLAYLIST_MAP = window.SOUNDDECK_USER_MAPS || {};
     const SONG_DATABASE = window.SOUNDDECK_SONG_TITLES || {};
     const LYRICS_DATABASE = window.SOUNDDECK_LYRICS || {};
@@ -285,7 +285,7 @@
     let hasCountedThisTrack = false; 
 
     let curIdx = 0, isPlay = false, isShuff = false, isRep = false, isDrag = false;
-    let isFb = true, fkCur = 0, fkDur = 180, fkTimer = null;
+    let isFb = false; // 👈 実際の音楽ファイルを再生するのでフェイク再生はOFFにします
     let isLyOn = true;
 
     // --- DOM要素のマッピング ---
@@ -329,7 +329,7 @@
 
     authBtn.addEventListener('click', () => {
       const id = authId.value.trim(), pass = authPass.value;
-      if (!/^[a-z0-9._]{4,15}$/.test(id)) return authError.textContent = "4〜15文字の小文字英数字・記号(._)のみ";
+      if (!/^[a-z0-9._-]{4,15}$/.test(id)) return authError.textContent = "4〜15文字の小文字英数字・記号(._-)のみ";
       
       if (!USER_PLAYLIST_MAP[id]) {
         return authError.textContent = "未登録のユーザーIDです。";
@@ -350,12 +350,17 @@
       songs = [];
       userSerialNumbers.forEach(sn => {
         if (SONG_DATABASE[sn]) {
-          songs.push(SONG_DATABASE[sn]);
+          // 💡 ここでデータの整合性を保つため、曲コード(SN-xxxx)もオブジェクト内に保持します
+          let songData = Object.assign({}, SONG_DATABASE[sn], { songKey: sn });
+          songs.push(songData);
         }
       });
 
       if (songs.length === 0) {
-        songs = Object.values(SONG_DATABASE).slice(0, 10);
+        Object.keys(SONG_DATABASE).slice(0, 10).forEach(sn => {
+          let songData = Object.assign({}, SONG_DATABASE[sn], { songKey: sn });
+          songs.push(songData);
+        });
       }
       
       authModal.style.display = 'none'; appWrap.style.display = 'flex';
@@ -368,7 +373,6 @@
     // ==========================================
     function initApp() {
       switchView('view-home'); renderHome(); renderSearch(); loadTrack(0);
-      if (!navigator.onLine) isFb = true; else isFb = false;
     }
 
     navTabs.forEach(tab => {
@@ -449,7 +453,7 @@
             <div class="l-artist">${song.artist}</div>
           </div>
         `;
-        d.onclick = () => { const idx = songs.findIndex(s => s.id === song.id); if(idx!==-1) { curIdx = idx; loadTrack(curIdx); playTrack(); updateSearchList(list); } };
+        d.onclick = () => { const idx = songs.findIndex(s => s.id === song.id); if(idx!==-1) { curIdx = idx; loadTrack(idx); playTrack(); updateSearchList(list); } };
         searchResultList.appendChild(d);
       });
     }
@@ -463,16 +467,13 @@
       mainTitle.textContent = song.title; mainArtist.textContent = song.artist; plJacket.src = song.cover;
       hbTitle.textContent = song.title; hbArtist.textContent = song.artist; hbArt.src = song.cover;
       
-      const songKey = Object.keys(SONG_DATABASE).find(key => SONG_DATABASE[key].title === song.title) || "";
-      const currentLyrics = LYRICS_DATABASE[songKey] || [];
-      
+      // 💡 曲のシリアルコード(SN-xxxx)を基準に、歌詞データベースから正しい配列を引っ張ってくる
+      const currentLyrics = LYRICS_DATABASE[song.songKey] || [];
       buildLyrics(currentLyrics);
 
-      if (isFb) {
-        audio.src = ""; txtCur.textContent = "0:00"; txtDur.textContent = "3:00"; progressFill.style.width = "0%"; progressDot.style.left = "0%";
-      } else {
-        audio.src = song.src; audio.load(); hasCountedThisTrack = false;
-      }
+      audio.src = song.src; 
+      audio.load(); 
+      hasCountedThisTrack = false;
       
       const items = searchResultList.querySelectorAll('.list-item');
       if(items.length > 0) renderSearch();
@@ -480,12 +481,12 @@
 
     function playTrack() {
       isPlay = true; btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>'; artWrapper.classList.add('playing');
-      if (isFb) { startFakeTimer(); } else { audio.play().catch(() => { isPlay=false; btnPlay.innerHTML='<i class="fa-solid fa-play"></i>'; artWrapper.classList.remove('playing'); }); }
+      audio.play().catch(() => { isPlay=false; btnPlay.innerHTML='<i class="fa-solid fa-play"></i>'; artWrapper.classList.remove('playing'); });
     }
 
     function pauseTrack() {
       isPlay = false; btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>'; artWrapper.classList.remove('playing');
-      if (isFb) { clearInterval(fkTimer); } else { audio.pause(); }
+      audio.pause();
     }
 
     btnPlay.addEventListener('click', () => { if(isPlay) pauseTrack(); else playTrack(); });
@@ -494,33 +495,24 @@
 
     function nextTrack() {
       if(isShuff) { curIdx = Math.floor(Math.random() * songs.length); } else { curIdx = (curIdx + 1) % songs.length; }
-      fkCur = 0; loadTrack(curIdx); if(isPlay) playTrack(); else pauseTrack();
+      loadTrack(curIdx); if(isPlay) playTrack(); else pauseTrack();
     }
     function prevTrack() {
-      curIdx = (curIdx - 1 + songs.length) % songs.length; fkCur = 0; loadTrack(curIdx); if(isPlay) playTrack(); else pauseTrack();
-    }
-
-    function startFakeTimer() {
-      clearInterval(fkTimer);
-      fkTimer = setInterval(() => {
-        if(!isPlay) return;
-        fkCur += 0.25; if(fkCur >= fkDur) { fkCur = 0; if(isRep) { loadTrack(curIdx); playTrack(); } else { nextTrack(); } return; }
-        updateProgressUI(fkCur, fkDur); syncLyrics(fkCur); checkHistoryCount(fkCur, fkDur);
-      }, 250);
+      curIdx = (curIdx - 1 + songs.length) % songs.length; loadTrack(curIdx); if(isPlay) playTrack(); else pauseTrack();
     }
 
     audio.addEventListener('timeupdate', () => {
-      if(isFb || isDrag) return;
+      if(isDrag) return;
       updateProgressUI(audio.currentTime, audio.duration || 180);
       syncLyrics(audio.currentTime); checkHistoryCount(audio.currentTime, audio.duration || 180);
     });
     audio.addEventListener('ended', () => { if(isRep) { audio.currentTime=0; audio.play(); } else { nextTrack(); } });
-    audio.addEventListener('loadedmetadata', () => { if(!isFb) txtDur.textContent = formatTime(audio.duration); });
+    audio.addEventListener('loadedmetadata', () => { txtDur.textContent = formatTime(audio.duration); });
 
     function updateProgressUI(cur, dur) {
       const pct = (cur / dur) * 100;
       progressFill.style.width = pct + '%'; progressDot.style.left = pct + '%';
-      txtCur.textContent = formatTime(cur); if(isFb) txtDur.textContent = formatTime(dur);
+      txtCur.textContent = formatTime(cur); txtDur.textContent = formatTime(dur);
     }
 
     function formatTime(secs) {
@@ -531,8 +523,7 @@
     function setProgress(e) {
       const w = progress.clientWidth, rect = progress.getBoundingClientRect(), offsetX = e.clientX - rect.left;
       const pct = Math.max(0, Math.min(1, offsetX / w));
-      if(isFb) { fkCur = pct * fkDur; updateProgressUI(fkCur, fkDur); syncLyrics(fkCur); } 
-      else { if(audio.duration) { audio.currentTime = pct * audio.duration; updateProgressUI(audio.currentTime, audio.duration); } }
+      if(audio.duration) { audio.currentTime = pct * audio.duration; updateProgressUI(audio.currentTime, audio.duration); }
     }
     progress.addEventListener('mousedown', (e) => { isDrag = true; setProgress(e); });
     window.addEventListener('mousemove', (e) => { if(isDrag) setProgress(e); });
@@ -562,7 +553,7 @@
       if(!lines || lines.length === 0) return lyricsBox.innerHTML = '<div class="l-line">No Lyrics</div>';
       lines.forEach(l => {
         const d = document.createElement('div'); d.className = 'l-line'; d.textContent = l.text;
-        d.onclick = () => { if(isFb) fkCur = l.time; else audio.currentTime = l.time; updateProgressUI(l.time, isFb?fkDur:audio.duration); };
+        d.onclick = () => { audio.currentTime = l.time; updateProgressUI(l.time, audio.duration); };
         lyricsBox.appendChild(d);
       });
     }
@@ -570,8 +561,7 @@
     function syncLyrics(time) {
       if(!isLyOn || songs.length === 0) return;
       const song = songs[curIdx];
-      const songKey = Object.keys(SONG_DATABASE).find(key => SONG_DATABASE[key].title === song.title) || "";
-      const lines = LYRICS_DATABASE[songKey] || [];
+      const lines = LYRICS_DATABASE[song.songKey] || [];
       if(lines.length === 0) return;
       
       let aIdx = -1; for(let i=0; i<lines.length; i++) { if(time >= lines[i].time) aIdx = i; else break; }
