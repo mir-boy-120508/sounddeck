@@ -161,9 +161,8 @@
     }
 
     .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
-    .card { background: var(--panel-bg); border: 1px solid var(--panel-border);
-            border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; backdrop-filter: var(--glass-blur); transition: transform 0.2s, background 0.2s;
-            box-shadow: var(--shadow); }
+    .card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px;
+            padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; backdrop-filter: var(--glass-blur); transition: transform 0.2s, background 0.2s; box-shadow: var(--shadow); }
     .card:hover { transform: translateY(-4px); background: var(--item-hover); }
     .card-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; }
     .card-info { flex: 1; overflow: hidden; }
@@ -172,145 +171,159 @@
     .rank-badge { font-size: 1.5rem; font-weight: 800; color: var(--accent-color); opacity: 0.5; width: 30px; text-align: center; }
 
     .search-bar-container { position: relative; max-width: 600px; margin-bottom: 30px; }
-    .search-input { width: 100%; padding: 18px 20px 18px 50px; font-size: 1.2rem; border-radius: 20px;
-                    border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; transition: border-color 0.2s; }
+    .search-input { width: 100%; padding: 18px 20px 18px 50px; font-size: 1.2rem; border-radius: 20px; border: 1px solid var(--panel-border);
+                    background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; transition: border-color 0.2s; }
     .search-input:focus { border-color: var(--accent-color); }
     .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
 
     /* =========================================
-       🎵 プレイリストビュー
-       ========================================= */
+       🎵 プレイリストビュー (💡 それぞれ独立した3つの白枠パネル) ========================================= */
     .playlist-layout-v06 {
-      display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%;
-      transition: grid-template-columns 0.4s ease, max-width 0.4s ease;
+      display: grid;
+      grid-template-columns: 320px 1fr 340px;
+      gap: 30px;
+      height: 100%;
+      align-items: stretch;
     }
-    .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr 1fr; max-width: 1000px; margin: 0 auto; }
-    
-    .pl-panel-art { padding: 40px 30px; justify-content: center; align-items: center; }
-    .art-mega-wrapper { width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto;
-                        border-radius: 24px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: transform 0.4s ease; }
-    .playing .art-mega-wrapper { transform: scale(1.04); }
-    .art-mega { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
-    .art-info { text-align: center; margin-top: 30px; width: 100%; }
-    .art-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
-    .art-artist { font-size: 1.1rem; color: var(--accent-color); font-weight: 600; }
 
-    .pl-panel-lyrics { padding: 30px; position: relative; }
-    .playlist-layout-v06.lyrics-off .pl-panel-lyrics { display: none; }
-    .lyrics-header-zone { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .list-header { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; color: var(--text-sub); }
-    .btn-hide-lyrics { background: var(--item-active); border: none; color: var(--text-main); padding: 6px 14px;
-                       border-radius: 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-    .btn-hide-lyrics:hover { color: var(--accent-color); background: var(--item-hover); }
-    
-    .lyrics-box { flex: 1; overflow-y: auto; padding: 50% 0; scroll-behavior: smooth; margin-right: -15px; padding-right: 15px; }
-    .lyrics-box::-webkit-scrollbar { display: none; }
-    .l-line { font-size: 1.35rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6;
-              margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center; }
-    .l-line.active { color: var(--text-main); transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,45,85,0.15)); }
-    html[data-theme="dark"] .l-line.active { filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); }
+    /* パネル 1: 左側トラックリスト */
+    .pl-tracklist-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .pl-list-scroll { flex: 1; overflow-y: auto; padding: 14px; }
+    .pl-item {
+      display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 16px;
+      cursor: pointer; transition: background 0.2s, transform 0.15s; margin-bottom: 4px;
+    }
+    .pl-item:hover { background: var(--item-hover); }
+    .pl-item.active { background: var(--item-active); }
+    .pl-item.active .pl-title { color: var(--accent-color); }
+    .pl-cover { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; }
+    .pl-meta { flex: 1; overflow: hidden; }
+    .pl-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pl-artist { font-size: 0.8rem; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .pl-panel-list { padding: 30px; }
-    .track-list { list-style: none; overflow-y: auto; flex: 1; padding-right: 5px; margin-top: 10px; margin-right: -10px; padding-right: 10px; }
-    .track-list::-webkit-scrollbar { display: none; }
-    .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer;
-                 border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px; }
-    .track-row:hover { background: var(--item-hover); border: 1px solid rgba(125,125,125,0.1); }
-    .track-row.active { background: var(--item-active); border: 1px solid rgba(255,45,85,0.1); }
-    .track-row.active .t-title { color: var(--accent-color); }
-    .t-num { width: 36px; color: var(--text-sub); font-weight: 700; font-size: 0.95rem; }
-    .t-art { width: 44px; height: 44px; border-radius: 10px; margin-right: 16px; object-fit: cover; }
-    .t-info { flex: 1; overflow: hidden; }
-    .t-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .t-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
-    .t-match { font-size: 0.75rem; color: #ff9500; margin-top: 4px; font-style: italic; }
+    /* パネル 2: 中央メイン歌詞デッキ */
+    .pl-lyrics-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .lyrics-scroll-v06 {
+      flex: 1; overflow-y: auto; padding: 120px 30px;
+      display: flex; flex-direction: column; gap: 28px;
+      scroll-behavior: smooth;
+    }
+    /* 🍏 Apple Music風 液状グラデーション風の超美麗アクティブ歌詞 */
+    .l-line {
+      font-size: 1.7rem; font-weight: 700; color: var(--lyrics-dim);
+      transition: color 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+      cursor: pointer; line-height: 1.4; text-align: left;
+      transform-origin: left center; filter: blur(0.5px);
+    }
+    .l-line:hover { color: var(--text-main); }
+    .l-line.active {
+      color: var(--text-main);
+      transform: scale(1.05);
+      filter: blur(0px);
+      text-shadow: 0 4px 20px rgba(255, 45, 85, 0.15);
+    }
+
+    /* パネル 3: 右側統計・コントロールセンター */
+    .pl-control-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 24px; gap: 24px; }
+    .ctrl-cover-box { text-align: center; margin-top: 10px; }
+    .ctrl-cover { width: 180px; height: 180px; border-radius: 20px; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .ctrl-info { text-align: center; }
+    .ctrl-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 4px; }
+    .ctrl-artist { font-size: 0.9rem; color: var(--accent-color); font-weight: 600; }
+    
+    .stats-box { background: rgba(125,125,125,0.06); padding: 16px; border-radius: 18px; border: 1px solid rgba(125,125,125,0.05); }
+    .stats-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-sub); margin-bottom: 8px; }
+    .stats-row:last-child { margin-bottom: 0; }
+    .stats-val { font-weight: 700; color: var(--text-main); }
+
+    .deck-control-group { display: flex; flex-direction: column; gap: 12px; margin-top: auto; }
+    .deck-row { display: flex; gap: 12px; }
+    .btn-deck { flex: 1; min-height: 54px; border: none; border-radius: 16px; background: var(--btn-main-bg); color: var(--btn-main-text);
+                 font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s; }
+    .btn-deck:active { transform: scale(0.97); }
+    .btn-deck-outline { background: transparent; border: 1px solid var(--panel-border); color: var(--text-main); }
+    .btn-deck-danger { background: rgba(255, 45, 85, 0.1); color: var(--accent-color); }
+    .btn-deck-danger:hover { background: var(--accent-color); color: white; }
 
     /* =========================================
-       📥 自分用・楽曲/機能リクエスト窓口 (Googleフォーム連携・2重ロック)
+       ⚙️ 設定ビュー
        ========================================= */
-    .request-zone {
-      margin-top: 24px; padding: 20px; background: rgba(125, 125, 125, 0.05);
-      border-radius: 20px; border: 1px dashed rgba(125, 125, 125, 0.2);
-    }
-    .request-zone h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
-    .request-textarea {
-      width: 100%; min-height: 80px; padding: 12px; border-radius: 12px;
-      border: 1px solid rgba(125,125,125,0.3); background: var(--panel-bg);
-      color: var(--text-main); font-size: 0.95rem; resize: vertical; outline: none;
-      margin-bottom: 12px;
-    }
-    .request-textarea:disabled { opacity: 0.5; background: rgba(125,125,125,0.1); }
-
-    .account-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 28px;
-                    padding: 40px; max-width: 600px; margin-bottom: 30px; backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); }
-    .acc-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; }
-    .acc-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent-color); object-fit: cover; }
-    .acc-name { font-size: 1.8rem; font-weight: 800; }
-    .acc-id { font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
-    .form-group { margin-bottom: 24px; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; color: var(--text-sub); }
+    .settings-container { max-width: 600px; display: flex; flex-direction: column; gap: 24px; }
+    .settings-group { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 24px; padding: 24px; backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); }
+    .settings-group-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .settings-row:last-child { margin-bottom: 0; }
+    .settings-label { font-size: 0.95rem; font-weight: 500; }
+    .settings-desc { font-size: 0.8rem; color: var(--text-sub); margin-top: 2px; }
     
-    .acc-btn { min-height: 44px; padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem;
-               transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; }
-    .acc-btn:active { transform: scale(0.98); }
-    .acc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-outline { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); }
-    .btn-outline:hover { background: rgba(255,45,85,0.1); }
-    .btn-danger { background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 2px solid rgba(255, 59, 48, 0.3); }
-    .btn-danger:hover { background: rgba(255, 59, 48, 0.2); }
-    .acc-message { font-size: 0.85rem; margin-top: 10px; color: #34c759; font-weight: 600; }
+    /* トグルスイッチ */
+    .switch { position: relative; display: inline-block; width: 51px; height: 31px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e5e5ea; transition: .3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 34px; }
+    html[data-theme="dark"] .slider { background-color: #3a3a3c; }
+    .slider:before { position: absolute; content: ""; height: 27px; width: 27px; left: 2px; bottom: 2px; background-color: white; transition: .3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 50%; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
+    input:checked + .slider { background-color: #34c759; }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    .input-flat { padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); background: rgba(125,125,125,0.04); color: var(--text-main); font-size: 0.95rem; outline: none; width: 100%; max-width: 240px; }
+    .input-flat:focus { border-color: var(--accent-color); }
+    .btn-flat { padding: 12px 20px; border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; background: var(--btn-main-bg); color: var(--btn-main-text); }
 
     /* =========================================
-       🎵 ボトムホットバー
-       ========================================= */
+       👇 底部の固定型美フリンジ・ホットバー (ナビゲーション) ========================================= */
+    .hotbar-container {
+      height: var(--hotbar-height);
+      padding: 0 40px 15px 40px;
+      display: flex; justify-content: center; align-items: flex-start;
+      flex-shrink: 0; z-index: 100;
+    }
     .hotbar {
-      height: var(--hotbar-height); width: 100%;
       background: var(--panel-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border-top: 1px solid var(--panel-border);
-      display: flex; align-items: center; padding: 0 40px; justify-content: space-between;
-      position: relative; z-index: 100; flex-shrink: 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.02);
+      border: 1px solid var(--panel-border); border-radius: 24px;
+      height: 64px; width: 100%; max-width: 500px;
+      box-shadow: var(--shadow);
+      display: flex; justify-content: space-around; align-items: center; padding: 0 10px;
     }
-    
-    .hb-left { display: flex; align-items: center; gap: 16px; width: 25%; min-width: 200px; }
-    .hb-art { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .hb-info { overflow: hidden; }
-    .hb-title { font-weight: 700; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hb-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
+    .hot-item {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-sub); width: 64px; height: 50px; border-radius: 14px; cursor: pointer;
+      transition: all 0.2s ease; gap: 3px;
+    }
+    .hot-item i, .hot-item lcc { font-size: 1.25rem; transition: transform 0.2s; }
+    .hot-item span { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.3px; }
+    .hot-item:hover { color: var(--text-main); }
+    .hot-item:active i { transform: scale(0.85); }
+    .hot-item.active { color: var(--accent-color); }
 
-    .hb-center { flex: 1; max-width: 600px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .hb-controls { display: flex; align-items: center; gap: 24px; }
-    .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.3rem; cursor: pointer; transition: color 0.2s, transform 0.1s; }
-    .ctrl-btn:hover { color: var(--accent-color); }
-    .ctrl-btn.active { color: var(--accent-color); }
-    .btn-play { font-size: 2.8rem; }
-    .btn-play:hover { transform: scale(1.05); }
-    
-    .hb-progress { width: 100%; display: flex; align-items: center; gap: 12px; font-size: 0.8rem;
-                   color: var(--text-sub); font-variant-numeric: tabular-nums; font-weight: 600; }
-    .slider { flex: 1; -webkit-appearance: none; appearance: none; height: 6px;
-              background: rgba(125,125,125,0.2); border-radius: 3px; outline: none; cursor: pointer; }
-    .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px;
-                                    border-radius: 50%; background: var(--text-main); cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    .slider::-webkit-slider-thumb:hover { transform: scale(1.2); background: var(--accent-color); }
+    /* =========================================
+       🎛️ ミニ外部フローティングプレイヤー (画面端に常駐) ========================================= */
+    .mini-float-player {
+      position: fixed; right: 40px; bottom: 110px;
+      background: var(--panel-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--panel-border); border-radius: 20px; padding: 12px 20px;
+      box-shadow: var(--shadow); display: flex; align-items: center; gap: 16px; z-index: 999;
+      animation: fadeIn 0.3s ease; display: none;
+    }
+    .mini-info { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .mini-cover { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
+    .mini-text { max-width: 120px; overflow: hidden; }
+    .mini-title { font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mini-artist { font-size: 0.75rem; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mini-btn { width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--btn-main-bg); color: var(--btn-main-text);
+                display: flex; align-items: center; justify-content: center; font-size: 0.85rem; cursor: pointer; }
 
-    .hb-right { width: 25%; min-width: 280px; display: flex; justify-content: flex-end; align-items: center; gap: 24px; }
-    
-    .nav-tabs { display: flex; background: rgba(125,125,125,0.1); border-radius: 20px; padding: 4px; }
-    .nav-tab { background: none; border: none; color: var(--text-sub);
-               padding: 8px 18px; border-radius: 16px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
-    .nav-tab:hover { color: var(--text-main); }
-    .nav-tab.active { background: var(--panel-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    
-    .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
-    .toggle-lyrics-btn.active { color: var(--accent-color); }
-
-    @media (max-width: 1000px) {
-      .hotbar { padding: 0 20px; }
-      .hb-left { display: none; }
-      .hb-right { min-width: auto; }
-      .playlist-layout-v06, .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr; overflow-y: auto; height: auto; padding-bottom: 40px; }
-      .pl-panel { min-height: 400px; margin-bottom: 20px; }
-      main { padding: 20px; }
+    /* レスポンシブ (iPad/Macに最適化されているため、横幅狭いスマホ用) */
+    @media (max-width: 1024px) {
+      .playlist-layout-v06 { grid-template-columns: 280px 1fr; }
+      .pl-control-panel { display: none; } /* タブレット縦画面などでは右パネルを隠しミニプレイヤーへ */
+      .mini-float-player { display: flex; }
+    }
+    @media (max-width: 768px) {
+      header { padding: 0 20px; }
+      main { padding: 0 20px 20px 20px; }
+      .playlist-layout-v06 { grid-template-columns: 1fr; }
+      .pl-tracklist-panel { display: none; } /* スマホでは歌詞を全画面に */
+      .hotbar-container { padding: 0 20px 10px 20px; }
     }
   </style>
 </head>
@@ -320,912 +333,757 @@
 
   <div id="authModal">
     <div class="auth-box">
-      <img src="logo.png" alt="Logo" class="logo-lg" onerror="this.src='https://ui-avatars.com/api/?name=SD&background=ff2d55&color=fff';">
-      <h2>SoundDeck v1.0</h2>
-      <div class="auth-subtitle">Device Offline Cache Mode Ready</div>
-      
-      <div class="auth-input-group">
-        <input type="text" id="authId" class="auth-input" placeholder="ユーザーID (4〜15文字)" autocomplete="off">
-        <input type="password" id="authPass" class="auth-input" placeholder="パスワード (初期: admin123)">
-      </div>
+      <img src="logo.png" alt="Logo" class="logo-lg" id="logoImg">
+      <div class="auth-subtitle">PWA Offline Sync Track Service</div>
+      <input type="text" id="authId" class="auth-input" placeholder="ユーザーID (4〜15文字)" autocomplete="off">
+      <input type="password" id="authPass" class="auth-input" placeholder="パスワード (初期: admin123)">
       <div id="authError" class="auth-error"></div>
-      
-      <button id="authBtn" class="btn-primary">Launch Deck</button>
-      <div id="offlineWarning" class="offline-warning-modal">
-        <i class="fa-solid fa-wifi"></i> オフライン起動中：ストレージ同期をスキップします
+      <button id="btnLogin" class="btn-primary">Launch Deck</button>
+      <div id="offlineWarningModal" class="offline-warning-modal">
+        <i class="fa-solid fa-triangle-exclamation"></i> 現在オフラインです。既存のセッションでのみログイン可能です。
       </div>
     </div>
   </div>
 
   <div id="appWrap">
-    
     <header>
       <div class="header-left">
         <div class="brand-group">
-          <img src="logo.PNG" alt="Logo" class="header-logo" onerror="this.src='https://ui-avatars.com/api/?name=SD&background=ff2d55&color=fff';">
+          <img src="logo.png" alt="Logo" class="header-logo">
           <span class="brand-title">SoundDeck</span>
         </div>
-        <div id="networkBadge" class="network-badge badge-online"><i class="fa-solid fa-wifi"></i> ONLINE MODE</div>
+        <div id="networkBadge" class="network-badge badge-online">
+          <i class="fa-solid fa-circle"></i> <span>ONLINE</span>
+        </div>
       </div>
-      
-      <button class="btn-theme-circle" id="themeToggleBtn" title="テーマ切り替え">
-        <i class="fa-solid fa-moon" id="themeIcon"></i>
+      <button id="btnTheme" class="btn-theme-circle">
+        <i class="fa-solid fa-moon"></i>
       </button>
     </header>
 
-    <main id="mainContent">
-      
-      <div id="view-home" class="view-tab active">
-        <h2 class="section-title">On-Device Top Tracks</h2>
-        <p style="color: var(--text-sub); margin-top:-15px; margin-bottom: 20px; font-size:0.9rem;">端末内で集計された、あなたの再生ランキング</p>
-        <div class="card-grid" id="rankingGrid"></div>
-
-        <h2 class="section-title" style="margin-top: 40px;">AI Discovery (Beta)</h2>
-        <div id="aiRecommendBox"></div>
+    <main>
+      <div id="tab-home" class="view-tab active">
+        <h2 class="section-title">Home</h2>
+        <div class="card-grid" id="homeQuickGrid"></div>
+        
+        <h2 class="section-title">再生回数ランキング</h2>
+        <div class="card-grid" id="homeRankGrid"></div>
       </div>
 
-      <div id="view-search" class="view-tab">
-        <h2 class="section-title">Deep Search</h2>
+      <div id="tab-search" class="view-tab">
+        <h2 class="section-title">曲を探す</h2>
         <div class="search-bar-container">
           <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <input type="text" id="searchInput" class="search-input" placeholder="曲名、アーティスト、または歌詞のフレーズ...">
+          <input type="text" id="searchInput" class="search-input" placeholder="曲名、アーティスト名で検索...">
         </div>
-        <ul class="track-list" id="searchResultList" style="height: auto; max-height: 500px;">
-          <p style="color:var(--text-sub);">キーワードを入力してください。</p>
-        </ul>
-        
-        <div id="searchZeroRequest" class="request-zone" style="display: none;">
-          <h4>🔍 お探しの曲は見つかりませんでした</h4>
-          <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:10px;">追加したい楽曲名や、未来の自分への機能開発アイデアをメモとして残せできます。</p>
-          <textarea id="searchRequestText" class="request-textarea" placeholder="（例）「楽曲名 / アーティスト名」や、「〇〇画面にこんな機能が欲しい！」など自由にご記入ください"></textarea>
-          <button id="btnSearchRequestSend" class="acc-btn btn-outline">自分宛てに送信・メモする</button>
-          <span id="searchRequestMsg" class="acc-message"></span>
+        <div class="card-grid" id="searchResultGrid"></div>
+      </div>
+
+      <div id="tab-playlist" class="view-tab">
+        <div class="playlist-layout-v06">
+          
+          <div class="pl-panel pl-tracklist-panel">
+            <div class="pl-list-scroll" id="trackListContainer"></div>
+          </div>
+
+          <div class="pl-panel pl-lyrics-panel">
+            <div class="lyrics-scroll-v06" id="lyricsBox"></div>
+          </div>
+
+          <div class="pl-panel pl-control-panel">
+            <div class="ctrl-cover-box">
+              <img src="jacket1.png" alt="Jacket" class="ctrl-cover" id="ctrlCover">
+            </div>
+            <div class="ctrl-info">
+              <div class="ctrl-title" id="ctrlTitle">曲名</div>
+              <div class="ctrl-artist" id="ctrlArtist">アーティスト名</div>
+            </div>
+            
+            <div class="stats-box">
+              <div class="stats-row"><span>総再生回数</span><span class="stats-val" id="statPlayCount">0 回</span></div>
+              <div class="stats-row"><span>現在の進捗</span><span class="stats-val" id="statTime">0:00 / 0:00</span></div>
+            </div>
+
+            <div class="deck-control-group">
+              <div class="deck-row">
+                <button class="btn-deck btn-deck-outline" id="btnPrev"><i class="fa-solid fa-backward-step"></i></button>
+                <button class="btn-deck" id="btnPlay"><i class="fa-solid fa-play"></i> <span>PLAY</span></button>
+                <button class="btn-deck btn-deck-outline" id="btnNext"><i class="fa-solid fa-forward-step"></i></button>
+              </div>
+              <div class="deck-row">
+                <button class="btn-deck btn-deck-outline" id="btnLyricToggle"><i class="fa-solid fa-closed-captioning"></i> <span>歌詞同期: ON</span></button>
+              </div>
+              <button class="btn-deck btn-deck-outline btn-deck-danger" id="btnFeedback"><i class="fa-solid fa-wand-magic-sparkles"></i> <span>同期タイミング調整モード</span></button>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div id="view-playlist" class="view-tab">
-        <div class="playlist-layout-v06" id="plLayout">
-          
-          <div class="pl-panel pl-panel-art">
-            <div class="art-mega-wrapper" id="artWrapper">
-              <img src="" alt="Jacket" class="art-mega" id="plJacket" onerror="this.src='logo.PNG';">
+      <div id="tab-settings" class="view-tab">
+        <h2 class="section-title">Settings</h2>
+        <div class="settings-container">
+          <div class="settings-group">
+            <div class="settings-group-title"><i class="fa-solid fa-sliders"></i> 再生設定</div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">自動次の曲へスキップ</div>
+                <div class="settings-desc">曲が終了したとき、自動でプレイリストの次の曲を再生します。</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="setAutoplay" checked>
+                <span class="slider"></span>
+              </label>
             </div>
-            <div class="art-info">
-              <div class="art-title" id="mainTitle">No Track</div>
-              <div class="art-artist" id="mainArtist">---</div>
-            </div>
-          </div>
-          
-          <div class="pl-panel pl-panel-lyrics">
-            <div class="lyrics-header-zone">
-              <div class="list-header" style="margin:0;">LYRICS</div>
-              <button class="btn-hide-lyrics" id="btnCloseLyrics">歌詞を非表示</button>
-            </div>
-            <div class="lyrics-box" id="lyricsBox"></div>
-          </div>
-          
-          <div class="pl-panel pl-panel-list">
-            <div class="list-header" style="margin-bottom: 8px;">TRACKS</div>
-            <ul class="track-list" id="plList"></ul>
-          </div>
-          
-        </div>
-      </div>
-
-      <div id="view-account" class="view-tab">
-        <h2 class="section-title">My Account</h2>
-        <div class="account-card pl-panel">
-          <div class="acc-header">
-            <img src="" alt="Avatar" class="acc-avatar" id="accAvatar">
-            <div>
-              <div class="acc-name" id="accName">User</div>
-              <div class="acc-id">Device Cached Session</div>
-            </div>
-          </div>
-          
-          <h3 style="font-size:1.1rem; margin-bottom:15px; border-bottom:1px solid rgba(125,125,125,0.1); padding-bottom:8px;">Security</h3>
-          <div class="form-group">
-            <label>パスワード即時変更 (ローカルキャッシュ)</label>
-            <input type="password" id="newPassInput" class="auth-input" placeholder="新しいパスワード" style="max-width:300px; padding: 12px; border-radius:10px; border:1px solid rgba(125,125,125,0.3); background:rgba(0,0,0,0.05); color:var(--text-main);">
-            <button id="btnChangePass" class="acc-btn btn-outline" style="margin-left: 10px;">更新</button>
-            <div id="passMsg" class="acc-message"></div>
           </div>
 
-          <h3 style="font-size:1.1rem; margin-top:30px; margin-bottom:15px; border-bottom:1px solid rgba(125,125,125,0.1); padding-bottom:8px;">Deck Request & Memo</h3>
-          <div class="request-zone">
-            <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:10px;">追加したい曲のリクエストや、次に実装したい機能のアイデアを未来の自分に送信できます。</p>
-            <textarea id="accRequestText" class="request-textarea" placeholder="（例）「楽曲名 / アーティスト名」や、「〇〇画面にこんな機能が欲しい！」など自由にご記入ください"></textarea>
-            <button id="btnAccRequestSend" class="acc-btn btn-outline">リクエストを送信する</button>
-            <span id="accRequestMsg" class="acc-message"></span>
+          <div class="settings-group">
+            <div class="settings-group-title"><i class="fa-solid fa-shield-halved"></i> セキュリティ設定</div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">カスタムパスワードの変更</div>
+                <div class="settings-desc">現在のユーザーセッションのログインパスワードを更新します。</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+              <input type="password" id="newPassInput" class="input-flat" placeholder="新しいパスワード（4文字以上）">
+              <button id="btnUpdatePass" class="btn-flat">更新</button>
+            </div>
+            <div id="passMsg" style="font-size: 0.8rem; margin-top: 8px; min-height: 18px; font-weight: 500;"></div>
           </div>
 
-          <h3 style="font-size:1.1rem; margin-top:40px; margin-bottom:15px; border-bottom:1px solid rgba(125,125,125,0.1); padding-bottom:8px;">System</h3>
-          <div class="form-group">
-            <button id="btnLogout" class="acc-btn btn-outline" style="margin-right:10px;">ログアウト</button>
-            <button id="btnResetData" class="acc-btn btn-danger">再生データ・キャッシュの初期化</button>
+          <div class="settings-group">
+            <div class="settings-group-title" style="color: var(--accent-color);"><i class="fa-solid fa-trash-can"></i> ストレージ管理</div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">ローカルキャッシュデータの初期化</div>
+                <div class="settings-desc">再生ランキング、パスワード履歴等のローカルストレージを全消去します。</div>
+              </div>
+              <button id="btnResetData" class="btn-flat" style="background: rgba(255,45,85,0.1); color: var(--accent-color);">初期化</button>
+            </div>
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(125,125,125,0.1); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.85rem; color: var(--text-sub);">ログイン中のユーザー</span>
+              <button id="btnLogout" class="btn-flat btn-deck-danger" style="padding: 8px 16px; border-radius: 10px;">ログアウト</button>
+            </div>
           </div>
         </div>
       </div>
-
     </main>
 
-    <footer class="hotbar">
-      <div class="hb-left">
-        <img src="" alt="Art" class="hb-art" id="hbArt" onerror="this.src='logo.PNG';">
-        <div class="hb-info">
-          <div class="hb-title" id="hbTitle">No Track</div>
-          <div class="hb-artist" id="hbArtist">---</div>
+    <div class="mini-float-player" id="miniPlayer">
+      <div class="mini-info" id="miniPlayerInfo">
+        <img src="jacket1.png" alt="Cover" class="mini-cover" id="miniCover">
+        <div class="mini-text">
+          <div class="mini-title" id="miniTitle">曲名</div>
+          <div class="mini-artist" id="miniArtist">アーティスト</div>
         </div>
       </div>
+      <button class="mini-btn" id="miniBtnPlay"><i class="fa-solid fa-play"></i></button>
+    </div>
 
-      <div class="hb-center">
-        <div class="hb-controls">
-          <button class="ctrl-btn" id="btnShuffle" title="Shuffle"><i class="fa-solid fa-shuffle"></i></button>
-          <button class="ctrl-btn" id="btnPrev"><i class="fa-solid fa-backward-step"></i></button>
-          <button class="ctrl-btn btn-play" id="btnPlay"><i class="fa-solid fa-circle-play"></i></button>
-          <button class="ctrl-btn" id="btnNext"><i class="fa-solid fa-forward-step"></i></button>
-          <button class="ctrl-btn" id="btnRepeat" title="Repeat"><i class="fa-solid fa-repeat"></i></button>
-        </div>
-        <div class="hb-progress">
-          <span id="txtCur">0:00</span>
-          <input type="range" class="slider" id="progress" min="0" max="100" value="0" step="0.1">
-          <span id="txtDur">0:00</span>
-        </div>
+    <div class="hotbar-container">
+      <div class="hotbar">
+        <div class="hot-item active" data-tab="home"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="hot-item" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i><span>Search</span></div>
+        <div class="hot-item" data-tab="playlist"><i class="fa-solid fa-music"></i><span>Deck</span></div>
+        <div class="hot-item" data-tab="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></div>
       </div>
-
-      <div class="hb-right">
-        <button class="toggle-lyrics-btn active" id="btnToggleLyrics" title="Lyrics ON/OFF"><i class="fa-solid fa-quote-left"></i></button>
-        <nav class="nav-tabs">
-          <button class="nav-tab active" data-target="view-home" title="Home"><i class="fa-solid fa-house"></i></button>
-          <button class="nav-tab" data-target="view-search" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
-          <button class="nav-tab" data-target="view-playlist" title="Playlist"><i class="fa-solid fa-music"></i></button>
-          <button class="nav-tab" data-target="view-account" title="Account"><i class="fa-solid fa-user"></i></button>
-        </nav>
-      </div>
-    </footer>
+    </div>
   </div>
 
-  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-
-  <audio id="audioPlayer"></audio>
+  <audio id="mainAudio"></audio>
 
   <script>
-    // --- 🎵 修正版：全10曲・ガチタイムシンク歌詞データ ---
+    // --- 🎵 歌詞シンクデータ ---
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
-        { time: 0, text: "いきものがかり - 気まぐれロマンティック" },
-        { time: 3, text: "ロマンティック 恋のアンテナは" },
-        { time: 7, text: "嵐の髪にかき消されて" },
-        { time: 11, text: "それでも見つけだすよ 君の笑顔" },
-        { time: 16, text: "🎵 (間奏中)" }
+        { time: 0.0, text: "🎵 (イントロ)" },
+        { time: 0.0, text: "ロマンティック" },
+        { time: 0.0, text: "恋のアンテナは" },
+        { time: 0.0, text: "嵐で" },
+        { time: 0.0, text: "何処かへ飛んでいった" },
+        { time: 0.0, text: "嘘でしょう" },
+        { time: 0.0, text: "冷たく遇った" },
+        { time: 0.0, text: "こしゃくなエクボに" },
+        { time: 0.0, text: "ちょっと" },
+        { time: 0.0, text: "心が揺れてる" },
+        { time: 0.0, text: "ホントは" },
+        { time: 0.0, text: "本気であたしを" },
+        { time: 0.0, text: "叱ってくれる" },
+        { time: 0.0, text: "大事なひと" },
+        { time: 0.0, text: "なんて言ったら" },
+        { time: 0.0, text: "アイツは" },
+        { time: 0.0, text: "得意気になるから" },
+        { time: 0.0, text: "もう褒めたりしない" },
+        { time: 0.0, text: "タイクツな運命に" },
+        { time: 0.0, text: "飽き飽きしたの" },
+        { time: 0.0, text: "知らない台詞で" },
+        { time: 0.0, text: "解き放してね" },
+        { time: 0.0, text: "ダーリン ダーリン" },
+        { time: 0.0, text: "心の" },
+        { time: 0.0, text: "扉を壊してよ" },
+        { time: 0.0, text: "たいせつなことは" },
+        { time: 0.0, text: "瞳を見て" },
+        { time: 0.0, text: "云って" },
+        { time: 0.0, text: "あなたとならば" },
+        { time: 0.0, text: "この街を抜け出せる" },
+        { time: 0.0, text: "今すぐ" },
+        { time: 0.0, text: "連れ出して" },
+        { time: 0.0, text: "My Sweet Sweet Darling" },
+        { time: 0.0, text: "ドラマティック" },
+        { time: 0.0, text: "笑顔の秘密を" },
+        { time: 0.0, text: "だだだれだって探し続けてる" },
+        { time: 0.0, text: "見上げた" },
+        { time: 0.0, text: "空に描くの" },
+        { time: 0.0, text: "幸せのかたち" },
+        { time: 0.0, text: "そう" },
+        { time: 0.0, text: "あたしらしくいたい" },
+        { time: 0.0, text: "気まぐれなテンションで" },
+        { time: 0.0, text: "振りまわすけど" },
+        { time: 0.0, text: "この手はかならず" },
+        { time: 0.0, text: "離さないでね" },
+        { time: 0.0, text: "ダーリン ダーリン" },
+        { time: 0.0, text: "心の扉を" },
+        { time: 0.0, text: "叩いてよ" },
+        { time: 0.0, text: "素直な気持ちが" },
+        { time: 0.0, text: "あふれていく" },
+        { time: 0.0, text: "あなたとならば" },
+        { time: 0.0, text: "笑っていられるよ" },
+        { time: 0.0, text: "今すぐ" },
+        { time: 0.0, text: "駆け出すの" },
+        { time: 0.0, text: "My Sweet Sweet Darling" },
+        { time: 0.0, text: "ダーリン ダーリン" },
+        { time: 0.0, text: "きっと" },
+        { time: 0.0, text: "あたしは" },
+        { time: 0.0, text: "つかめるよ" },
+        { time: 0.0, text: "幸せの意味に" },
+        { time: 0.0, text: "気づいていく" },
+        { time: 0.0, text: "あなたとならば" },
+        { time: 0.0, text: "明日を変えられる" },
+        { time: 0.0, text: "今すぐ" },
+        { time: 0.0, text: "連れ出して" },
+        { time: 0.0, text: "My Sweet Sweet Darling" },
+        { time: 0.0, text: "ダーリン ダーリン" },
+        { time: 0.0, text: "心の扉を" },
+        { time: 0.0, text: "壊してよ" },
+        { time: 0.0, text: "たいせつなことは" },
+        { time: 0.0, text: "瞳を見て" },
+        { time: 0.0, text: "云って" },
+        { time: 0.0, text: "あなたとならば" },
+        { time: 0.0, text: "この街を抜け出せる" },
+        { time: 0.0, text: "今すぐ" },
+        { time: 0.0, text: "連れ出して" },
+        { time: 0.0, text: "My Sweet Sweet Darling" }
       ]},
-{ id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [
-        { time: 0.0, text: "♪" },
-        { time: 24.3, text: "『目を覚ましてよ』" },
-        { time: 27.2, text: "君の声が" },
-        { time: 29.3, text: "僕を包み" },
-        { time: 32.2, text: "Yeah" },
-        { time: 34.6, text: "窓を開けて" },
-        { time: 37.4, text: "そよ風が" },
-        { time: 39.5, text: "君の髪をなびく" },
-        { time: 44.8, text: "部屋から出る" },
-        { time: 47.7, text: "僕の腕を" },
-        { time: 49.8, text: "つかみながら" },
-        { time: 52.8, text: "君は" },
-        { time: 54.4, text: "『もう少しだけ』" },
-        { time: 56.8, text: "『もう少しだけ』と" },
-        { time: 59.5, text: "僕に君はつぶやく" },
-        { time: 64.9, text: "この世界が闇に" },
-        { time: 69.8, text: "染まる前に" },
-        { time: 74.4, text: "この思いを" },
-        { time: 78.5, text: "だからお願い" },
-        { time: 81.3, text: "僕のそばにいてくれないか" },
-        { time: 85.9, text: "君が好きだから" },
-        { time: 88.6, text: "この思いが君に届くように" },
-        { time: 94.4, text: "願いが叶いますように" },
-        { time: 101.6, text: "窓から見下ろす街並みは" },
-        { time: 106.3, text: "騒がしくて" },
-        { time: 109.1, text: "Yeah" },
-        { time: 111.4, text: "どこか遠く" },
-        { time: 114.0, text: "誰もいない場所へと" },
-        { time: 117.1, text: "あなたと二人" },
-        { time: 121.2, text: "このまま時を止めてどこか遠く" },
-        { time: 125.1, text: "誰もいない場所へ" },
-        { time: 128.5, text: "このまま時が二人を" },
-        { time: 132.8, text: "連れ去ってくれてもいいから" },
-        { time: 137.9, text: "そうだ！" },
-        { time: 139.1, text: "こんな晴れた日には" },
-        { time: 140.4, text: "どこかへ行こうか" },
-        { time: 141.7, text: "車飛ばし君のとこへ" },
-        { time: 143.0, text: "エンジン" },
-        { time: 143.6, text: "テンション" },
-        { time: 144.3, text: "車のステレオ" },
-        { time: 145.4, text: "全てのコンディション" },
-        { time: 146.8, text: "文句なし" },
-        { time: 147.8, text: "体揺らしながら" },
-        { time: 149.3, text: "鼻歌歌いながら" },
-        { time: 150.6, text: "Let's go to hunney's house" },
-        { time: 152.0, text: "到着 ララ" },
-        { time: 153.2, text: "後はそばに君が座るだけ" },
-        { time: 154.5, text: "気持ちだけすでに最前線だぜ" },
-        { time: 156.0, text: "君と見る" },
-        { time: 156.8, text: "海・山・川・道は" },
-        { time: 158.4, text: "いつもと違ってマジ新鮮だ" },
-        { time: 160.0, text: "高ぶる感情押さえ" },
-        { time: 161.4, text: "クールに" },
-        { time: 162.1, text: "君の目を引くために" },
-        { time: 163.5, text: "マジ紳士的に" },
-        { time: 164.7, text: "どこまでも続く道" },
-        { time: 166.1, text: "君と僕もこの道と同じ感じ" },
-        { time: 167.5, text: "いつまでも二人で歩いていこう" },
-        { time: 170.0, text: "なんて言えるはずない" },
-        { time: 171.4, text: "でも君が好き" },
-        { time: 172.9, text: "この世界が闇に" },
-        { time: 177.8, text: "染まる前に" },
-        { time: 182.5, text: "この思いを" },
-        { time: 186.6, text: "だからお願い" },
-        { time: 189.3, text: "僕のそばにいてくれないか" },
-        { time: 194.0, text: "君が好きだから" },
-        { time: 196.7, text: "この思いが君に届くように" },
-        { time: 202.4, text: "願いが叶いますように" },
-        { time: 208.5, text: "だから" },
-        { time: 211.2, text: "君がそばにいるだけで" },
-        { time: 216.5, text: "僕はまた進むことが出来て" },
-        { time: 221.5, text: "また新たな力を" },
-        { time: 225.8, text: "手に入れるんだ" },
-        { time: 231.2, text: "♪" },
-        { time: 246.6, text: "だからお願い" },
-        { time: 249.3, text: "僕のそばにいてくれないか" },
-        { time: 254.0, text: "君が好きだから" },
-        { time: 256.7, text: "この思いが君に届くように" },
-        { time: 262.4, text: "願いが叶いますように" },
-        { time: 266.6, text: "だからお願い" },
-        { time: 269.3, text: "僕のそばにいてくれないか" },
-        { time: 274.0, text: "君が好きだから" },
-        { time: 276.7, text: "この思いが君に届くように" },
-        { time: 282.4, text: "願いが叶いますように" }
-      ]}
+      { id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [
+        { time: 0.0, text: "🎵 (イントロ)" },
+        { time: 0.0, text: "『目を覚ましてよ』君の声が" },
+        { time: 0.0, text: "僕を包み Yeah" },
+        { time: 0.0, text: "窓を開けて" },
+        { time: 0.0, text: "そよ風が君の髪をなびく" },
+        { time: 0.0, text: "部屋から出る 僕の腕を" },
+        { time: 0.0, text: "つかみながら 君は" },
+        { time: 0.0, text: "『もう少しだけ』『もう少しだけ』と" },
+        { time: 0.0, text: "僕に君はつぶやく" },
+        { time: 0.0, text: "この世界が闇に染まる前に" },
+        { time: 0.0, text: "この思いを" },
+        { time: 0.0, text: "だからお願い" },
+        { time: 0.0, text: "僕のそばにいてくれないか" },
+        { time: 0.0, text: "君が好きだから" },
+        { time: 0.0, text: "この思いが君に届くように" },
+        { time: 0.0, text: "願いが叶いますように" },
+        { time: 0.0, text: "🎵 (間奏)" },
+        { time: 0.0, text: "窓から見下ろす街並みは" },
+        { time: 0.0, text: "騒がしくて Yeah" },
+        { time: 0.0, text: "どこか遠く誰もいない場所へと" },
+        { time: 0.0, text: "あなたと二人" },
+        { time: 0.0, text: "このまま時を止めてどこか遠く" },
+        { time: 0.0, text: "誰もいない場所へ" },
+        { time: 0.0, text: "このまま時が二人を" },
+        { time: 0.0, text: "連れ去ってくれてもいいから" },
+        { time: 0.0, text: "そうだ！" },
+        { time: 0.0, text: "こんな晴れた日には" },
+        { time: 0.0, text: "どこかへ行こうか" },
+        { time: 0.0, text: "車飛ばし君のとこへ" },
+        { time: 0.0, text: "エンジン テンション" },
+        { time: 0.0, text: "車のステレオ" },
+        { time: 0.0, text: "全てのコンディション 文句なし" },
+        { time: 0.0, text: "体揺らしながら" },
+        { time: 0.0, text: "鼻歌歌いながら" },
+        { time: 0.0, text: "Let's go to hunney's house" },
+        { time: 0.0, text: "到着 ララ" },
+        { time: 0.0, text: "後はそばに君が座るだけ" },
+        { time: 0.0, text: "気持ちだけすでに最前線だぜ" },
+        { time: 0.0, text: "君と見る 海、山、川、道は" },
+        { time: 0.0, text: "いつもと違ってマジ新鮮だ" },
+        { time: 0.0, text: "高ぶる感情押さえ" },
+        { time: 0.0, text: "クールに君の目を引くために" },
+        { time: 0.0, text: "マジ紳士的に" },
+        { time: 0.0, text: "どこまでも続く道" },
+        { time: 0.0, text: "君と僕もこの道と同じ感じ" },
+        { time: 0.0, text: "いつまでも二人で歩いていこう" },
+        { time: 0.0, text: "なんて言えるはずない" },
+        { time: 0.0, text: "でも君が好き" },
+        { time: 0.0, text: "この世界が闇に染まる前に" },
+        { time: 0.0, text: "この思いを" },
+        { time: 0.0, text: "だからお願い" },
+        { time: 0.0, text: "僕のそばにいてくれないか" },
+        { time: 0.0, text: "君が好きだから" },
+        { time: 0.0, text: "この思いが君に届くように" },
+        { time: 0.0, text: "願いが叶いますように" },
+        { time: 0.0, text: "だから．．．" },
+        { time: 0.0, text: "君がそばにいるだけで" },
+        { time: 0.0, text: "僕はまた進むことが出来て" },
+        { time: 0.0, text: "また新たな力を手に入れるんだ" },
+        { time: 0.0, text: "だからお願い" },
+        { time: 0.0, text: "僕のそばにいてくれないか" },
+        { time: 0.0, text: "君が好きだから" },
+        { time: 0.0, text: "この思いが君に届くように" },
+        { time: 0.0, text: "願いが叶いますように" },
+        { time: 0.0, text: "だからお願い" },
+        { time: 0.0, text: "僕のそばにいてくれないか" },
+        { time: 0.0, text: "君が好きだから" },
+        { time: 0.0, text: "この思いが君に届くように" },
+        { time: 0.0, text: "願いが叶いますように" }
+      ]},
       { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [
-        { time: 0, text: "JUDY AND MARY - 自転車" },
-        { time: 16, text: "プールサイドで 夢を見ていたの" },
-        { time: 20, text: "まぶしいほどに あなたの声が響いてる" },
-        { time: 26, text: "響いているわ" },
-        { time: 31, text: "昨日のあたし まるで仔猫なの" },
-        { time: 35, text: "かすかにわかる 白い毛並みが震えてる" },
-        { time: 42, text: "震えているわ" },
-        { time: 45, text: "それが" },
-        { time: 46, text: "恋をしていた日" },
-        { time: 49, text: "あなたを好きな日" },
-        { time: 53, text: "ねえ 忘れないでいて" },
-        { time: 56, text: "恋していた あたしのこと Yeah!" },
-        { time: 64, text: "自転車こいで 海を見に行く" },
-        { time: 68.5, text: "夜明けの空に 太陽をめがけ" },
-        { time: 72, text: "飾らない日の おしゃべりは続き" },
-        { time: 76, text: "自転車こいで 太陽をめがけて" }
+        { time: 0, text: "JUDY AND MARY - 自転車 (Lyrics Start)" }
       ]},
       { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [
-        { time: 0, text: "チャットモンチー - 風吹けば恋" },
-        { time: 3, text: "走り出した足が止まらない" },
-        { time: 7, text: "行け 行け あの人のところまで" },
-        { time: 12, text: "🎵 (歌詞準備中)" }
+        { time: 0, text: "チャットモンチー - 風吹けば恋 (Lyrics Start)" }
       ]},
       { id: 4, title: "愛唄", artist: "GReeeeN", src: "song5.mp3", cover: "jacket5.png", lines: [
-        { time: 0, text: "GReeeeN - 愛唄" },
-        { time: 4, text: "「ねえ、大好きな君へ」内緒の話をしよう" },
-        { time: 10, text: "僕らの出会いから これまでの軌跡を" },
-        { time: 16, text: "🎵 (歌詞準備中)" }
+        { time: 0, text: "GReeeeN - 愛唄 (Lyrics Start)" }
       ]},
       { id: 5, title: "出逢った頃のように", artist: "Every Little Thing", src: "song6.mp3", cover: "jacket6.png", lines: [
-        { time: 0, text: "Every Little Thing - 出逢った頃のように" },
-        { time: 5, text: "出逢った頃のように 季節が変わっても" },
-        { time: 11, text: "🎵 (歌詞準備中)" }
+        { time: 0, text: "Every Little Thing - 出逢った頃のように (Lyrics Start)" }
       ]},
       { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [
-        { time: 0, text: "中島美嘉 - STARS" },
-        { time: 5, text: "🎵 (歌詞準備中)" }
+        { time: 0, text: "中島美嘉 - STARS (Lyrics Start)" }
       ]},
       { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [
-        { time: 0, text: "大原ゆい子 - 言わないけどね" },
-        { time: 5, text: "🎵 (歌詞準備中)" }
+        { time: 0, text: "大原ゆい子 - 言わないけどね (Lyrics Start)" }
       ]},
       { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [
-        { time: 0, text: "Chara - やさしい気持ち" },
-        { time: 5, text: "🎵 (歌詞準備中)" }
+        { time: 0, text: "Chara - やさしい気持ち (Lyrics Start)" }
       ]},
       { id: 9, title: "君と光", artist: "西川瑞希", src: "song10.mp3", cover: "jacket10.png", lines: [
-        { time: 0, text: "西川瑞希 - 君と光" },
-        { time: 5, text: "🎵 (歌詞準備中)" }
+        { time: 0, text: "西川瑞希 - 君と光 (Lyrics Start)" }
       ]}
     ];
 
-    // --- ⚙️ iPadのLocalStorage生存確認を兼ねた安全なデータ制御 ---
-    let storageAvailable = false;
-    try {
-      localStorage.setItem('__test__', '1');
-      localStorage.removeItem('__test__');
-      storageAvailable = true;
-    } catch(e) {
-      console.warn("LocalStorage is blocked or full. Running in memory-only mode.");
-    }
-
-    function safeGet(key) { return storageAvailable ? localStorage.getItem(key) : null; }
-    function safeSet(key, val) { if(storageAvailable) localStorage.setItem(key, val); }
-    function safeRemove(key) { if(storageAvailable) localStorage.removeItem(key); }
-
-    // --- 状態変数 ---
+    // --- ⚙️ コアシステム変数 ---
     let curIdx = 0;
     let isPlaying = false;
-    let isShuffle = false;
-    let isRepeat = false; 
     let isLyOn = true;
-    let userSession = null;
-    let isOnline = navigator.onLine;
+    let isFb = false;
+    let fkCur = 0;
+    let fkTimer = null;
+    let userSession = "";
 
-    // fkTimer (オフライン・セーフティ用180秒疑似タイマー)
-    let isFb = false; 
-    let fkTimer = null; 
-    let fkCur = 0; 
-    const fkDur = 180;
+    // ── ローカルストレージ安全ラッパー ──
+    function safeGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
+    function safeRemove(k) { try { localStorage.removeItem(k); } catch(e) {} }
 
-    // DOM要素
+    // ── DOM要素 ──
     const authModal = document.getElementById('authModal');
     const authId = document.getElementById('authId');
     const authPass = document.getElementById('authPass');
-    const authBtn = document.getElementById('authBtn');
     const authError = document.getElementById('authError');
-    const offlineWarning = document.getElementById('offlineWarning');
+    const btnLogin = document.getElementById('btnLogin');
+    const offlineWarningModal = document.getElementById('offlineWarningModal');
+
     const appWrap = document.getElementById('appWrap');
-
+    const audio = document.getElementById('mainAudio');
+    const btnTheme = document.getElementById('btnTheme');
     const networkBadge = document.getElementById('networkBadge');
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    const themeIcon = document.getElementById('themeIcon');
 
-    const rankingGrid = document.getElementById('rankingGrid');
-    const aiRecommendBox = document.getElementById('aiRecommendBox');
+    const homeQuickGrid = document.getElementById('homeQuickGrid');
+    const homeRankGrid = document.getElementById('homeRankGrid');
     const searchInput = document.getElementById('searchInput');
-    const searchResultList = document.getElementById('searchResultList');
-    const searchZeroRequest = document.getElementById('searchZeroRequest');
-
-    const plLayout = document.getElementById('plLayout');
-    const plJacket = document.getElementById('plJacket');
-    const artWrapper = document.getElementById('artWrapper');
-    const mainTitle = document.getElementById('mainTitle');
-    const mainArtist = document.getElementById('mainArtist');
+    const searchResultGrid = document.getElementById('searchResultGrid');
+    const trackListContainer = document.getElementById('trackListContainer');
     const lyricsBox = document.getElementById('lyricsBox');
-    const btnCloseLyrics = document.getElementById('btnCloseLyrics');
-    const plList = document.getElementById('plList');
 
-    const accAvatar = document.getElementById('accAvatar');
-    const accName = document.getElementById('accName');
-    const newPassInput = document.getElementById('newPassInput');
-    const btnChangePass = document.getElementById('btnChangePass');
-    const passMsg = document.getElementById('passMsg');
-    const btnLogout = document.getElementById('btnLogout');
-    const btnResetData = document.getElementById('btnResetData');
+    const ctrlCover = document.getElementById('ctrlCover');
+    const ctrlTitle = document.getElementById('ctrlTitle');
+    const ctrlArtist = document.getElementById('ctrlArtist');
+    const statPlayCount = document.getElementById('statPlayCount');
+    const statTime = document.getElementById('statTime');
 
-    const hbArt = document.getElementById('hbArt');
-    const hbTitle = document.getElementById('hbTitle');
-    const hbArtist = document.getElementById('hbArtist');
-    const btnShuffle = document.getElementById('btnShuffle');
-    const btnPrev = document.getElementById('btnPrev');
     const btnPlay = document.getElementById('btnPlay');
+    const btnPrev = document.getElementById('btnPrev');
     const btnNext = document.getElementById('btnNext');
-    const btnRepeat = document.getElementById('btnRepeat');
-    const progress = document.getElementById('progress');
-    const txtCur = document.getElementById('txtCur');
-    const txtDur = document.getElementById('txtDur');
-    const btnToggleLyrics = document.getElementById('btnToggleLyrics');
+    const btnLyricToggle = document.getElementById('btnLyricToggle');
+    const btnFeedback = document.getElementById('btnFeedback');
 
-    const audio = document.getElementById('audioPlayer');
+    const miniPlayer = document.getElementById('miniPlayer');
+    const miniCover = document.getElementById('miniCover');
+    const miniTitle = document.getElementById('miniTitle');
+    const miniArtist = document.getElementById('miniArtist');
+    const miniBtnPlay = document.getElementById('miniBtnPlay');
+    const miniPlayerInfo = document.getElementById('miniPlayerInfo');
 
-    // =========================================
-    // 🔐 認証システム & ローカルセッション
-    // =========================================
-    window.addEventListener('DOMContentLoaded', () => {
-      updateNetworkStatus();
-      window.addEventListener('online', () => { isOnline = true; updateNetworkStatus(); });
-      window.addEventListener('offline', () => { isOnline = false; updateNetworkStatus(); });
+    const setAutoplay = document.getElementById('setAutoplay');
+    const newPassInput = document.getElementById('newPassInput');
+    const btnUpdatePass = document.getElementById('btnUpdatePass');
+    const passMsg = document.getElementById('passMsg');
+    const btnResetData = document.getElementById('btnResetData');
+    const btnLogout = document.getElementById('btnLogout');
 
-      const savedTheme = safeGet('sd_theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      themeIcon.className = savedTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-
-      const cachedUser = safeGet('sd_session_user');
-      if (cachedUser) {
-        loginSuccess(cachedUser);
+    // ── オンライン/オフライン監視 ──
+    function updateNetStatus() {
+      if(navigator.onLine) {
+        networkBadge.className = "network-badge badge-online";
+        networkBadge.querySelector('span').textContent = "ONLINE";
+        offlineWarningModal.style.display = 'none';
+      } else {
+        networkBadge.className = "network-badge badge-offline";
+        networkBadge.querySelector('span').textContent = "OFFLINE";
+        offlineWarningModal.style.display = 'block';
       }
-    });
+    }
+    window.addEventListener('online', updateNetStatus);
+    window.addEventListener('offline', updateNetStatus);
+    updateNetStatus();
 
-    authBtn.onclick = () => {
-      const id = authId.value.trim().toLowerCase();
-      const pass = authPass.value;
-      const idRegex = /^[a-z0-9]{4,15}$/;
+    // ── 🔒 認証ロジック ──
+    const sess = safeGet('sd_session_user');
+    if(sess) {
+      userSession = sess;
+      authModal.style.display = 'none';
+      appWrap.style.display = 'flex';
+      initApp();
+    }
 
-      if (!idRegex.test(id)) {
-        authError.textContent = "IDは4〜15文字の半角小文字英数字で入力してください。";
+    btnLogin.onclick = () => {
+      const id = authId.value.trim();
+      const p = authPass.value;
+      if(id.length < 4 || id.length > 15) {
+        authError.textContent = "ユーザーIDは4〜15文字で入力してください。";
         return;
       }
-
-      const storedPass = safeGet(`sd_pass_${id}`) || 'admin123';
-      if (pass === storedPass || !isOnline) {
-        authError.textContent = "";
-        loginSuccess(id);
+      
+      if(!navigator.onLine) {
+        const localCred = safeGet(`sd_pass_${id}`);
+        if(!localCred && p !== "admin123") {
+          authError.textContent = "オフライン：初期化されていないIDは使用できません。";
+          return;
+        }
+        const targetP = localCred || "admin123";
+        if(p !== targetP) {
+          authError.textContent = "パスワードが正しくありません。";
+          return;
+        }
       } else {
-        authError.textContent = "パスワードが正しくありません。";
+        const localCred = safeGet(`sd_pass_${id}`);
+        const targetP = localCred || "admin123";
+        if(p !== targetP) {
+          authError.textContent = "パスワードが正しくありません。";
+          return;
+        }
       }
-    };
 
-    function loginSuccess(id) {
+      authError.textContent = "";
       userSession = id;
       safeSet('sd_session_user', id);
       authModal.style.display = 'none';
       appWrap.style.display = 'flex';
-      
-      accName.textContent = id;
-      accAvatar.src = `https://ui-avatars.com/api/?name=${id}&background=ff2d55&color=fff`;
-
       initApp();
-    }
+    };
 
+    // ── アプリ初期化 ──
     function initApp() {
-      renderTrackList();
-      renderHome();
-      loadTrack(curIdx, false);
       lucide.createIcons();
+      
+      // テーマ復元
+      const savedTheme = safeGet('sd_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      btnTheme.innerHTML = savedTheme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+
+      buildTrackList();
+      renderHome();
+      renderSearch();
+      loadTrack(0, false);
     }
 
-    // =========================================
-    // 🌐 ネットワーク制御 (Apple風スタイル)
-    // =========================================
-    function updateNetworkStatus() {
-      if (isOnline) {
-        networkBadge.className = "network-badge badge-online";
-        networkBadge.innerHTML = `<i class="fa-solid fa-wifi"></i> ONLINE MODE`;
-        offlineWarning.style.display = 'none';
-        renderAIRecommend();
-      } else {
-        networkBadge.className = "network-badge badge-offline";
-        networkBadge.innerHTML = `<i class="fa-solid fa-plane"></i> OFFLINE MODE`;
-        if (authModal.style.display !== 'none') {
-          offlineWarning.style.display = 'block';
-        }
-        if(aiRecommendBox) aiRecommendBox.innerHTML = `<div class="card" style="opacity:0.6; cursor:not-allowed;"><div class="card-info"><div class="card-title">AI Discoveryは現在ロックされています</div><div class="card-desc">通信環境が良い場所で自動有効化されます</div></div></div>`;
-      }
-    }
-
-    // =========================================
-    // 🏠 ホーム & オンデバイス集計統計
-    // =========================================
-    function renderHome() {
-      rankingGrid.innerHTML = '';
-      let stats = {};
-      try { stats = JSON.parse(safeGet(`sd_stats_${userSession}`) || '{}'); } catch(e){}
-
-      let sorted = Object.keys(stats).map(k => ({id: parseInt(k), count: stats[k]}))
-                         .sort((a,b) => b.count - a.count).slice(0, 3);
-
-      if (sorted.length === 0) {
-        rankingGrid.innerHTML = `<p style="color:var(--text-sub); grid-column: 1/-1;">まだ再生データがありません。曲を聴くと自動集計されます。</p>`;
-      } else {
-        sorted.forEach((item, index) => {
-          const song = songs.find(s => s.id === item.id);
-          if(!song) return;
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.onclick = () => { loadTrack(song.id, true); switchTab('view-playlist'); };
-          card.innerHTML = `
-            <div class="rank-badge">${index + 1}</div>
-            <img src="${song.cover}" class="card-img" onerror="this.src='logo.PNG';">
-            <div class="card-info">
-              <div class="card-title">${song.title}</div>
-              <div class="card-desc">${song.artist} ・ ${item.count}回再生</div>
-            </div>
-          `;
-          rankingGrid.appendChild(card);
-        });
-      }
-    }
-
-    function renderAIRecommend() {
-      if (!isOnline) return;
-      const day = new Date().getDate();
-      const song = songs[day % songs.length];
-      aiRecommendBox.innerHTML = `
-        <div class="card" onclick="loadTrack(${song.id}, true); switchTab('view-playlist');">
-          <img src="${song.cover}" class="card-img" onerror="this.src='logo.PNG';">
-          <div class="card-info">
-            <div class="card-title"><i class="fa-solid fa-sparkles" style="color:var(--accent-color); margin-right:6px;"></i>${song.title}</div>
-            <div class="card-desc">あなたの好みに合わせて本日提案された楽曲: ${song.artist}</div>
-          </div>
-        </div>
-      `;
-    }
-
-    // =========================================
-    // 🔍 ディープハイブリッド検索機能
-    // =========================================
-    searchInput.oninput = () => {
-      const q = searchInput.value.trim().toLowerCase();
-      searchResultList.innerHTML = '';
-      searchZeroRequest.style.display = 'none';
-
-      if (!q) {
-        searchResultList.innerHTML = `<p style="color:var(--text-sub);">キーワードを入力してください。</p>`;
-        return;
-      }
-
-      let results = [];
-      songs.forEach(s => {
-        let matchType = null;
-        if (s.title.toLowerCase().includes(q)) matchType = 'title';
-        else if (s.artist.toLowerCase().includes(q)) matchType = 'artist';
-        else if (s.lines && s.lines.some(l => l.text.toLowerCase().includes(q))) matchType = 'lyrics';
-
-        if (matchType) results.push({ song: s, type: matchType });
-      });
-
-      if (results.length === 0) {
-        searchResultList.innerHTML = `<p style="color:var(--text-sub);">該当する楽曲が見つかりませんでした。</p>`;
-        searchZeroRequest.style.display = 'block';
-      } else {
-        results.forEach(item => {
-          const s = item.song;
-          const row = document.createElement('div');
-          row.className = `track-row ${s.id === curIdx ? 'active' : ''}`;
-          row.onclick = () => { loadTrack(s.id, true); switchTab('view-playlist'); };
-          
-          let subText = s.artist;
-          if (item.type === 'lyrics') subText += ` <span class="t-match">("${q}" in lyrics)</span>`;
-
-          row.innerHTML = `
-            <img src="${s.cover}" class="t-art" onerror="this.src='logo.PNG';">
-            <div class="t-info">
-              <div class="t-title">${s.title}</div>
-              <div class="t-artist">${subText}</div>
-            </div>
-          `;
-          searchResultList.appendChild(row);
-        });
-      }
+    // テーマ切り替え
+    btnTheme.onclick = () => {
+      const cur = document.documentElement.getAttribute('data-theme');
+      const nxt = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nxt);
+      safeSet('sd_theme', nxt);
+      btnTheme.innerHTML = nxt === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
     };
 
-    // =========================================
-    // 📥 自分用メモ・リクエスト送信機能（2重ロック内製）
-    // =========================================
-    function handleRequestSubmit(textareaId, msgId, btnId) {
-      const textarea = document.getElementById(textareaId);
-      const msgZone = document.getElementById(msgId);
-      const btn = document.getElementById(btnId);
-      const text = textarea.value.trim();
+    // ── ナビゲーション ──
+    document.querySelectorAll('.hot-item').forEach(item => {
+      item.onclick = () => {
+        document.querySelectorAll('.hot-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const tab = item.getAttribute('data-tab');
+        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        if(tab === 'home') renderHome();
+      };
+    });
 
-      if (!text) {
-        msgZone.style.color = "var(--accent-color)";
-        msgZone.textContent = "内容が入力されていません。";
-        return;
-      }
-
-      btn.disabled = true;
-      textarea.disabled = true;
-      const originBtnText = btn.textContent;
-      btn.textContent = "送信中...";
-
-      const formUrl = "https://docs.google.com/forms/u/0/d/e/YOUR_FORM_ID/formResponse";
-      const entryId = "entry.123456789"; 
-
-      if (formUrl.includes("YOUR_FORM_ID")) {
-        setTimeout(() => {
-          msgZone.style.color = "#34c759";
-          msgZone.textContent = "リクエストを開発用メモに保存しました！";
-          textarea.value = "";
-          btn.disabled = false;
-          textarea.disabled = false;
-          btn.textContent = originBtnText;
-        }, 1200);
-      } else {
-        const formData = new FormData();
-        formData.append(entryId, `[User:${userSession}] ${text}`);
-
-        fetch(formUrl, {
-          method: 'POST',
-          body: formData,
-          mode: 'no-cors'
-        }).then(() => {
-          msgZone.style.color = "#34c759";
-          msgZone.textContent = "送信が完了しました。ありがとうございます！";
-          textarea.value = "";
-        }).catch(() => {
-          msgZone.style.color = "var(--accent-color)";
-          msgZone.textContent = "通信エラーが発生しましたが、次回同期用にメモをプールします。";
-        }).finally(() => {
-          btn.disabled = false;
-          textarea.disabled = false;
-          btn.textContent = originBtnText;
-        });
-      }
+    // ── 統計管理データ ──
+    function getStats() {
+      const d = safeGet(`sd_stats_${userSession}`);
+      return d ? JSON.parse(d) : {};
+    }
+    function incPlayCount(id) {
+      const st = getStats();
+      st[id] = (st[id] || 0) + 1;
+      safeSet(`sd_stats_${userSession}`, JSON.stringify(st));
     }
 
-    document.getElementById('btnSearchRequestSend').onclick = () => {
-      handleRequestSubmit('searchRequestText', 'searchRequestMsg', 'btnSearchRequestSend');
-    };
-    document.getElementById('btnAccRequestSend').onclick = () => {
-      handleRequestSubmit('accRequestText', 'accRequestMsg', 'btnAccRequestSend');
-    };
-
-    // =========================================
-    // 🎵 高度な音楽再生コアエンジン
-    // =========================================
-    function renderTrackList() {
-      plList.innerHTML = '';
+    // ── UI生成 ──
+    function buildTrackList() {
+      trackListContainer.innerHTML = '';
       songs.forEach((s, idx) => {
-        const li = document.createElement('li');
-        li.className = `track-row ${idx === curIdx ? 'active' : ''}`;
-        li.onclick = () => loadTrack(idx, true);
-        li.innerHTML = `
-          <div class="t-num">${idx + 1}</div>
-          <img src="${s.cover}" class="t-art" onerror="this.src='logo.PNG';">
-          <div class="t-info">
-            <div class="t-title">${s.title}</div>
-            <div class="t-artist">${s.artist}</div>
+        const div = document.createElement('div');
+        div.className = `pl-item ${idx===curIdx?'active':''}`;
+        div.onclick = () => loadTrack(idx, true);
+        div.innerHTML = `
+          <img src="${s.cover}" class="pl-cover" onerror="this.src='jacket1.png'">
+          <div class="pl-meta">
+            <div class="pl-title">${s.title}</div>
+            <div class="pl-artist">${s.artist}</div>
           </div>
         `;
-        plList.appendChild(li);
+        trackListContainer.appendChild(div);
       });
     }
 
-    function loadTrack(idx, startPlay = false) {
-      stopFkTimer();
-      audio.pause();
+    function renderHome() {
+      homeQuickGrid.innerHTML = '';
+      songs.slice(0, 3).forEach(s => {
+        const div = createCard(s);
+        homeQuickGrid.appendChild(div);
+      });
 
+      homeRankGrid.innerHTML = '';
+      const st = getStats();
+      const sorted = [...songs].sort((a,b) => (st[b.id]||0) - (st[a.id]||0));
+      sorted.slice(0, 3).forEach((s, i) => {
+        const div = createCard(s);
+        const badge = document.createElement('div');
+        badge.className = 'rank-badge';
+        badge.textContent = i + 1;
+        div.insertBefore(badge, div.firstChild);
+        homeRankGrid.appendChild(div);
+      });
+    }
+
+    function renderSearch() {
+      searchResultGrid.innerHTML = '';
+      const q = searchInput.value.toLowerCase();
+      songs.forEach(s => {
+        if(s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)) {
+          searchResultGrid.appendChild(createCard(s));
+        }
+      });
+    }
+    searchInput.oninput = renderSearch;
+
+    function createCard(song) {
+      const idx = songs.findIndex(x => x.id === song.id);
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.onclick = () => {
+        loadTrack(idx, true);
+        const hotdeck = document.querySelector('.hot-item[data-tab="playlist"]');
+        if(hotdeck) hotdeck.click();
+      };
+      div.innerHTML = `
+        <img src="${song.cover}" class="card-img" onerror="this.src='jacket1.png'">
+        <div class="card-info">
+          <div class="card-title">${song.title}</div>
+          <div class="card-desc">${song.artist}</div>
+        </div>
+      `;
+      return div;
+    }
+
+    // ── プレイヤー再生制御 ──
+    function loadTrack(idx, autoPlayIntent) {
       curIdx = idx;
-      const song = songs[idx];
-
-      mainTitle.textContent = song.title;
-      mainArtist.textContent = song.artist;
-      hbTitle.textContent = song.title;
-      hbArtist.textContent = song.artist;
-      plJacket.src = song.cover;
-      hbArt.src = song.cover;
-
-      buildLyrics(song);
-
-      const rows = document.querySelectorAll('#plList .track-row, #searchResultList .track-row');
-      rows.forEach(r => r.classList.remove('active'));
+      const s = songs[curIdx];
+      audio.src = s.src;
       
-      const plRows = plList.querySelectorAll('.track-row');
-      if(plRows[idx]) plRows[idx].classList.add('active');
+      // UI同期
+      document.querySelectorAll('.pl-item').forEach((item, i) => {
+        if(i === idx) item.classList.add('active');
+        else item.classList.remove('active');
+      });
 
-      audio.src = song.src;
-      audio.load();
+      ctrlCover.src = s.cover;
+      ctrlTitle.textContent = s.title;
+      ctrlArtist.textContent = s.artist;
+      miniCover.src = s.cover;
+      miniTitle.textContent = s.title;
+      miniArtist.textContent = s.artist;
 
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: song.title,
-          artist: song.artist,
-          artwork: [{ src: song.cover, sizes: '256x256', type: 'image/png' }]
-        });
-      }
+      const st = getStats();
+      statPlayCount.textContent = `${st[s.id] || 0} 回`;
 
-      if (startPlay) {
+      buildLyrics(s);
+      stopFkTimer();
+      isFb = false;
+      btnFeedback.classList.remove('btn-deck-danger');
+      btnFeedback.querySelector('span').textContent = "同期タイミング調整モード";
+
+      if(autoPlayIntent) {
+        incPlayCount(s.id);
         playTrack();
       } else {
-        setPlayingState(false);
+        pauseTrack();
       }
     }
 
     function playTrack() {
-      isFb = false;
       audio.play().then(() => {
         setPlayingState(true);
-      }).catch(err => {
-        console.warn("Audio play failed. Attempting offline fallback fake timer.", err);
-        startFkTimer();
+      }).catch(() => {
+        setPlayingState(false);
       });
     }
 
     function pauseTrack() {
-      if (isFb) {
-        stopFkTimer();
-        setPlayingState(false);
-      } else {
-        audio.pause();
-        setPlayingState(false);
-      }
+      audio.pause();
+      setPlayingState(false);
     }
 
     function setPlayingState(playing) {
       isPlaying = playing;
-      if (playing) {
-        btnPlay.innerHTML = `<i class="fa-solid fa-circle-pause"></i>`;
-        artWrapper.classList.add('playing');
+      if(playing) {
+        btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i> <span>PAUSE</span>';
+        miniBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
       } else {
-        btnPlay.innerHTML = `<i class="fa-solid fa-circle-play"></i>`;
-        artWrapper.classList.remove('playing');
+        btnPlay.innerHTML = '<i class="fa-solid fa-play"></i> <span>PLAY</span>';
+        miniBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
       }
     }
 
-    function startFkTimer() {
-      stopFkTimer();
-      isFb = true;
-      setPlayingState(true);
-      fkTimer = setInterval(() => {
-        fkCur += 0.5;
-        if (fkCur >= fkDur) {
-          fkCur = 0;
-          stopFkTimer();
-          handleTrackEnded();
-        } else {
-          updateProgressUI(fkCur, fkDur);
-          syncLyrics(fkCur);
-        }
-      }, 500);
+    btnPlay.onclick = () => { if(isPlaying) pauseTrack(); else playTrack(); };
+    miniBtnPlay.onclick = (e) => { e.stopPropagation(); if(isPlaying) pauseTrack(); else playTrack(); };
+    btnPrev.onclick = () => { let i = curIdx - 1; if(i < 0) i = songs.length - 1; loadTrack(i, true); };
+    btnNext.onclick = nextTrack;
+    miniPlayerInfo.onclick = () => { const hd = document.querySelector('.hot-item[data-tab="playlist"]'); if(hd) hd.click(); };
+
+    function nextTrack() {
+      let i = curIdx + 1;
+      if(i >= songs.length) i = 0;
+      loadTrack(i, true);
     }
 
-    function stopFkTimer() {
-      if (fkTimer) {
-        clearInterval(fkTimer);
-        fkTimer = null;
-      }
-    }
-
-    // =========================================
-    // タイムイベント & 歌詞シンク同期
-    // =========================================
-    audio.ontimeupdate = () => {
-      if (isFb) return;
-      const cur = audio.currentTime;
-      const d = audio.duration || 0;
-      updateProgressUI(cur, d);
-      syncLyrics(cur);
-
-      if (d > 20 && cur >= (d - 10) && !audio.dataset.counted) {
-        audio.dataset.counted = "true";
-        countTrackPlay(songs[curIdx].id);
+    btnLyricToggle.onclick = () => {
+      isLyOn = !isLyOn;
+      btnLyricToggle.innerHTML = isLyOn ? '<i class="fa-solid fa-closed-captioning"></i> <span>歌詞同期: ON</span>' : '<i class="fa-regular fa-closed-captioning"></i> <span>歌詞同期: OFF</span>';
+      if(!isLyOn) {
+        document.querySelectorAll('.l-line').forEach(el => el.classList.remove('active'));
       }
     };
 
-    audio.onplay = () => { setPlayingState(true); };
-    audio.onpause = () => { setPlayingState(false); };
-    audio.onended = () => { handleTrackEnded(); };
-    audio.onloadedmetadata = () => { audio.removeAttribute('data-counted'); };
+    // タイムコードの同期
+    audio.ontimeupdate = () => {
+      const cur = audio.currentTime;
+      const dur = audio.duration || 0;
+      statTime.textContent = `${formatTime(cur)} / ${formatTime(dur)}`;
+      if(!isFb) syncLyrics(cur);
+    };
 
-    function updateProgressUI(cur, d) {
-      txtCur.textContent = formatTime(cur);
-      txtDur.textContent = d ? formatTime(d) : "3:00";
-      if (d) {
-        progress.value = (cur / d) * 100;
+    audio.onended = () => {
+      if(setAutoplay.checked) nextTrack();
+      else setPlayingState(false);
+    };
+
+    // 調整モード（フィードバックタイマー）
+    btnFeedback.onclick = () => {
+      isFb = !isFb;
+      if(isFb) {
+        btnFeedback.classList.add('btn-deck-danger');
+        btnFeedback.querySelector('span').textContent = "🔴 調整中（デッキタップで同期）";
+        fkCur = audio.currentTime;
+        startFkTimer();
       } else {
-        progress.value = 0;
+        stopFkTimer();
+        btnFeedback.classList.remove('btn-deck-danger');
+        btnFeedback.querySelector('span').textContent = "同期タイミング調整モード";
+        renderHome(); // 戻った際にホーム反映
       }
-    }
+    };
 
-    function handleTrackEnded() {
-      if (isRepeat) {
-        loadTrack(curIdx, true);
-      } else {
-        nextTrack();
-      }
+    function startFkTimer() {
+      stopFkTimer();
+      fkTimer = setInterval(() => {
+        if(isPlaying) {
+          fkCur += 0.2;
+          syncLyrics(fkCur);
+        }
+      }, 200);
     }
-
-    function nextTrack() {
-      let next = curIdx + 1;
-      if (isShuffle) {
-        next = Math.floor(Math.random() * songs.length);
-      } else if (next >= songs.length) {
-        next = 0;
-      }
-      loadTrack(next, true);
-    }
-
-    function prevTrack() {
-      let prev = curIdx - 1;
-      if (prev < 0) prev = songs.length - 1;
-      loadTrack(prev, true);
-    }
-
-    function countTrackPlay(id) {
-      let stats = {};
-      try { stats = JSON.parse(safeGet(`sd_stats_${userSession}`) || '{}'); } catch(e){}
-      stats[id] = (stats[id] || 0) + 1;
-      safeSet(`sd_stats_${userSession}`, JSON.stringify(stats));
-      renderHome(); 
-    }
+    function stopFkTimer() { if(fkTimer) { clearInterval(fkTimer); fkTimer = null; } }
 
     function buildLyrics(song) {
       lyricsBox.innerHTML = '';
-      if(!song.lines) return lyricsBox.innerHTML = '<div class="l-line">No Lyrics</div>';
+      if(!song.lines || song.lines.length === 0) {
+        lyricsBox.innerHTML = '<div class="l-line">No Lyrics</div>';
+        return;
+      }
       song.lines.forEach(l => {
-        const d = document.createElement('div'); d.className = 'l-line'; d.textContent = l.text;
-        d.onclick = () => { if(isFb) fkCur = l.time; else audio.currentTime = l.time; };
+        const d = document.createElement('div');
+        d.className = 'l-line';
+        d.textContent = l.text;
+        d.onclick = () => {
+          if(isFb) fkCur = l.time;
+          else audio.currentTime = l.time;
+        };
         lyricsBox.appendChild(d);
       });
     }
 
     function syncLyrics(time) {
-      if(!isLyOn) return; 
-      const s = songs[curIdx]; 
-      if(!s.lines) return;
-      let aIdx = -1; 
-      for(let i=0; i<s.lines.length; i++) { 
-        if(time >= s.lines[i].time) aIdx = i; else break; 
+      if(!isLyOn) return;
+      const s = songs[curIdx];
+      if(!s.lines || s.lines.length === 0) return;
+      
+      let aIdx = -1;
+      for(let i=0; i<s.lines.length; i++) {
+        if(time >= s.lines[i].time) aIdx = i;
+        else break;
       }
+      
       const els = lyricsBox.querySelectorAll('.l-line');
       els.forEach((el, i) => {
         if(i === aIdx) {
           if(!el.classList.contains('active')) {
             el.classList.add('active');
-            lyricsBox.scrollTo({ top: el.offsetTop - (lyricsBox.clientHeight/2) + (el.clientHeight/2), behavior: 'smooth' });
+            lyricsBox.scrollTo({
+              top: el.offsetTop - (lyricsBox.clientHeight / 2) + (el.clientHeight / 2),
+              behavior: 'smooth'
+            });
           }
-        } else el.classList.remove('active');
+        } else {
+          el.classList.remove('active');
+        }
       });
     }
 
-    function formatTime(s) { const m = Math.floor(s/60), sc = Math.floor(s%60); return `${m}:${sc<10?'0':''}${sc}`; }
-
-    // =========================================
-    // 各種コントローラー、UIインタラクション
-    // =========================================
-    btnPlay.onclick = () => { if(isPlaying) pauseTrack(); else playTrack(); };
-    btnNext.onclick = () => nextTrack();
-    btnPrev.onclick = () => prevTrack();
-    
-    btnShuffle.onclick = () => {
-      isShuffle = !isShuffle;
-      btnShuffle.classList.toggle('active', isShuffle);
-    };
-    btnRepeat.onclick = () => {
-      isRepeat = !isRepeat;
-      btnRepeat.classList.toggle('active', isRepeat);
-    };
-
-    progress.oninput = () => {
-      const pct = parseFloat(progress.value);
-      if (isFb) {
-        fkCur = (pct / 100) * fkDur;
-        updateProgressUI(fkCur, fkDur);
-      } else {
-        if (audio.duration) {
-          audio.currentTime = (pct / 100) * audio.duration;
-        }
-      }
-    };
-
-    function toggleLyricsPanel(on) {
-      isLyOn = on;
-      btnToggleLyrics.classList.toggle('active', on);
-      plLayout.classList.toggle('lyrics-off', !on);
-    }
-    btnToggleLyrics.onclick = () => toggleLyricsPanel(!isLyOn);
-    btnCloseLyrics.onclick = () => toggleLyricsPanel(false);
-
-    const tabs = document.querySelectorAll('.nav-tab');
-    tabs.forEach(t => {
-      t.onclick = () => {
-        const target = t.getAttribute('data-target');
-        switchTab(target);
-      };
-    });
-
-    function switchTab(targetId) {
-      document.querySelectorAll('.view-tab').forEach(v => v.classList.remove('active'));
-      tabs.forEach(tab => tab.classList.remove('active'));
-
-      document.getElementById(targetId).classList.add('active');
-      const activeTab = document.querySelector(`.nav-tab[data-target="${targetId}"]`);
-      if(activeTab) activeTab.classList.add('active');
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      const sc = Math.floor(s % 60);
+      return `${m}:${sc < 10 ? '0' : ''}${sc}`;
     }
 
-    themeToggleBtn.onclick = () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      safeSet('sd_theme', newTheme);
-      themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-    };
-
-    btnChangePass.onclick = () => {
-      const np = newPassInput.value;
+    // ── 設定操作 ──
+    btnUpdatePass.onclick = () => {
+      const np = newPassInput.value.trim();
       if(np.length < 4) {
-        passMsg.style.color = "var(--accent-color)";
+        passMsg.style.color = "#ff2d55";
         passMsg.textContent = "パスワードは4文字以上で入力してください。";
         return;
       }
@@ -1266,9 +1124,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker Registered Successfully!', reg.scope))
-          .catch(err => console.error('Service Worker Registration Failed:', err));
+        navigator.serviceWorker.register('./sw.js').catch(e => console.log(e));
       });
     }
   </script>
