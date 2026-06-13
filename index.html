@@ -101,7 +101,6 @@
     .auth-input:focus { border-color: var(--accent-color); }
     .auth-error { color: var(--accent-color); font-size: 0.8rem; margin-bottom: 12px; min-height: 18px; text-align: left; }
     
-    /* 📱 iPad/スマホ最適化ぷっくりボタン */
     .btn-primary {
       width: 100%; min-height: 48px; padding: 14px;
       border: none; border-radius: 14px;
@@ -148,7 +147,6 @@
     .view-tab.active { display: flex; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     #view-playlist { overflow: hidden; } 
     
-    /* 🎬 iPadでもぬるぬる動く統一スライドアップ演出 */
     @keyframes slideUp { 
       from { opacity: 0; transform: translateY(30px); } 
       to { opacity: 1; transform: translateY(0); } 
@@ -306,7 +304,6 @@
     .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
     .toggle-lyrics-btn.active { color: var(--accent-color); }
 
-    /* 📱 iPad・スマホ表示用レスポンシブ */
     @media (max-width: 1000px) {
       .hotbar { padding: 0 20px; }
       .hb-left { display: none; }
@@ -379,7 +376,7 @@
         
         <div id="searchZeroRequest" class="request-zone" style="display: none;">
           <h4>🔍 お探しの曲は見つかりませんでした</h4>
-          <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:10px;">追加したい楽曲名や、未来の自分への機能開発アイデアをメモとして残せます。</p>
+          <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:10px;">追加したい楽曲名や、未来の自分への機能開発アイデアをメモとして残せできます。</p>
           <textarea id="searchRequestText" class="request-textarea" placeholder="（例）「楽曲名 / アーティスト名」や、「〇〇画面にこんな機能が欲しい！」など自由にご記入ください"></textarea>
           <button id="btnSearchRequestSend" class="acc-btn btn-outline">自分宛てに送信・メモする</button>
           <span id="searchRequestMsg" class="acc-message"></span>
@@ -493,7 +490,7 @@
   <audio id="audioPlayer"></audio>
 
   <script>
-    // --- 🎵 全10曲・ガチタイムシンク歌詞データ ---
+    // --- 🎵 修正版：全10曲・ガチタイムシンク歌詞データ ---
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
         { time: 0, text: "いきものがかり - 気まぐれロマンティック" },
@@ -554,27 +551,21 @@
         { time: 5, text: "出逢った頃のように 季節が変わっても" },
         { time: 11, text: "🎵 (歌詞準備中)" }
       ]},
-      { id: 6, title: "上海ハニー", artist: "ORANGE RANGE", src: "song7.mp3", cover: "jacket7.png", lines: [
-        { time: 0, text: "ORANGE RANGE - 上海ハニー" },
-        { time: 2, text: "上海ハニー 君とベイビー" },
+      { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [
+        { time: 0, text: "中島美嘉 - STARS" },
         { time: 5, text: "🎵 (歌詞準備中)" }
       ]},
-      { id: 7, title: "チェリー", artist: "スピッツ", src: "song8.mp3", cover: "jacket8.png", lines: [
-        { time: 0, text: "スピッツ - チェリー" },
-        { time: 3, text: "君を忘れない 曲がりくねった道を行く" },
-        { time: 9, text: "🎵 (歌詞準備中)" }
+      { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [
+        { time: 0, text: "大原ゆい子 - 言わないけどね" },
+        { time: 5, text: "🎵 (歌詞準備中)" }
       ]},
-      { id: 8, title: "リルラ リルハ", artist: "木村カエラ", src: "song9.mp3", cover: "jacket9.png", lines: [
-        { time: 0, text: "木村カエラ - リルラ リルハ" },
-        { time: 4, text: "リルラ リルハ 私を見つめて" },
-        { time: 8, text: "🎵 (歌詞準備中)" }
+      { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [
+        { time: 0, text: "Chara - やさしい気持ち" },
+        { time: 5, text: "🎵 (歌詞準備中)" }
       ]},
-      { id: 9, title: "小さな恋のうた", artist: "MONGOL800", src: "song10.mp3", cover: "jacket10.png", lines: [
-        { time: 0, text: "MONGOL800 - 小さな恋のうた" },
-        { time: 15, text: "広い宇宙の 数ある一つ" },
-        { time: 21, text: "青い地球の 広い世界で" },
-        { time: 27, text: "小さな恋の 思いは届く" },
-        { time: 33, text: "🎵 (歌詞準備中)" }
+      { id: 9, title: "君と光", artist: "西川瑞希", src: "song10.mp3", cover: "jacket10.png", lines: [
+        { time: 0, text: "西川瑞希 - 君と光" },
+        { time: 5, text: "🎵 (歌詞準備中)" }
       ]}
     ];
 
@@ -596,7 +587,7 @@
     let curIdx = 0;
     let isPlaying = false;
     let isShuffle = false;
-    let isRepeat = false; // 0:OFF, 1:1曲, 2:全曲 (今回は1曲リピートのトグルとして使用)
+    let isRepeat = false; 
     let isLyOn = true;
     let userSession = null;
     let isOnline = navigator.onLine;
@@ -662,17 +653,14 @@
     // 🔐 認証システム & ローカルセッション
     // =========================================
     window.addEventListener('DOMContentLoaded', () => {
-      // ネットワーク検知初期化
       updateNetworkStatus();
       window.addEventListener('online', () => { isOnline = true; updateNetworkStatus(); });
       window.addEventListener('offline', () => { isOnline = false; updateNetworkStatus(); });
 
-      // テーマ初期ロード
       const savedTheme = safeGet('sd_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
       themeIcon.className = savedTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
 
-      // 前回のセッションがあれば自動ログイン
       const cachedUser = safeGet('sd_session_user');
       if (cachedUser) {
         loginSuccess(cachedUser);
@@ -689,7 +677,6 @@
         return;
       }
 
-      // 自分用アプリのため、オフライン状態、またはパスワードが一致すればログイン可能
       const storedPass = safeGet(`sd_pass_${id}`) || 'admin123';
       if (pass === storedPass || !isOnline) {
         authError.textContent = "";
@@ -726,8 +713,6 @@
         networkBadge.className = "network-badge badge-online";
         networkBadge.innerHTML = `<i class="fa-solid fa-wifi"></i> ONLINE MODE`;
         offlineWarning.style.display = 'none';
-        
-        // オンライン時はAI提案をアクティブ化
         renderAIRecommend();
       } else {
         networkBadge.className = "network-badge badge-offline";
@@ -735,7 +720,6 @@
         if (authModal.style.display !== 'none') {
           offlineWarning.style.display = 'block';
         }
-        // オフライン時はAI提案にロックをかける
         if(aiRecommendBox) aiRecommendBox.innerHTML = `<div class="card" style="opacity:0.6; cursor:not-allowed;"><div class="card-info"><div class="card-title">AI Discoveryは現在ロックされています</div><div class="card-desc">通信環境が良い場所で自動有効化されます</div></div></div>`;
       }
     }
@@ -744,7 +728,6 @@
     // 🏠 ホーム & オンデバイス集計統計
     // =========================================
     function renderHome() {
-      // ランキング表示
       rankingGrid.innerHTML = '';
       let stats = {};
       try { stats = JSON.parse(safeGet(`sd_stats_${userSession}`) || '{}'); } catch(e){}
@@ -776,7 +759,6 @@
 
     function renderAIRecommend() {
       if (!isOnline) return;
-      // 10曲の中から本日の1曲を擬似ランダムサジェスト
       const day = new Date().getDate();
       const song = songs[day % songs.length];
       aiRecommendBox.innerHTML = `
@@ -815,7 +797,6 @@
 
       if (results.length === 0) {
         searchResultList.innerHTML = `<p style="color:var(--text-sub);">該当する楽曲が見つかりませんでした。</p>`;
-        // 🔍 検索0件の時、リクエスト・アイデアメモを自動出現させる
         searchZeroRequest.style.display = 'block';
       } else {
         results.forEach(item => {
@@ -848,38 +829,30 @@
       const btn = document.getElementById(btnId);
       const text = textarea.value.trim();
 
-      // ロック1: 空っぽ送信禁止
       if (!text) {
         msgZone.style.color = "var(--accent-color)";
         msgZone.textContent = "内容が入力されていません。";
         return;
       }
 
-      // ロック2: ボタン連打無効化 & 送信中エフェクト
       btn.disabled = true;
       textarea.disabled = true;
       const originBtnText = btn.textContent;
       btn.textContent = "送信中...";
 
-      // 💡 個人用開発メモ用Googleフォーム送信ロジックの構築
-      // お手持ちのGoogleフォームのフォームアクションURLと、EntryIDを入力すると裏で完全自動同期できます。
       const formUrl = "https://docs.google.com/forms/u/0/d/e/YOUR_FORM_ID/formResponse";
-      const entryId = "entry.123456789"; // お手持ちのフォームのテキストボックスID
+      const entryId = "entry.123456789"; 
 
       if (formUrl.includes("YOUR_FORM_ID")) {
-        // 未設定の場合は、テスト用の擬似ローカル成功エフェクト
         setTimeout(() => {
           msgZone.style.color = "#34c759";
           msgZone.textContent = "リクエストを開発用メモに保存しました！";
           textarea.value = "";
-          
-          // 解除
           btn.disabled = false;
           textarea.disabled = false;
           btn.textContent = originBtnText;
         }, 1200);
       } else {
-        // ガチ連携用送信
         const formData = new FormData();
         formData.append(entryId, `[User:${userSession}] ${text}`);
 
@@ -931,14 +904,12 @@
     }
 
     function loadTrack(idx, startPlay = false) {
-      // 前のタイマーや再生を初期化
       stopFkTimer();
       audio.pause();
 
       curIdx = idx;
       const song = songs[idx];
 
-      // 各種UIの更新
       mainTitle.textContent = song.title;
       mainArtist.textContent = song.artist;
       hbTitle.textContent = song.title;
@@ -946,22 +917,17 @@
       plJacket.src = song.cover;
       hbArt.src = song.cover;
 
-      // 歌詞の構築
       buildLyrics(song);
 
-      // トラックリストのアクティブクラス更新
       const rows = document.querySelectorAll('#plList .track-row, #searchResultList .track-row');
       rows.forEach(r => r.classList.remove('active'));
       
-      // プレイリスト側の行ハイライト
       const plRows = plList.querySelectorAll('.track-row');
       if(plRows[idx]) plRows[idx].classList.add('active');
 
-      // オーディオソースの割り当て
       audio.src = song.src;
       audio.load();
 
-      // iOS/iPadバックグラウンド制御 (MediaSession API 連動)
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: song.title,
@@ -983,7 +949,6 @@
         setPlayingState(true);
       }).catch(err => {
         console.warn("Audio play failed. Attempting offline fallback fake timer.", err);
-        // ✈️ 音楽ファイルが見つからない、または完全オフライン時のセーフティ疑似タイマー発動
         startFkTimer();
       });
     }
@@ -1009,7 +974,6 @@
       }
     }
 
-    // --- ✈️ オフライン・セーフティ用疑似再生タイマー (fkTimer) コア ---
     function startFkTimer() {
       stopFkTimer();
       isFb = true;
@@ -1040,12 +1004,11 @@
     audio.ontimeupdate = () => {
       if (isFb) return;
       const cur = audio.currentTime;
-      const dur = audio.duration || 0;
-      updateProgressUI(cur, dur);
+      const d = audio.duration || 0;
+      updateProgressUI(cur, d);
       syncLyrics(cur);
 
-      // オンデバイス統計用集計ロジック（曲の終了10秒前まで聴いたら1再生とカウント）
-      if (dur > 20 && cur >= (dur - 10) && !audio.dataset.counted) {
+      if (d > 20 && cur >= (d - 10) && !audio.dataset.counted) {
         audio.dataset.counted = "true";
         countTrackPlay(songs[curIdx].id);
       }
@@ -1056,11 +1019,11 @@
     audio.onended = () => { handleTrackEnded(); };
     audio.onloadedmetadata = () => { audio.removeAttribute('data-counted'); };
 
-    function updateProgressUI(cur, dur) {
+    function updateProgressUI(cur, d) {
       txtCur.textContent = formatTime(cur);
-      txtDur.textContent = dur ? formatTime(dur) : "3:00";
-      if (dur) {
-        progress.value = (cur / dur) * 100;
+      txtDur.textContent = d ? formatTime(d) : "3:00";
+      if (d) {
+        progress.value = (cur / d) * 100;
       } else {
         progress.value = 0;
       }
@@ -1095,7 +1058,7 @@
       try { stats = JSON.parse(safeGet(`sd_stats_${userSession}`) || '{}'); } catch(e){}
       stats[id] = (stats[id] || 0) + 1;
       safeSet(`sd_stats_${userSession}`, JSON.stringify(stats));
-      renderHome(); // ホームのランキングを即時反映
+      renderHome(); 
     }
 
     function buildLyrics(song) {
@@ -1157,7 +1120,6 @@
       }
     };
 
-    // 歌詞表示トグル
     function toggleLyricsPanel(on) {
       isLyOn = on;
       btnToggleLyrics.classList.toggle('active', on);
@@ -1166,7 +1128,6 @@
     btnToggleLyrics.onclick = () => toggleLyricsPanel(!isLyOn);
     btnCloseLyrics.onclick = () => toggleLyricsPanel(false);
 
-    // タブ切り替えシステム
     const tabs = document.querySelectorAll('.nav-tab');
     tabs.forEach(t => {
       t.onclick = () => {
@@ -1184,7 +1145,6 @@
       if(activeTab) activeTab.classList.add('active');
     }
 
-    // テーマ変更
     themeToggleBtn.onclick = () => {
       const currentTheme = document.documentElement.getAttribute('data-theme');
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -1193,7 +1153,6 @@
       themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     };
 
-    // アカウント関連
     btnChangePass.onclick = () => {
       const np = newPassInput.value;
       if(np.length < 4) {
@@ -1227,7 +1186,6 @@
       }
     };
 
-    // iOS/iPad バックグラウンドリモコン連動
     if ('mediaSession' in navigator) {
       navigator.mediaSession.setActionHandler('play', playTrack);
       navigator.mediaSession.setActionHandler('pause', pauseTrack);
