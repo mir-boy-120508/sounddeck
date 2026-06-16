@@ -467,6 +467,13 @@
   <audio id="mainAudio"></audio>
 
   <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('サービスワーカーの登録に成功しました！', reg))
+        .catch(err => console.log('サービスワーカーの登録に失敗しました...', err));
+    });
+  }
     // --- 🎵 楽曲データベース ---
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
