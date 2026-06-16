@@ -441,9 +441,13 @@
 
       <div class="hb-center">
         <div class="hb-controls">
+          <button class="ctrl-btn" id="btnShuffle" title="シャッフル"><i class="fa-solid fa-shuffle"></i></button>
+          
           <button class="ctrl-btn" id="btnPrev"><i class="fa-solid fa-backward-step"></i></button>
           <button class="ctrl-btn btn-play" id="btnPlay"><i class="fa-solid fa-circle-play"></i></button>
           <button class="ctrl-btn" id="btnNext"><i class="fa-solid fa-forward-step"></i></button>
+          
+          <button class="ctrl-btn" id="btnRepeat" title="リピート"><i class="fa-solid fa-repeat"></i></button>
         </div>
         <div class="hb-progress">
           <span id="timeCurrent">0:00</span>
@@ -518,7 +522,10 @@
     let isLyOn = true;
     let userSession = "";
     let playSpeeds = [1.0, 1.5, 2.0];
-    let curSpeedIdx = 0;
+    let curSpeedIdx = 0
+    let isShuffle = false;
+    let repeatMode = 0;
+    let shuffledIndices = [];
 
     // ⏱️ フェイクタイマー管理用変数
     let isFb = false;
@@ -564,6 +571,8 @@
     const btnPlay = document.getElementById('btnPlay');
     const btnPrev = document.getElementById('btnPrev');
     const btnNext = document.getElementById('btnNext');
+    const btnShuffle = document.getElementById('btnShuffle');
+    const btnRepeat = document.getElementById('btnRepeat');
     const progressSlider = document.getElementById('progressSlider');
     const timeCurrent = document.getElementById('timeCurrent');
     const timeDuration = document.getElementById('timeDuration');
@@ -822,8 +831,64 @@
     btnPrev.onclick = () => prevTrack();
     btnNext.onclick = () => nextTrack();
 
-    function prevTrack() { let i = curIdx - 1; if(i < 0) i = songs.length - 1; loadTrack(i, true); }
-    function nextTrack() { let i = curIdx + 1; if(i >= songs.length) i = 0; loadTrack(i, true); }
+    // 🔄 新しいコード（シャッフル・リピート対応）
+    function prevTrack() {
+      if (isShuffle && shuffledIndices.length > 0) {
+        let sIdx = shuffledIndices.indexOf(curIdx);
+        sIdx = sIdx - 1;
+        if (sIdx < 0) sIdx = shuffledIndices.length - 1;
+        loadTrack(shuffledIndices[sIdx], true);
+      } else {
+        let i = curIdx - 1;
+        if(i < 0) i = songs.length - 1; 
+        loadTrack(i, true);
+      }
+    }
+
+    function nextTrack() {
+      if (isShuffle && shuffledIndices.length > 0) {
+        let sIdx = shuffledIndices.indexOf(curIdx);
+        sIdx = sIdx + 1;
+        if (sIdx >= shuffledIndices.length) {
+          // 全曲シャッフルし終わったら、再度シャッフル順を再構築して最初から
+          btnShuffle.click(); btnShuffle.click(); 
+          sIdx = 0;
+        }
+        loadTrack(shuffledIndices[sIdx], true);
+      } else {
+        let i = curIdx + 1; 
+        if(i >= songs.length) i = 0;
+        loadTrack(i, true);
+      }
+    }
+    
+    audio.onended = () => {
+      if (!isFb) {
+        if (repeatMode === 2) {
+          // 1曲リピート
+          loadTrack(curIdx, true);
+        } else if (repeatMode === 1) {
+          // 全曲ループ
+          nextTrack();
+        } else {
+          // リピートオフ
+          if (isShuffle) {
+            let sIdx = shuffledIndices.indexOf(curIdx);
+            if (sIdx === shuffledIndices.length - 1) {
+              setPlayingState(false);
+            } else {
+              nextTrack();
+            }
+          } else {
+            if (curIdx === songs.length - 1) {
+              setPlayingState(false);
+            } else {
+              nextTrack();
+            }
+          }
+        }
+      }
+    };
 
     function toggleLyrics(show) {
       isLyOn = show;
@@ -857,7 +922,35 @@
       }
       progressSlider.classList.remove('seeking');
     };
-    
+    // 🔀 シャッフル機能の実装
+    btnShuffle.onclick = () => {
+      isShuffle = !isShuffle;
+      btnShuffle.classList.toggle('active', isShuffle);
+      
+      if (isShuffle) {
+        // 現在の曲を除いた、残りの曲順をランダムにシャッフルする配列を作る
+        shuffledIndices = songs.map((_, i) => i);
+        // 現在再生中の曲を先頭に固定し、それ以外をシャッフル
+        shuffledIndices = shuffledIndices.filter(i => i !== curIdx);
+        for (let i = shuffledIndices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+        }
+        shuffledIndices.unshift(curIdx);
+        
+    btnRepeat.onclick = () => {
+      repeatMode = (repeatMode + 1) % 3;
+      if (repeatMode === 0) {
+        btnRepeat.className = "ctrl-btn";
+        btnRepeat.innerHTML = '<i class="fa-solid fa-repeat"></i>';
+      } else if (repeatMode === 1) {
+        btnRepeat.className = "ctrl-btn active";
+        btnRepeat.innerHTML = '<i class="fa-solid fa-repeat"></i>'; // 全曲ループ（通常アクティブ）
+      } else if (repeatMode === 2) {
+        btnRepeat.className = "ctrl-btn active";
+        btnRepeat.innerHTML = '<i class="fa-solid fa-repeat-1"></i>'; // 1曲リピート（アイコン変化）
+      }
+    };
     audio.onended = () => { if(!isFb) nextTrack(); };
 
     function buildLyrics(song) {
