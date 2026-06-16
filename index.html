@@ -80,7 +80,8 @@
        🔒 認証モーダル
        ========================================= */
     #authModal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.4); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       display: flex; justify-content: center; align-items: center; z-index: 10000;
     }
@@ -89,157 +90,226 @@
       padding: 40px; border-radius: 28px; width: 100%; max-width: 400px;
       box-shadow: var(--shadow); text-align: center;
     }
+    .auth-box img.logo-lg { height: 48px; margin-bottom: 20px; object-fit: contain; }
     .auth-subtitle { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 24px; }
     .auth-input {
       width: 100%; padding: 14px; border-radius: 14px;
       border: 1px solid rgba(125,125,125,0.2);
       background: rgba(125, 125, 125, 0.05); color: var(--text-main); font-size: 1rem;
-      margin-bottom: 12px; outline: none; text-align: center;
+      margin-bottom: 12px; outline: none; transition: border-color 0.2s;
     }
-    .auth-error { color: var(--accent-color); font-size: 0.8rem; margin-bottom: 12px; min-height: 18px; text-align: center; }
+    .auth-input:focus { border-color: var(--accent-color); }
+    .auth-error { color: var(--accent-color); font-size: 0.8rem; margin-bottom: 12px; min-height: 18px; text-align: left; }
     
     .btn-primary {
-      width: 100%; min-height: 48px; padding: 14px; border: none; border-radius: 14px;
+      width: 100%; min-height: 48px; padding: 14px;
+      border: none; border-radius: 14px;
       background: var(--btn-main-bg); color: var(--btn-main-text); font-size: 1.05rem; font-weight: 600;
       cursor: pointer; transition: transform 0.2s;
     }
     .btn-primary:active { transform: scale(0.98); }
+    .offline-warning-modal { color: #ff9500; font-size: 0.85rem; margin-top: 15px; display: none; font-weight: 500; }
 
     /* =========================================
-       📱 アプリケーションメイン画面
+       🍏 メインアプリケーションレイアウト
        ========================================= */
     #appWrap { display: none; flex-direction: column; height: 100vh; width: 100vw; }
 
     header {
-      height: var(--header-height); padding: 0 40px; display: flex; justify-content: space-between; align-items: center;
+      height: var(--header-height);
+      padding: 0 40px; display: flex; justify-content: space-between; align-items: center;
       flex-shrink: 0; z-index: 100;
     }
     .header-left { display: flex; align-items: center; gap: 24px; }
     .brand-group { display: flex; align-items: center; gap: 10px; }
+    .header-logo { height: 36px; object-fit: contain; }
     .brand-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
     
-    /* 📶 オフライン検知ステータスバッジ */
-    .offline-badge {
-      display: none; background: rgba(255, 45, 85, 0.15); color: var(--accent-color);
-      padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;
-      border: 1px solid rgba(255, 45, 85, 0.25); align-items: center; gap: 6px; letter-spacing: 0.5px;
-    }
+    .network-badge { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 12px;
+                     letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+    .badge-online { background: rgba(52, 199, 89, 0.15); color: #34c759; }
+    .badge-offline { background: rgba(255, 149, 0, 0.15); color: #ff9500; }
 
     .btn-theme-circle {
       width: 44px; height: 44px; border-radius: 50%;
       background: var(--panel-bg); border: 1px solid var(--panel-border);
       color: var(--text-main); font-size: 1.2rem;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all 0.3s ease; box-shadow: var(--shadow);
+      cursor: pointer; transition: all 0.3s ease;
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--shadow);
     }
+    .btn-theme-circle:hover { transform: scale(1.08); color: var(--accent-color); }
 
     main { flex: 1; padding: 0 40px 30px 40px; display: flex; flex-direction: column; overflow: hidden; }
+    
     .view-tab { display: none; width: 100%; height: 100%; flex-direction: column; overflow-y: auto; }
-    .view-tab.active { display: flex; }
+    .view-tab.active { display: flex; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     #view-playlist { overflow: hidden; } 
     
-    .section-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.5px; }
+    @keyframes slideUp { 
+      from { opacity: 0; transform: translateY(30px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    
+    .section-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 24px; letter-spacing: -0.5px; }
+
     .pl-panel {
       background: var(--panel-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--panel-border); border-radius: 28px; box-shadow: var(--shadow);
       display: flex; flex-direction: column; overflow: hidden;
     }
 
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+    .card { background: var(--panel-bg); border: 1px solid var(--panel-border);
+            border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; backdrop-filter: var(--glass-blur); transition: transform 0.2s, background 0.2s;
+            box-shadow: var(--shadow); }
+    .card:hover { transform: translateY(-4px); background: var(--item-hover); }
+    .card-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; }
+    .card-info { flex: 1; overflow: hidden; }
+    .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-desc { font-size: 0.85rem; color: var(--text-sub); }
+    .rank-badge { font-size: 1.5rem; font-weight: 800; color: var(--accent-color); opacity: 0.5; width: 30px; text-align: center; }
+
+    .search-bar-container { position: relative; max-width: 600px; margin-bottom: 30px; }
+    .search-input { width: 100%; padding: 18px 20px 18px 50px; font-size: 1.2rem; border-radius: 20px;
+                    border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; transition: border-color 0.2s; }
+    .search-input:focus { border-color: var(--accent-color); }
+    .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
+
     /* =========================================
-       🎼 プレイヤー：3カラム分割レイアウト
+       🎵 プレイリストビュー
        ========================================= */
-    .playlist-layout-v06 { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%; }
+    .playlist-layout-v06 {
+      display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%;
+      transition: grid-template-columns 0.4s ease, max-width 0.4s ease;
+    }
+    .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr 1fr; max-width: 1000px; margin: 0 auto; }
     
     .pl-panel-art { padding: 40px 30px; justify-content: center; align-items: center; }
-    .art-mega-wrapper { width: 100%; max-width: 320px; aspect-ratio: 1; margin: 0 auto; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
-    .art-mega { width: 100%; height: 100%; object-fit: cover; }
-    .art-info { text-align: center; margin-top: 24px; width: 100%; }
-    .art-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .art-mega-wrapper { width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto;
+                        border-radius: 24px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: transform 0.4s ease; }
+    .playing .art-mega-wrapper { transform: scale(1.04); }
+    .art-mega { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
+    .art-info { text-align: center; margin-top: 30px; width: 100%; }
+    .art-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
     .art-artist { font-size: 1.1rem; color: var(--accent-color); font-weight: 600; }
 
     .pl-panel-lyrics { padding: 30px; position: relative; }
-    .list-header { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; color: var(--text-sub); margin-bottom: 15px; display: block; }
+    .playlist-layout-v06.lyrics-off .pl-panel-lyrics { display: none; }
+    .lyrics-header-zone { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .list-header { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; color: var(--text-sub); }
+    .btn-hide-lyrics { background: var(--item-active); border: none; color: var(--text-main); padding: 6px 14px;
+                       border-radius: 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-hide-lyrics:hover { color: var(--accent-color); background: var(--item-hover); }
     
-    .lyrics-box { flex: 1; overflow-y: auto; padding: 50% 0; scroll-behavior: smooth; }
+    .lyrics-box { flex: 1; overflow-y: auto; padding: 50% 0; scroll-behavior: smooth; margin-right: -15px; padding-right: 15px; }
     .lyrics-box::-webkit-scrollbar { display: none; }
-    .l-line { font-size: 1.3rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6; margin-bottom: 24px; transition: all 0.3s ease; }
-    .l-line.active { color: var(--text-main); transform: scale(1.03); }
+    .l-line { font-size: 1.35rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6;
+              margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center; }
+    .l-line.active { color: var(--text-main); transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,45,85,0.15)); }
+    html[data-theme="dark"] .l-line.active { filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); }
 
     .pl-panel-list { padding: 30px; }
-    .track-list { list-style: none; overflow-y: auto; flex: 1; }
+    .track-list { list-style: none; overflow-y: auto; flex: 1; padding-right: 5px; margin-top: 10px; margin-right: -10px; padding-right: 10px; }
     .track-list::-webkit-scrollbar { display: none; }
-    .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer; border: 1px solid transparent; transition: background 0.2s; margin-bottom: 6px; }
-    .track-row:hover { background: var(--item-hover); }
+    .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer;
+                 border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px; }
+    .track-row:hover { background: var(--item-hover); border: 1px solid rgba(125,125,125,0.1); }
     .track-row.active { background: var(--item-active); border: 1px solid rgba(255,45,85,0.1); }
     .track-row.active .t-title { color: var(--accent-color); }
-    .t-num { width: 30px; color: var(--text-sub); font-weight: 700; }
+    .t-num { width: 36px; color: var(--text-sub); font-weight: 700; font-size: 0.95rem; }
     .t-art { width: 44px; height: 44px; border-radius: 10px; margin-right: 16px; object-fit: cover; }
     .t-info { flex: 1; overflow: hidden; }
-    .t-title { font-weight: 700; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .t-artist { font-size: 0.85rem; color: var(--text-sub); }
+    .t-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .t-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
 
     /* =========================================
-       📊 解析録（ランキング）
+       ⚙️ 設定画面
        ========================================= */
-    .rank-card-list { display: flex; flex-direction: column; gap: 12px; }
-    .rank-item {
-      display: flex; align-items: center; padding: 16px 24px; background: var(--panel-bg);
-      border: 1px solid var(--panel-border); box-shadow: var(--shadow); border-radius: 18px;
-    }
-    .rank-num { font-size: 1.5rem; font-weight: 800; color: var(--accent-color); width: 44px; }
-    .rank-info { flex: 1; }
-    .rank-title { font-size: 1.1rem; font-weight: 700; }
-    .rank-artist { font-size: 0.9rem; color: var(--text-sub); margin-top: 2px; }
-    .rank-count { font-size: 0.9rem; font-weight: 700; background: rgba(255,45,85,0.08); color: var(--accent-color); padding: 6px 14px; border-radius: 12px; }
-
-    /* =========================================
-       ⚙️ 管制室（設定画面）
-       ========================================= */
-    .account-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 28px; padding: 40px; max-width: 600px; box-shadow: var(--shadow); }
+    .account-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 28px;
+                    padding: 40px; max-width: 600px; margin-bottom: 30px; backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); }
+    .acc-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; }
+    .acc-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent-color); object-fit: cover; }
+    .acc-name { font-size: 1.8rem; font-weight: 800; }
+    .acc-id { font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
     .form-group { margin-bottom: 24px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; color: var(--text-sub); }
+    
     .input-flat {
       width: 100%; max-width: 340px; padding: 14px; border-radius: 12px;
       border: 1px solid rgba(125,125,125,0.2); background: rgba(125, 125, 125, 0.04);
-      color: var(--text-main); font-size: 1rem; outline: none; display: block; margin-bottom: 12px;
+      color: var(--text-main); font-size: 1rem; outline: none; transition: border-color 0.2s;
+      margin-bottom: 12px; display: block;
     }
-    .acc-btn { padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem; }
+    .input-flat:focus { border-color: var(--accent-color); }
+
+    .acc-btn { min-height: 44px; padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem;
+               transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; }
+    .acc-btn:active { transform: scale(0.98); }
+    .acc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-outline { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); }
+    .btn-outline:hover { background: rgba(255,45,85,0.1); }
     .btn-danger { background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 2px solid rgba(255, 59, 48, 0.3); }
+    .btn-danger:hover { background: rgba(255, 59, 48, 0.2); }
     .acc-message { font-size: 0.85rem; margin-top: 10px; color: #34c759; font-weight: 600; }
 
     /* =========================================
-       🎛️ ボトムホットバー
+       🎵 ボトムホットバー
        ========================================= */
     .hotbar {
-      height: var(--hotbar-height); width: 100%; background: var(--panel-bg); border-top: 1px solid var(--panel-border);
-      display: flex; align-items: center; padding: 0 40px; justify-content: space-between; position: relative; z-index: 100;
+      height: var(--hotbar-height); width: 100%;
+      background: var(--panel-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border-top: 1px solid var(--panel-border);
+      display: flex; align-items: center; padding: 0 40px; justify-content: space-between;
+      position: relative; z-index: 100; flex-shrink: 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.02);
     }
+    
     .hb-left { display: flex; align-items: center; gap: 16px; width: 25%; min-width: 200px; }
-    .hb-art { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
+    .hb-art { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .hb-info { overflow: hidden; }
     .hb-title { font-weight: 700; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hb-artist { font-size: 0.85rem; color: var(--text-sub); }
+    .hb-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
 
     .hb-center { flex: 1; max-width: 600px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .hb-controls { display: flex; align-items: center; gap: 24px; }
-    .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; }
+    .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.3rem; cursor: pointer; transition: color 0.2s, transform 0.1s; }
+    .ctrl-btn:hover { color: var(--accent-color); }
     .ctrl-btn.active { color: var(--accent-color); }
-    .btn-play { font-size: 2.5rem; }
+    .btn-play { font-size: 2.8rem; }
+    .btn-play:hover { transform: scale(1.05); }
     
-    .hb-progress { width: 100%; display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; }
-    .slider { flex: 1; -webkit-appearance: none; appearance: none; height: 6px; background: rgba(125,125,125,0.2); border-radius: 3px; outline: none; cursor: pointer; }
-    .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--text-main); cursor: pointer; }
-    .slider::-webkit-slider-thumb:hover { background: var(--accent-color); }
+    .hb-progress { width: 100%; display: flex; align-items: center; gap: 12px; font-size: 0.8rem;
+                   color: var(--text-sub); font-variant-numeric: tabular-nums; font-weight: 600; }
+    .slider { flex: 1; -webkit-appearance: none; appearance: none; height: 6px;
+              background: rgba(125,125,125,0.2); border-radius: 3px; outline: none; cursor: pointer; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px;
+                                    border-radius: 50%; background: var(--text-main); cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .slider::-webkit-slider-thumb:hover { transform: scale(1.2); background: var(--accent-color); }
 
-    .hb-right { width: 25%; min-width: 250px; display: flex; justify-content: flex-end; align-items: center; }
+    .hb-right { width: 25%; min-width: 280px; display: flex; justify-content: flex-end; align-items: center; gap: 24px; }
+    
     .nav-tabs { display: flex; background: rgba(125,125,125,0.1); border-radius: 20px; padding: 4px; }
-    .nav-tab { background: none; border: none; color: var(--text-sub); padding: 8px 20px; border-radius: 16px; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+    .nav-tab { background: none; border: none; color: var(--text-sub);
+               padding: 8px 18px; border-radius: 16px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
+    .nav-tab:hover { color: var(--text-main); }
     .nav-tab.active { background: var(--panel-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    
+    .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
+    .toggle-lyrics-btn.active { color: var(--accent-color); }
 
-    @media (max-width: 900px) {
-      .playlist-layout-v06 { grid-template-columns: 1fr; overflow-y: auto; }
+    /* 🏎️ 倍速・フェイクコントローラースタイル */
+    .speed-btn { font-size: 0.85rem; font-weight: 800; background: rgba(125,125,125,0.15); padding: 5px 10px; border-radius: 10px; border: none; color: var(--text-main); cursor: pointer; }
+    .speed-btn.active { background: var(--accent-color); color: white; }
+    .fk-badge { font-size: 0.75rem; font-weight: 800; background: #ff9500; color: white; padding: 4px 8px; border-radius: 8px; display: none; }
+
+    @media (max-width: 1000px) {
+      .hotbar { padding: 0 20px; }
       .hb-left { display: none; }
+      .hb-right { min-width: auto; }
+      .playlist-layout-v06, .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr; overflow-y: auto; height: auto; padding-bottom: 40px; }
+      .pl-panel { min-height: 400px; margin-bottom: 20px; }
+      main { padding: 20px; }
     }
   </style>
 </head>
@@ -249,12 +319,15 @@
 
   <div id="authModal">
     <div class="auth-box">
-      <h2 style="font-size:1.6rem; margin-bottom:8px;">SoundDeck System</h2>
-      <div class="auth-subtitle">認証資格情報を入力してください</div>
-      <input type="text" id="authId" class="auth-input" placeholder="ユーザーID" autocomplete="off">
-      <input type="password" id="authPass" class="auth-input" placeholder="アクセスコード">
+      <img src="logo.png" alt="Logo" class="logo-lg">
+      <div class="auth-subtitle">PWA Offline Sync Track Service</div>
+      <input type="text" id="authId" class="auth-input" placeholder="ユーザーID (4〜15文字)" autocomplete="off">
+      <input type="password" id="authPass" class="auth-input" placeholder="パスワード (初期: admin123)">
       <div id="authError" class="auth-error"></div>
-      <button id="btnLogin" class="btn-primary">システムログイン</button>
+      <button id="btnLogin" class="btn-primary">Launch Deck</button>
+      <div id="offlineWarningModal" class="offline-warning-modal">
+         オフラインモード：保存済みの曲のみ再生可能
+      </div>
     </div>
   </div>
 
@@ -262,18 +335,40 @@
     <header>
       <div class="header-left">
         <div class="brand-group">
+          <img src="logo.png" alt="Logo" class="header-logo">
           <span class="brand-title">SoundDeck</span>
         </div>
-        <span class="offline-badge" id="offlineBadge">⚠️ OFFLINE MODE</span>
+        <div id="networkBadge" class="network-badge badge-online">
+          <i class="fa-solid fa-circle"></i> <span>ONLINE</span>
+        </div>
+        <div id="fkBadge" class="fk-badge">FAKETIME ON</div>
       </div>
-      <div>
-        <button id="btnTheme" class="btn-theme-circle">🌙</button>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="btnSpeed" class="speed-btn">1.0x</button>
+        <button id="btnTheme" class="btn-theme-circle"><i class="fa-solid fa-moon"></i></button>
       </div>
     </header>
 
     <main>
       <div id="tab-home" class="view-tab active">
-        <div class="playlist-layout-v06">
+        <h2 class="section-title">Home</h2>
+        <div class="card-grid" id="homeQuickGrid"></div>
+        <h2 class="section-title">再生回数ランキング</h2>
+        <div class="card-grid" id="homeRankGrid"></div>
+      </div>
+
+      <div id="tab-search" class="view-tab">
+        <h2 class="section-title">曲を探す</h2>
+        <div class="search-bar-container">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="曲名、アーティスト名で検索...">
+        </div>
+        <div class="card-grid" id="searchResultGrid"></div>
+      </div>
+
+      <div id="tab-playlist" class="view-tab">
+        <div class="playlist-layout-v06" id="playlistLayout">
+          
           <div class="pl-panel pl-panel-art">
             <div class="art-mega-wrapper">
               <img src="jacket1.png" alt="Cover" class="art-mega" id="panelCover">
@@ -283,35 +378,53 @@
               <div class="art-artist" id="panelArtist">---</div>
             </div>
           </div>
+
           <div class="pl-panel pl-panel-lyrics">
-            <span class="list-header">同期リリックデータ</span>
+            <div class="lyrics-header-zone">
+              <span class="list-header">LYRICS SYNC</span>
+              <button class="btn-hide-lyrics" id="btnHideLyrics">歌詞を隠す</button>
+            </div>
             <div class="lyrics-box" id="lyricsBox"></div>
           </div>
+
           <div class="pl-panel pl-panel-list">
-            <span class="list-header">プレイリスト</span>
+            <span class="list-header">PLAYLIST TRACKS</span>
             <div class="track-list" id="trackList"></div>
           </div>
+
         </div>
       </div>
 
-      <div id="tab-analytics" class="view-tab">
-        <h2 class="section-title">高頻度再生トラックランキング</h2>
-        <div class="rank-card-list" id="rankingList"></div>
-      </div>
-
       <div id="tab-settings" class="view-tab">
-        <h2 class="section-title">システム環境設定</h2>
+        <h2 class="section-title">Settings</h2>
         <div class="account-card">
-          <div class="form-group">
-            <label>アクセスコードの変更</label>
-            <input type="password" id="newPassInput" class="input-flat" placeholder="新しいコード（4文字以上）">
-            <button id="btnUpdatePass" class="acc-btn btn-outline">更新</button>
-            <div id="passMsg" class="acc-message" style="display:none;"></div>
+          <div class="acc-header">
+            <img src="avatar.png" alt="Avatar" class="acc-avatar" onerror="this.src='logo.png'">
+            <div>
+              <div class="acc-name" id="profileName">User</div>
+              <div class="acc-id" id="profileId">ID: ----</div>
+            </div>
+          </div>
+          
+          <div class="form-group" style="background: rgba(125,125,125,0.05); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
+            <label style="color: var(--accent-color); font-weight: 800;">⏱️ フェイク進行タイマーシステム</label>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+              <input type="number" id="fkMinInput" class="input-flat" style="width:80px; margin-bottom:0;" placeholder="分" min="0" value="0">
+              <input type="number" id="fkSecInput" class="input-flat" style="width:80px; margin-bottom:0;" placeholder="秒" min="0" value="0">
+              <button id="btnStartFk" class="acc-btn btn-outline" style="flex:1;">タイマー起動</button>
+            </div>
+            <div id="fkStatusMsg" style="font-size:0.8rem; margin-top:8px; font-weight:600; color:var(--text-sub);"></div>
           </div>
 
+          <div class="form-group">
+            <label>パスワード変更</label>
+            <input type="password" id="newPassInput" class="input-flat" placeholder="新しいパスワード（4文字以上）">
+            <button id="btnUpdatePass" class="acc-btn btn-outline">パスワードを更新</button>
+            <div id="passMsg" class="acc-message" style="display:none;"></div>
+          </div>
           <div style="margin-top:40px; border-top:1px solid rgba(125,125,125,0.1); padding-top:20px; display:flex; gap:14px;">
-            <button id="btnLogout" class="acc-btn btn-danger">セッション終了</button>
-            <button id="btnResetData" class="acc-btn btn-danger" style="background:rgba(255,45,85,0.05); border-color:rgba(255,45,85,0.2);">ストレージ初期化</button>
+            <button id="btnLogout" class="acc-btn btn-danger">ログアウト</button>
+            <button id="btnResetData" class="acc-btn btn-danger" style="background:rgba(255,45,85,0.05); border-color:rgba(255,45,85,0.2); color:var(--accent-color);">データを初期化</button>
           </div>
         </div>
       </div>
@@ -319,38 +432,42 @@
 
     <div class="hotbar">
       <div class="hb-left">
-        <img src="jacket1.png" alt="Cover" class="hb-art" id="hbCover">
+        <img src="jacket1.png" alt="Cover" class="hb-art" id="barCover">
         <div class="hb-info">
-          <div class="hb-title" id="hbTitle">---</div>
-          <div class="hb-artist" id="hbArtist">---</div>
+          <div class="hb-title" id="barTitle">---</div>
+          <div class="hb-artist" id="barArtist">---</div>
         </div>
       </div>
+
       <div class="hb-center">
         <div class="hb-controls">
-          <button id="btnShuffle" class="ctrl-btn" title="シャッフル再生"><i class="fa-solid fa-shuffle"></i></button>
-          <button id="btnPrev" class="ctrl-btn"><i class="fa-solid fa-backward-step"></i></button>
-          <button id="btnPlay" class="ctrl-btn btn-play"><i class="fa-solid fa-circle-play"></i></button>
-          <button id="btnNext" class="ctrl-btn"><i class="fa-solid fa-forward-step"></i></button>
-          <button id="btnRepeat" class="ctrl-btn" title="リピート再生"><i class="fa-solid fa-repeat"></i></button>
+          <button class="ctrl-btn" id="btnPrev"><i class="fa-solid fa-backward-step"></i></button>
+          <button class="ctrl-btn btn-play" id="btnPlay"><i class="fa-solid fa-circle-play"></i></button>
+          <button class="ctrl-btn" id="btnNext"><i class="fa-solid fa-forward-step"></i></button>
         </div>
         <div class="hb-progress">
           <span id="timeCurrent">0:00</span>
           <input type="range" id="progressSlider" class="slider" min="0" value="0" step="0.1">
-          <span id="timeTotal">0:00</span>
+          <span id="timeDuration">0:00</span>
         </div>
       </div>
+
       <div class="hb-right">
+        <button class="toggle-lyrics-btn active" id="btnToggleLyrics"><i class="fa-solid fa-quote-right"></i></button>
         <div class="nav-tabs">
-          <button class="nav-tab active" data-tab="home">プレイヤー</button>
-          <button class="nav-tab" data-tab="analytics">解析録</button>
-          <button class="nav-tab" data-tab="settings">管制室</button>
+          <button class="nav-tab active" data-tab="home"><i class="fa-solid fa-house"></i></button>
+          <button class="nav-tab" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <button class="nav-tab" data-tab="playlist"><i class="fa-solid fa-music"></i></button>
+          <button class="nav-tab" data-tab="settings"><i class="fa-solid fa-gear"></i></button>
         </div>
       </div>
     </div>
   </div>
 
+  <audio id="mainAudio"></audio>
+
   <script>
-    // --- 🎵 楽曲データベース (ご提示データを完全維持) ---
+    // --- 🎵 楽曲データベース ---
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
         { time: 0.0, text: "🎵 (イントロ)" },
@@ -386,327 +503,465 @@
       { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [{ time: 0, text: "中島美嘉 - STARS" }]},
       { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [{ time: 0, text: "大原ゆい子 - 言わないけどね" }]},
       { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [{ time: 0, text: "Chara - やさしい気持ち" }]},
-      { id: 9, title: "君と光", artist: "西川瑞希", src: "song10.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - 君と光" }]}
+      { id: 9, title: "君と光", artist: "西川瑞希", src: "song10.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "西川瑞希 - 君と光" }]}
     ];
 
-    const audio = new Audio();
-    let currentTrackIndex = 0;
+    let curIdx = 0;
     let isPlaying = false;
-    let isShuffle = false;
-    let isRepeat = false;
-    let userSession = "default_user";
-    let trackerTimerId = null;
+    let isLyOn = true;
+    let userSession = "";
+    let playSpeeds = [1.0, 1.5, 2.0];
+    let curSpeedIdx = 0;
 
-    // DOM要素一式
+    // ⏱️ フェイクタイマー管理用変数
+    let isFb = false;
+    let fkDur = 0;
+    let fkCur = 0;
+    let fkTimerId = null;
+
+    function safeGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
+    function safeRemove(k) { try { localStorage.removeItem(k); } catch(e) {} }
+
+    // DOM要素群
     const authModal = document.getElementById('authModal');
-    const appWrap = document.getElementById('appWrap');
     const authId = document.getElementById('authId');
     const authPass = document.getElementById('authPass');
-    const btnLogin = document.getElementById('btnLogin');
     const authError = document.getElementById('authError');
-    const offlineBadge = document.getElementById('offlineBadge');
+    const btnLogin = document.getElementById('btnLogin');
+    const offlineWarningModal = document.getElementById('offlineWarningModal');
 
-    const hbCover = document.getElementById('hbCover');
-    const hbTitle = document.getElementById('hbTitle');
-    const hbArtist = document.getElementById('hbArtist');
+    const appWrap = document.getElementById('appWrap');
+    const audio = document.getElementById('mainAudio');
+    const btnTheme = document.getElementById('btnTheme');
+    const btnSpeed = document.getElementById('btnSpeed');
+    const networkBadge = document.getElementById('networkBadge');
+    const fkBadge = document.getElementById('fkBadge');
+
+    const homeQuickGrid = document.getElementById('homeQuickGrid');
+    const homeRankGrid = document.getElementById('homeRankGrid');
+    const searchInput = document.getElementById('searchInput');
+    const searchResultGrid = document.getElementById('searchResultGrid');
+    
+    const playlistLayout = document.getElementById('playlistLayout');
     const panelCover = document.getElementById('panelCover');
     const panelTitle = document.getElementById('panelTitle');
     const panelArtist = document.getElementById('panelArtist');
+    const lyricsBox = document.getElementById('lyricsBox');
+    const trackList = document.getElementById('trackList');
+    const btnHideLyrics = document.getElementById('btnHideLyrics');
 
+    const barCover = document.getElementById('barCover');
+    const barTitle = document.getElementById('barTitle');
+    const barArtist = document.getElementById('barArtist');
     const btnPlay = document.getElementById('btnPlay');
     const btnPrev = document.getElementById('btnPrev');
     const btnNext = document.getElementById('btnNext');
-    const btnShuffle = document.getElementById('btnShuffle');
-    const btnRepeat = document.getElementById('btnRepeat');
-    const btnTheme = document.getElementById('btnTheme');
-
-    const timeCurrent = document.getElementById('timeCurrent');
-    const timeTotal = document.getElementById('timeTotal');
     const progressSlider = document.getElementById('progressSlider');
-    const lyricsBox = document.getElementById('lyricsBox');
-    const trackList = document.getElementById('trackList');
-    const rankingList = document.getElementById('rankingList');
+    const timeCurrent = document.getElementById('timeCurrent');
+    const timeDuration = document.getElementById('timeDuration');
+    const btnToggleLyrics = document.getElementById('btnToggleLyrics');
 
+    const profileName = document.getElementById('profileName');
+    const profileId = document.getElementById('profileId');
     const newPassInput = document.getElementById('newPassInput');
     const btnUpdatePass = document.getElementById('btnUpdatePass');
     const passMsg = document.getElementById('passMsg');
     const btnLogout = document.getElementById('btnLogout');
     const btnResetData = document.getElementById('btnResetData');
 
-    function safeSet(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
-    function safeGet(k) { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }
-    function safeRemove(k) { localStorage.removeItem(k); }
+    // フェイク用入力UI
+    const fkMinInput = document.getElementById('fkMinInput');
+    const fkSecInput = document.getElementById('fkSecInput');
+    const btnStartFk = document.getElementById('btnStartFk');
+    const fkStatusMsg = document.getElementById('fkStatusMsg');
 
-    // 📡 iPad用ネットワーク状況自動監視
-    function checkNetwork() {
-      if (navigator.onLine) {
-        offlineBadge.style.display = 'none';
+    // ネットワーク監視
+    function updateNetworkStatus() {
+      if(navigator.onLine) {
+        networkBadge.className = "network-badge badge-online";
+        networkBadge.innerHTML = `<i class="fa-solid fa-circle"></i> <span>ONLINE</span>`;
+        offlineWarningModal.style.display = 'none';
       } else {
-        offlineBadge.style.display = 'inline-flex';
+        networkBadge.className = "network-badge badge-offline";
+        networkBadge.innerHTML = `<i class="fa-solid fa-circle"></i> <span>OFFLINE</span>`;
+        offlineWarningModal.style.display = 'block';
       }
     }
-    window.addEventListener('online', checkNetwork);
-    window.addEventListener('offline', checkNetwork);
+    window.addEventListener('online', () => { updateNetworkStatus(); prefetchAllSongs(); });
+    window.addEventListener('offline', updateNetworkStatus);
+    updateNetworkStatus();
 
-    // ログイン認証
-    window.addEventListener('DOMContentLoaded', () => {
-      checkNetwork();
-      const savedUser = safeGet('sd_session_user');
-      if (savedUser) {
-        userSession = savedUser;
-        showApp();
-      }
-    });
+    // 🔒 ログイン認証
+    const activeSession = safeGet('sd_session_user');
+    if(activeSession) {
+      userSession = activeSession;
+      authModal.style.display = 'none';
+      appWrap.style.display = 'flex';
+      initApp();
+    }
 
     btnLogin.onclick = () => {
       const id = authId.value.trim();
-      const pass = authPass.value;
-      if (!id || !pass) { authError.textContent = "IDとコードを入力してください。"; return; }
-      
-      const customPass = safeGet(`sd_pass_${id}`);
-      const systemPass = customPass || "0000"; // 初期コードを0000に設定
-
-      if (pass === systemPass) {
-        userSession = id;
-        safeSet('sd_session_user', id);
-        authError.textContent = "";
-        showApp();
-      } else {
-        authError.textContent = "アクセスコードが違います。";
+      const p = authPass.value;
+      if(id.length < 4 || id.length > 15) {
+        authError.textContent = "ユーザーIDは4〜15文字で入力してください。";
+        return;
       }
-    };
+      const localCred = safeGet(`sd_pass_${id}`);
+      const targetP = localCred || "admin123";
+      
+      if(p !== targetP && navigator.onLine) {
+        authError.textContent = "パスワードが正しくありません。";
+        return;
+      }
 
-    function showApp() {
+      authError.textContent = "";
+      userSession = id;
+      safeSet('sd_session_user', id);
       authModal.style.display = 'none';
       appWrap.style.display = 'flex';
-      loadTrack(0);
-      renderTrackList();
-      renderRanking();
+      initApp();
+    };
+
+    function initApp() {
+      lucide.createIcons();
+      profileName.textContent = userSession;
+      profileId.textContent = `ID: ${userSession}`;
+      
+      const savedTheme = safeGet('sd_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      btnTheme.innerHTML = savedTheme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+
+      buildTrackList();
+      renderHome();
+      renderSearch();
+      loadTrack(0, false);
+      
+      // オンラインなら全楽曲のバックグラウンド自動ロードを走らせる
+      if(navigator.onLine) {
+        prefetchAllSongs();
+      }
     }
 
-    // 🎧 トラック読み込み＆描画基盤
-    function loadTrack(index) {
-      currentTrackIndex = index;
-      const song = songs[index];
+    // ⚡ 爆速バックグラウンド自動保存
+    function prefetchAllSongs() {
+      console.log("全楽曲の自動バックグラウンド読み込みを開始します...");
+      songs.forEach(song => {
+        fetch(song.src, { mode: 'no-cors' })
+          .then(() => console.log(`キャッシュ成功: ${song.title}`))
+          .catch(err => console.warn(`先読み失敗: ${song.title}`, err));
+      });
+    }
 
-      hbTitle.textContent = song.title;
-      hbArtist.textContent = song.artist;
-      panelTitle.textContent = song.title;
-      panelArtist.textContent = song.artist;
-      hbCover.src = song.cover;
-      panelCover.src = song.cover;
+    // テーマ切替
+    btnTheme.onclick = () => {
+      const cur = document.documentElement.getAttribute('data-theme');
+      const nxt = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nxt);
+      safeSet('sd_theme', nxt);
+      btnTheme.innerHTML = nxt === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    };
 
-      audio.src = song.src;
-      audio.load();
+    // 🏎️ 倍速切り替え
+    btnSpeed.onclick = () => {
+      curSpeedIdx = (curSpeedIdx + 1) % playSpeeds.length;
+      const spd = playSpeeds[curSpeedIdx];
+      btnSpeed.textContent = `${spd.toFixed(1)}x`;
+      audio.playbackRate = spd;
+      btnSpeed.classList.toggle('active', spd !== 1.0);
+    };
 
-      // オーディオメタデータロード後に秒数を正確に割り当てる
-      audio.onloadedmetadata = () => {
-        timeTotal.textContent = formatTime(audio.duration);
-        progressSlider.max = audio.duration;
+    // タブ切替
+    document.querySelectorAll('.nav-tab').forEach(item => {
+      item.onclick = () => {
+        document.querySelectorAll('.nav-tab').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const tab = item.getAttribute('data-tab');
+        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        if(tab === 'home') renderHome();
       };
+    });
 
-      progressSlider.value = 0;
-      timeCurrent.textContent = "0:00";
-
-      // 歌詞の初期生成
-      lyricsBox.innerHTML = "";
-      song.lines.forEach((l, i) => {
-        const lineDiv = document.createElement('div');
-        lineDiv.className = `l-line ${i === 0 ? 'active' : ''}`;
-        lineDiv.id = `lyric-line-${i}`;
-        lineDiv.textContent = l.text;
-        lyricsBox.appendChild(lineDiv);
-      });
-      lyricsBox.scrollTop = 0;
+    function getStats() {
+      const d = safeGet(`sd_stats_${userSession}`);
+      return d ? JSON.parse(d) : {};
+    }
+    function incPlayCount(id) {
+      const st = getStats(); st[id] = (st[id] || 0) + 1;
+      safeSet(`sd_stats_${userSession}`, JSON.stringify(st));
     }
 
-    function formatTime(secs) {
-      if(isNaN(secs)) return "0:00";
-      const m = Math.floor(secs / 60);
-      const s = Math.floor(secs % 60);
-      return `${m}:${s < 10 ? '0' : ''}${s}`;
-    }
-
-    // 🎛️ コントロールパネルの動作
-    btnPlay.onclick = () => { if (isPlaying) { pauseTrack(); } else { playTrack(); } };
-    btnPrev.onclick = () => { changeTrack(-1); };
-    btnNext.onclick = () => { changeTrack(1); };
-
-    btnShuffle.onclick = () => {
-      isShuffle = !isShuffle;
-      btnShuffle.classList.toggle('active', isShuffle);
-    };
-
-    btnRepeat.onclick = () => {
-      isRepeat = !isRepeat;
-      btnRepeat.classList.toggle('active', isRepeat);
-    };
-
-    function playTrack() {
-      isPlaying = true;
-      btnPlay.innerHTML = '<i class="fa-solid fa-circle-pause"></i>';
-      audio.play().catch(() => {});
-      startTracker();
-      incrementStats(songs[currentTrackIndex].id);
-    }
-
-    function pauseTrack() {
-      isPlaying = false;
-      btnPlay.innerHTML = '<i class="fa-solid fa-circle-play"></i>';
-      audio.pause();
-      stopTracker();
-    }
-
-    function changeTrack(direction) {
-      if (!isRepeat && isShuffle && direction === 1) {
-        let rand;
-        do { rand = Math.floor(Math.random() * songs.length); } while(rand === currentTrackIndex && songs.length > 1);
-        currentTrackIndex = rand;
-      } else if (!isRepeat) {
-        currentTrackIndex += direction;
-        if (currentTrackIndex >= songs.length) currentTrackIndex = 0;
-        if (currentTrackIndex < 0) currentTrackIndex = songs.length - 1;
-      }
-      // リピートがON（isRepeat == true）の場合は、同じcurrentTrackIndexをそのまま再ロードする
-      loadTrack(currentTrackIndex);
-      if (isPlaying) playTrack();
-      renderTrackList();
-    }
-
-    // スライダー操作でのシーク
-    progressSlider.oninput = () => {
-      audio.currentTime = progressSlider.value;
-      timeCurrent.textContent = formatTime(audio.currentTime);
-      syncLyrics(audio.currentTime);
-    };
-
-    // ⏱️ 自律進行タイマーシステム（等倍速駆動）
-    function startTracker() {
-      stopTracker();
-      trackerTimerId = setInterval(() => {
-        progressSlider.value = audio.currentTime;
-        timeCurrent.textContent = formatTime(audio.currentTime);
-        syncLyrics(audio.currentTime);
-
-        if (audio.ended) {
-          changeTrack(1);
-        }
-      }, 250);
-    }
-    function stopTracker() { if (trackerTimerId) clearInterval(trackerTimerId); }
-
-    // 💬 歌詞の高度なスクロール＆同期
-    function syncLyrics(currTime) {
-      const song = songs[currentTrackIndex];
-      let activeIndex = 0;
-      for (let i = 0; i < song.lines.length; i++) {
-        if (currTime >= song.lines[i].time) {
-          activeIndex = i;
-        }
-      }
-      document.querySelectorAll('.l-line').forEach((el, idx) => {
-        if (idx === activeIndex) {
-          if (!el.classList.contains('active')) {
-            el.classList.add('active');
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        } else {
-          el.classList.remove('active');
-        }
-      });
-    }
-
-    // 再生履歴解析のカウントアップ
-    function incrementStats(songId) {
-      let stats = safeGet(`sd_stats_${userSession}`) || {};
-      stats[songId] = (stats[songId] || 0) + 1;
-      safeSet(`sd_stats_${userSession}`, stats);
-      renderRanking();
-    }
-
-    // リスト描画関連
-    function renderTrackList() {
-      trackList.innerHTML = "";
+    function buildTrackList() {
+      trackList.innerHTML = '';
       songs.forEach((s, idx) => {
-        const row = document.createElement('div');
-        row.className = `track-row ${idx === currentTrackIndex ? 'active' : ''}`;
-        row.onclick = () => { loadTrack(idx); playTrack(); renderTrackList(); };
-        row.innerHTML = `
-          <span class="t-num">${idx + 1}</span>
-          <img src="${s.cover}" class="t-art">
+        const li = document.createElement('div');
+        li.className = `track-row ${idx === curIdx ? 'active' : ''}`;
+        li.onclick = () => loadTrack(idx, true);
+        li.innerHTML = `
+          <div class="t-num">${String(idx + 1).padStart(2, '0')}</div>
+          <img src="${s.cover}" class="t-art" onerror="this.src='jacket1.png'">
           <div class="t-info">
             <div class="t-title">${s.title}</div>
             <div class="t-artist">${s.artist}</div>
           </div>
         `;
-        trackList.appendChild(row);
+        trackList.appendChild(li);
       });
     }
 
-    function renderRanking() {
-      rankingList.innerHTML = "";
-      let stats = safeGet(`sd_stats_${userSession}`) || {};
-      const sorted = [...songs]
-        .map(s => ({ ...s, count: stats[s.id] || 0 }))
-        .sort((a, b) => b.count - a.count);
+    function renderHome() {
+      homeQuickGrid.innerHTML = '';
+      songs.slice(0, 3).forEach(s => homeQuickGrid.appendChild(createCard(s)));
 
-      sorted.forEach((s, idx) => {
-        const row = document.createElement('div');
-        row.className = "rank-item";
-        row.innerHTML = `
-          <div class="rank-num">${idx + 1}</div>
-          <div class="rank-info">
-            <div class="rank-title">${s.title}</div>
-            <div class="rank-artist">${s.artist}</div>
-          </div>
-          <div class="rank-count">${s.count}回再生</div>
-        `;
-        rankingList.appendChild(row);
+      homeRankGrid.innerHTML = '';
+      const st = getStats();
+      const sorted = [...songs].sort((a,b) => (st[b.id]||0) - (st[a.id]||0));
+      sorted.slice(0, 3).forEach((s, i) => {
+        const div = createCard(s);
+        const b = document.createElement('div'); b.className = 'rank-badge'; b.textContent = i + 1;
+        div.insertBefore(b, div.firstChild);
+        homeRankGrid.appendChild(div);
       });
     }
 
-    // タブナビゲーション
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.onclick = () => {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.view-tab').forEach(v => v.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(`tab-${tab.getAttribute('data-tab')}`).classList.add('active');
-        if (tab.getAttribute('data-tab') === 'home') renderTrackList();
+    function renderSearch() {
+      searchResultGrid.innerHTML = '';
+      const q = searchInput.value.toLowerCase();
+      songs.forEach(s => {
+        if(s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)) {
+          searchResultGrid.appendChild(createCard(s));
+        }
+      });
+    }
+    searchInput.oninput = renderSearch;
+
+    function createCard(song) {
+      const idx = songs.findIndex(x => x.id === song.id);
+      const div = document.createElement('div'); div.className = 'card';
+      div.onclick = () => {
+        loadTrack(idx, true);
+        document.querySelector('.nav-tab[data-tab="playlist"]').click();
       };
-    });
+      div.innerHTML = `
+        <img src="${song.cover}" class="card-img" onerror="this.src='jacket1.png'">
+        <div class="card-info">
+          <div class="card-title">${song.title}</div>
+          <div class="card-desc">${song.artist}</div>
+        </div>
+      `;
+      return div;
+    }
 
-    // テーマ切替
-    let darkTheme = false;
-    btnTheme.onclick = () => {
-      darkTheme = !darkTheme;
-      document.documentElement.setAttribute('data-theme', darkTheme ? 'dark' : 'light');
-      btnTheme.textContent = darkTheme ? '☀️' : '🌙';
+    // 🎵 プレイヤー再生システム
+    function loadTrack(idx, autoPlay) {
+      curIdx = idx;
+      const s = songs[curIdx];
+      audio.src = s.src;
+
+      document.querySelectorAll('.track-row').forEach((r, i) => r.classList.toggle('active', i === idx));
+
+      panelCover.src = s.cover; panelTitle.textContent = s.title; panelArtist.textContent = s.artist;
+      barCover.src = s.cover; barTitle.textContent = s.title; barArtist.textContent = s.artist;
+
+      buildLyrics(s);
+      
+      if(isFb) {
+        // フェイクタイマー稼働時は音楽そのものの長さを上書きして擬似コントロール
+        progressSlider.max = fkDur;
+        timeDuration.textContent = formatTime(fkDur);
+        fkCur = 0;
+        progressSlider.value = 0;
+        timeCurrent.textContent = "0:00";
+      } else {
+        progressSlider.value = 0;
+        timeCurrent.textContent = "0:00";
+      }
+
+      if(autoPlay) { incPlayCount(s.id); playTrack(); } else { setPlayingState(false); }
+    }
+
+    function playTrack() {
+      if(isFb) {
+        startFkTimer();
+        setPlayingState(true);
+      } else {
+        audio.play()
+          .then(() => {
+            audio.playbackRate = playSpeeds[curSpeedIdx];
+            setPlayingState(true);
+          })
+          .catch((err) => {
+            console.error("再生に失敗しました:", err);
+            setPlayingState(false); // エラー時はフリーズを回避して再生停止状態に戻す
+            alert("この曲はまだオフライン用に保存されていないか、読み込みに失敗しました。Wi-Fi接続時に一度アプリを開くと爆速ダウンロードが始まります。");
+          });
+      }
+    }
+    
+    function pauseTrack() {
+      if(isFb) { stopFkTimer(); } else { audio.pause(); }
+      setPlayingState(false);
+    }
+    
+    function setPlayingState(p) {
+      isPlaying = p;
+      btnPlay.innerHTML = p ? '<i class="fa-solid fa-circle-pause"></i>' : '<i class="fa-solid fa-circle-play"></i>';
+      playlistLayout.classList.toggle('playing', p);
+    }
+
+    btnPlay.onclick = () => isPlaying ? pauseTrack() : playTrack();
+    btnPrev.onclick = () => prevTrack();
+    btnNext.onclick = () => nextTrack();
+
+    function prevTrack() { let i = curIdx - 1; if(i < 0) i = songs.length - 1; loadTrack(i, true); }
+    function nextTrack() { let i = curIdx + 1; if(i >= songs.length) i = 0; loadTrack(i, true); }
+
+    function toggleLyrics(show) {
+      isLyOn = show;
+      btnToggleLyrics.classList.toggle('active', show);
+      playlistLayout.classList.toggle('lyrics-off', !show);
+    }
+    btnToggleLyrics.onclick = () => toggleLyrics(!isLyOn);
+    btnHideLyrics.onclick = () => toggleLyrics(false);
+
+    // オーディオ連動イベント
+    audio.ondurationchange = () => { if(!isFb) { progressSlider.max = audio.duration; timeDuration.textContent = formatTime(audio.duration); } };
+    audio.ontimeupdate = () => {
+      if(!isFb) {
+        if(!progressSlider.classList.contains('seeking')) {
+          progressSlider.value = audio.currentTime;
+          timeCurrent.textContent = formatTime(audio.currentTime);
+        }
+        syncLyrics(audio.currentTime);
+      }
     };
 
-    // 管制室：パスワード・リセット処理
+    progressSlider.oninput = () => {
+      progressSlider.classList.add('seeking');
+      timeCurrent.textContent = formatTime(progressSlider.value);
+    };
+    progressSlider.onchange = () => {
+      if(isFb) {
+        fkCur = parseFloat(progressSlider.value);
+      } else {
+        audio.currentTime = progressSlider.value;
+      }
+      progressSlider.classList.remove('seeking');
+    };
+    
+    audio.onended = () => { if(!isFb) nextTrack(); };
+
+    function buildLyrics(song) {
+      lyricsBox.innerHTML = '';
+      if(!song.lines) return lyricsBox.innerHTML = '<div class="l-line">No Lyrics</div>';
+      song.lines.forEach(l => {
+        const d = document.createElement('div'); d.className = 'l-line'; d.textContent = l.text;
+        d.onclick = () => { if(isFb) fkCur = l.time; else audio.currentTime = l.time; };
+        lyricsBox.appendChild(d);
+      });
+    }
+
+    function syncLyrics(time) {
+      if(!isLyOn) return; const s = songs[curIdx]; if(!s.lines) return;
+      let aIdx = -1; for(let i=0; i<s.lines.length; i++) { if(time >= s.lines[i].time) aIdx = i; else break; }
+      const els = lyricsBox.querySelectorAll('.l-line');
+      els.forEach((el, i) => {
+        if(i === aIdx) {
+          if(!el.classList.contains('active')) {
+            el.classList.add('active');
+            lyricsBox.scrollTo({ top: el.offsetTop - (lyricsBox.clientHeight/2) + (el.clientHeight/2), behavior: 'smooth' });
+          }
+        } else el.classList.remove('active');
+      });
+    }
+
+    function formatTime(s) { const m = Math.floor(s/60), sc = Math.floor(s%60); return `${m}:${sc<10?'0':''}${sc}`; }
+
+    // ⏱️ フェイクタイマーロジック
+    btnStartFk.onclick = () => {
+      const m = parseInt(fkMinInput.value) || 0;
+      const sc = parseInt(fkSecInput.value) || 0;
+      const totalSec = (m * 60) + sc;
+
+      if(totalSec <= 0) {
+        // タイマー解除
+        isFb = false;
+        stopFkTimer();
+        fkBadge.style.display = 'none';
+        fkStatusMsg.textContent = "フェイクタイマーをオフにしました。";
+        loadTrack(curIdx, false);
+        return;
+      }
+
+      isFb = true;
+      fkDur = totalSec;
+      fkCur = 0;
+      fkBadge.style.display = 'block';
+      fkStatusMsg.textContent = `タイマー設定完了: ${m}分${sc}秒`;
+      
+      progressSlider.max = fkDur;
+      timeDuration.textContent = formatTime(fkDur);
+      progressSlider.value = 0;
+      timeCurrent.textContent = "0:00";
+      
+      pauseTrack();
+    };
+
+    function startFkTimer() {
+      stopFkTimer();
+      // 倍速設定を反映してタイマーの進む速度を変化させる
+      fkTimerId = setInterval(() => {
+        const spd = playSpeeds[curSpeedIdx];
+        fkCur += (0.1 * spd);
+        if(fkCur >= fkDur) {
+          fkCur = fkDur;
+          stopFkTimer();
+          setPlayingState(false);
+          nextTrack();
+        }
+        if(!progressSlider.classList.contains('seeking')) {
+          progressSlider.value = fkCur;
+          timeCurrent.textContent = formatTime(fkCur);
+        }
+        syncLyrics(fkCur);
+      }, 100);
+    }
+
+    function stopFkTimer() { if(fkTimerId) { clearInterval(fkTimerId); fkTimerId = null; } }
+
+    // 設定管理
     btnUpdatePass.onclick = () => {
       const np = newPassInput.value.trim();
-      if (np.length < 4) { alert("パスワードは4文字以上で入力してください。"); return; }
+      if(np.length < 4) { alert("パスワードは4文字以上で入力してください。"); return; }
       safeSet(`sd_pass_${userSession}`, np);
       passMsg.style.display = "block";
-      passMsg.textContent = "アクセスコードを更新しました。";
+      passMsg.textContent = "パスワードを更新しました。";
       newPassInput.value = "";
-      setTimeout(() => passMsg.style.display = "none", 3000);
+      setTimeout(() => passMsg.style.display="none", 3000);
     };
 
     btnLogout.onclick = () => {
-      safeRemove('sd_session_user'); pauseTrack();
+      safeRemove('sd_session_user'); audio.pause(); stopFkTimer(); setPlayingState(false);
       appWrap.style.display = 'none'; authModal.style.display = 'flex';
       authId.value = ""; authPass.value = "";
     };
 
     btnResetData.onclick = () => {
-      if (confirm('すべての再生履歴、カスタムパスワードが完全に初期化されます。よろしいですか？')) {
+      if(confirm('これまでの再生回数ランキングやカスタムパスワードがすべて削除されます。初期化しますか？')) {
         safeRemove(`sd_stats_${userSession}`); safeRemove(`sd_pass_${userSession}`);
-        alert('データを初期化しました。セッションを終了します。'); btnLogout.click();
+        alert('データを初期化しました。一度ログアウトします。'); btnLogout.click();
       }
     };
+
+    // iOS/iPadOS用リモコン連動
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setActionHandler('play', playTrack);
+      navigator.mediaSession.setActionHandler('pause', pauseTrack);
+      navigator.mediaSession.setActionHandler('previoustrack', prevTrack);
+      navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
+    }
   </script>
 </body>
 </html>
