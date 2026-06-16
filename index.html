@@ -19,15 +19,18 @@
     /* =========================================
        🎨 Apple Style: Liquid Glass Theme
        ========================================= */
-:root {
+/* =========================================
+       🌌 Next-Gen Theme: Ether Glass (エーテルグラス完全版)
+       ========================================= */
+    :root {
       /* 背景：朝靄（あさもや）のような透明感のあるプリズム */
       --bg-main: #f0f4f8; 
       
-      /* エーテルグラス：超高透明度＋エッジ発光 */
-      --panel-bg: rgba(255, 255, 255, 0.45);
+      /* 💡 iPad Safariでも確実に透けるように、白の透明度を極限（0.12）まで落とします */
+      --panel-bg: rgba(255, 255, 255, 0.12);
       
-      /* ガラスの端が光ファイバーのように輝くダブルハイライト */
-      --panel-border: rgba(255, 255, 255, 0.9);
+      /* ガラスの端が光を孕んで輝くシャープなハイライト */
+      --panel-border: rgba(255, 255, 255, 0.55);
       
       --accent-color: #ff2d55;
       --text-main: #000000;
@@ -35,17 +38,16 @@
       --text-sub: #636366;
       --btn-main-bg: #1c1c1e;
       --btn-main-text: white;
-      --item-hover: rgba(255, 255, 255, 0.5);
+      --item-hover: rgba(255, 255, 255, 0.35);
       --item-active: rgba(255, 45, 85, 0.08);
       --lyrics-dim: rgba(0, 0, 0, 0.3);
       
-      /* エーテルグラス専用：重さを消し、光の屈折だけを残す超広域シャドウ */
-      --shadow: 0 4px 30px rgba(0, 0, 0, 0.03), 
-                inset 0 1px 1px rgba(255, 255, 255, 0.8),
-                inset 0 -1px 2px rgba(0, 0, 0, 0.02);
+      /* 重さを完全に消し去り、屈折だけを残す超広域シャドウ */
+      --shadow: 0 4px 30px rgba(0, 0, 0, 0.01), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.6);
                 
-      /* 屈折率（ブラー）をLiquid Glass超えの「40px」に強化 */
-      --glass-blur: blur(40px);
+      /* 屈折ブラーの強度 */
+      --glass-blur: blur(30px);
       --hotbar-height: 90px;
       --header-height: 80px;
     }
@@ -54,9 +56,9 @@
       /* 背景：星雲（ネブラ）のような深邃な宇宙のグラデーション */
       --bg-main: #060814;
       
-      /* ダーク・エーテル：漆黒ではなく「光を吸い込む夜の硝子」 */
-      --panel-bg: rgba(15, 20, 35, 0.45);
-      --panel-border: rgba(255, 255, 255, 0.15);
+      /* ダーク・エーテル：光を吸い込む夜の透明硝子（0.10） */
+      --panel-bg: rgba(10, 15, 30, 0.10);
+      --panel-border: rgba(255, 255, 255, 0.12);
       
       --accent-color: #ff2d55;
       --text-main: #ffffff;
@@ -64,50 +66,43 @@
       --text-sub: #9898ed;
       --btn-main-bg: #ffffff;
       --btn-main-text: #000000;
-      --item-hover: rgba(255, 255, 255, 0.08);
-      --item-active: rgba(255, 45, 85, 0.18);
+      --item-hover: rgba(255, 255, 255, 0.06);
+      --item-active: rgba(255, 45, 85, 0.15);
       --lyrics-dim: rgba(255, 255, 255, 0.35);
       
-      /* ダーク専用：ネオンエッジハイライト */
-      --shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 
-                inset 0 1px 2px rgba(255, 255, 255, 0.2),
-                inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+      --shadow: 0 15px 35px rgba(0, 0, 0, 0.25),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
     }
 
-    /* エーテルグラスを透過する「オーロラ液晶」アニメーション */
+    /* 💡 iPadのSafariがガラス背景の透過をサボるのを100%防止する特効薬 */
+    .pl-panel, .card, .hotbar, .account-card, .search-input {
+      transform: translate3d(0, 0, 0) !important;
+      -webkit-transform: translate3d(0, 0, 0) !important;
+      backdrop-filter: var(--glass-blur) !important;
+      -webkit-backdrop-filter: var(--glass-blur) !important;
+      background-image: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 40%, rgba(0,0,0,0.03) 100%) !important;
+    }
+
+    /* エーテルグラスの奥でヌルヌルと動き続ける「オーロラ液晶」 */
     .bg-animate {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-      background: radial-gradient(circle at 90% 10%, rgba(255, 45, 85, 0.18), transparent 45%),
-                  radial-gradient(circle at 10% 90%, rgba(0, 198, 255, 0.15), transparent 45%),
+      background: radial-gradient(circle at 85% 15%, rgba(255, 45, 85, 0.18), transparent 45%),
+                  radial-gradient(circle at 15% 85%, rgba(0, 198, 255, 0.16), transparent 45%),
                   radial-gradient(circle at 50% 50%, rgba(160, 32, 240, 0.08), transparent 50%);
       background-size: 200% 200%;
-      animation: etherFlow 15s infinite alternate ease-in-out;
+      animation: etherFlow 12s infinite alternate ease-in-out;
     }
     @keyframes etherFlow {
-      0% { background-position: 0% 0%; transform: scale(1); }
-      50% { background-position: 100% 100%; transform: scale(1.05); }
-      100% { background-position: 50% 100%; transform: scale(1); }
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; }
     }
 
-    html[data-theme="dark"] {
-      --bg-main: #030712;
-      --panel-bg: rgba(28, 28, 30, 0.65);
-      --panel-border: rgba(255, 255, 255, 0.1);
-      --accent-color: #ff2d55;
-      --text-main: #ffffff;
-      --text-muted: #f2f2f7;
-      --text-sub: #8e8e93;
-      --btn-main-bg: #ffffff;
-      --btn-main-text: #000000;
-      --item-hover: rgba(255, 255, 255, 0.06);
-      --item-active: rgba(255, 45, 85, 0.15);
-      --lyrics-dim: rgba(255, 255, 255, 0.3);
-      --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    * { 
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Inter', -apple-system, sans-serif; 
+      -webkit-tap-highlight-color: transparent; 
     }
-
-    * { margin: 0; padding: 0; box-sizing: border-box;
-        font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
     
     body {
       background-color: var(--bg-main);
@@ -119,15 +114,45 @@
       transition: background-color 0.4s ease, color 0.4s ease;
     }
 
-    .bg-animate {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-      background: radial-gradient(circle at 80% 20%, rgba(255, 45, 85, 0.12), transparent 50%),
-                  radial-gradient(circle at 20% 80%, rgba(0, 122, 255, 0.08), transparent 50%);
-      animation: ambientBg 20s infinite alternate ease-in-out;
+    /* 🎬 【動画完全再現】タブ切り替え時のヌルヌル横スライド機構 */
+    main {
+      position: relative;
+      overflow: hidden;
     }
-    @keyframes ambientBg { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
 
+    .view-tab {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* アクティブな画面は右から滑らかにスライドイン */
+    .view-tab.active {
+      display: flex;
+      animation: etherSlideIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      z-index: 10;
+    }
+
+    /* 消えゆく古い画面は、少し左にズレながら奥へ引く */
+    .view-tab.exit-left {
+      display: flex;
+      animation: etherSlideOut 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      z-index: 1;
+    }
+
+    @keyframes etherSlideIn {
+      from { transform: translate3d(100%, 0, 0); opacity: 0.3; }
+      to { transform: translate3d(0, 0, 0); opacity: 1; }
+    }
+
+    @keyframes etherSlideOut {
+      from { transform: translate3d(0, 0, 0); opacity: 1; filter: blur(0px); }
+      to { transform: translate3d(-15%, 0, 0); opacity: 0; filter: blur(4px); }
+    }
     /* =========================================
        🔒 認証モーダル
        ========================================= */
