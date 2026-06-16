@@ -19,16 +19,10 @@
     /* =========================================
        🎨 Apple Style: Liquid Glass Theme
        ========================================= */
-/* =========================================
-       🍏 Apple Style: Liquid Glass Theme (見やすさ最優先版)
-       ========================================= */
     :root {
       --bg-main: #e2e8f0; 
-      
-      /* 💡 文字がはっきり読めるように、元のしっかりした白ベース（0.75）に戻します */
       --panel-bg: rgba(255, 255, 255, 0.75);
       --panel-border: rgba(255, 255, 255, 0.8);
-      
       --accent-color: #ff2d55;
       --text-main: #000000;
       --text-muted: #1c1c1e;
@@ -38,11 +32,7 @@
       --item-hover: rgba(0, 0, 0, 0.04);
       --item-active: rgba(255, 45, 85, 0.08);
       --lyrics-dim: rgba(0, 0, 0, 0.25);
-      
-      /* 元の安定したシャドウ */
       --shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-      
-      /* すりガラスのブラーを元の30pxに調整 */
       --glass-blur: blur(30px);
       --hotbar-height: 90px;
       --header-height: 80px;
@@ -50,11 +40,8 @@
 
     html[data-theme="dark"] {
       --bg-main: #030712;
-      
-      /* ダークモードも文字がしっかり浮き出る元の透過度（0.65）に復元 */
       --panel-bg: rgba(28, 28, 30, 0.65);
       --panel-border: rgba(255, 255, 255, 0.1);
-      
       --accent-color: #ff2d55;
       --text-main: #ffffff;
       --text-muted: #f2f2f7;
@@ -67,15 +54,19 @@
       --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     }
 
-    /* iPadの表示を安定させるためのブレンド設定 */
-    .pl-panel, .card, .hotbar, .account-card, .search-input {
-      transform: translate3d(0, 0, 0);
-      -webkit-transform: translate3d(0, 0, 0);
-      backdrop-filter: var(--glass-blur) !important;
-      -webkit-backdrop-filter: var(--glass-blur) !important;
+    * { margin: 0; padding: 0; box-sizing: border-box;
+        font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.4s ease, color 0.4s ease;
     }
 
-    /* 穏やかに動く元の背景グラデーション */
     .bg-animate {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
@@ -83,10 +74,8 @@
                   radial-gradient(circle at 20% 80%, rgba(0, 122, 255, 0.08), transparent 50%);
       animation: ambientBg 20s infinite alternate ease-in-out;
     }
-    @keyframes ambientBg { 
-      0% { transform: scale(1); } 
-      100% { transform: scale(1.1); } 
-    }
+    @keyframes ambientBg { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+
     /* =========================================
        🔒 認証モーダル
        ========================================= */
