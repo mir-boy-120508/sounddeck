@@ -257,46 +257,40 @@
     /* =========================================
        🎵 ボトムホットバー
        ========================================= */
-    .hotbar {
-      height: var(--hotbar-height); width: 100%;
-      background: var(--panel-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border-top: 1px solid var(--panel-border);
-      display: flex; align-items: center; padding: 0 40px; justify-content: space-between;
-      position: relative; z-index: 100; flex-shrink: 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.02);
+.hotbar {
+      /* 🔽 固定位置（fixed）にして、画面下部から20px浮かせます */
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+
+      /* 🔽 画面いっぱいに広がらないよう左右に少し隙間を作り、PCでは広がりすぎないようにします */
+      width: calc(100% - 32px);
+      max-width: 960px;
+
+      /* 🎨 四隅すべてをしっかり丸めて、完全に浮いているカプセル型（ポップアップ風）にします */
+      border-radius: 24px;
+      
+      height: var(--hotbar-height);
+      background: var(--panel-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      
+      /* 🎨 浮かせたので「border-top（上の線）」ではなく、四隅すべてに薄い枠線をつけます */
+      border: 1px solid var(--panel-border);
+      
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      justify-content: space-between;
+      z-index: 900; /* 他の要素より手前に来るように少し高めの数値に設定 */
+      flex-shrink: 0;
+      
+      /* 🎨 下に浮いた影（シャドウ）を少し強めて、立体感を演出します */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      
+      transition: all 0.3s ease;
     }
-    
-    .hb-left { display: flex; align-items: center; gap: 16px; width: 25%; min-width: 200px; }
-    .hb-art { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .hb-info { overflow: hidden; }
-    .hb-title { font-weight: 700; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hb-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
-
-    .hb-center { flex: 1; max-width: 600px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .hb-controls { display: flex; align-items: center; gap: 24px; }
-    .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.3rem; cursor: pointer; transition: color 0.2s, transform 0.1s; }
-    .ctrl-btn:hover { color: var(--accent-color); }
-    .ctrl-btn.active { color: var(--accent-color); }
-    .btn-play { font-size: 2.8rem; }
-    .btn-play:hover { transform: scale(1.05); }
-    
-    .hb-progress { width: 100%; display: flex; align-items: center; gap: 12px; font-size: 0.8rem;
-                   color: var(--text-sub); font-variant-numeric: tabular-nums; font-weight: 600; }
-    .slider { flex: 1; -webkit-appearance: none; appearance: none; height: 6px;
-              background: rgba(125,125,125,0.2); border-radius: 3px; outline: none; cursor: pointer; }
-    .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px;
-                                    border-radius: 50%; background: var(--text-main); cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    .slider::-webkit-slider-thumb:hover { transform: scale(1.2); background: var(--accent-color); }
-
-    .hb-right { width: 25%; min-width: 280px; display: flex; justify-content: flex-end; align-items: center; gap: 24px; }
-    
-    .nav-tabs { display: flex; background: rgba(125,125,125,0.1); border-radius: 20px; padding: 4px; }
-    .nav-tab { background: none; border: none; color: var(--text-sub);
-               padding: 8px 18px; border-radius: 16px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
-    .nav-tab:hover { color: var(--text-main); }
-    .nav-tab.active { background: var(--panel-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    
-    .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
-    .toggle-lyrics-btn.active { color: var(--accent-color); }
 
     /* 🏎️ 倍速・フェイクコントローラースタイル */
     .speed-btn { font-size: 0.85rem; font-weight: 800; background: rgba(125,125,125,0.15); padding: 5px 10px; border-radius: 10px; border: none; color: var(--text-main); cursor: pointer; }
