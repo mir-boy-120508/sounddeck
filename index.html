@@ -19,23 +19,75 @@
     /* =========================================
        🎨 Apple Style: Liquid Glass Theme
        ========================================= */
-    :root {
-      --bg-main: #e2e8f0; 
-      --panel-bg: rgba(255, 255, 255, 0.75);
-      --panel-border: rgba(255, 255, 255, 0.8);
+:root {
+      /* 背景：朝靄（あさもや）のような透明感のあるプリズム */
+      --bg-main: #f0f4f8; 
+      
+      /* エーテルグラス：超高透明度＋エッジ発光 */
+      --panel-bg: rgba(255, 255, 255, 0.45);
+      
+      /* ガラスの端が光ファイバーのように輝くダブルハイライト */
+      --panel-border: rgba(255, 255, 255, 0.9);
+      
       --accent-color: #ff2d55;
       --text-main: #000000;
       --text-muted: #1c1c1e;
-      --text-sub: #8e8e93;
+      --text-sub: #636366;
       --btn-main-bg: #1c1c1e;
       --btn-main-text: white;
-      --item-hover: rgba(0, 0, 0, 0.04);
+      --item-hover: rgba(255, 255, 255, 0.5);
       --item-active: rgba(255, 45, 85, 0.08);
-      --lyrics-dim: rgba(0, 0, 0, 0.25);
-      --shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-      --glass-blur: blur(30px);
+      --lyrics-dim: rgba(0, 0, 0, 0.3);
+      
+      /* エーテルグラス専用：重さを消し、光の屈折だけを残す超広域シャドウ */
+      --shadow: 0 4px 30px rgba(0, 0, 0, 0.03), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.8),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.02);
+                
+      /* 屈折率（ブラー）をLiquid Glass超えの「40px」に強化 */
+      --glass-blur: blur(40px);
       --hotbar-height: 90px;
       --header-height: 80px;
+    }
+
+    html[data-theme="dark"] {
+      /* 背景：星雲（ネブラ）のような深邃な宇宙のグラデーション */
+      --bg-main: #060814;
+      
+      /* ダーク・エーテル：漆黒ではなく「光を吸い込む夜の硝子」 */
+      --panel-bg: rgba(15, 20, 35, 0.45);
+      --panel-border: rgba(255, 255, 255, 0.15);
+      
+      --accent-color: #ff2d55;
+      --text-main: #ffffff;
+      --text-muted: #f2f2f7;
+      --text-sub: #9898ed;
+      --btn-main-bg: #ffffff;
+      --btn-main-text: #000000;
+      --item-hover: rgba(255, 255, 255, 0.08);
+      --item-active: rgba(255, 45, 85, 0.18);
+      --lyrics-dim: rgba(255, 255, 255, 0.35);
+      
+      /* ダーク専用：ネオンエッジハイライト */
+      --shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* エーテルグラスを透過する「オーロラ液晶」アニメーション */
+    .bg-animate {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+      background: radial-gradient(circle at 90% 10%, rgba(255, 45, 85, 0.18), transparent 45%),
+                  radial-gradient(circle at 10% 90%, rgba(0, 198, 255, 0.15), transparent 45%),
+                  radial-gradient(circle at 50% 50%, rgba(160, 32, 240, 0.08), transparent 50%);
+      background-size: 200% 200%;
+      animation: etherFlow 15s infinite alternate ease-in-out;
+    }
+    @keyframes etherFlow {
+      0% { background-position: 0% 0%; transform: scale(1); }
+      50% { background-position: 100% 100%; transform: scale(1.05); }
+      100% { background-position: 50% 100%; transform: scale(1); }
     }
 
     html[data-theme="dark"] {
