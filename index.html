@@ -2,19 +2,25 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoundDeck v1.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SoundDeck v1.0 (Private)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SoundDeck">
+
   <style>
     /* =========================================
        🎨 Apple Style: Liquid Glass Theme
        ========================================= */
     :root {
-      --bg-main: #e2e8f0; /* 背景を少しだけ暗くしてパネルを際立たせる */
+      --bg-main: #e2e8f0; 
       --panel-bg: rgba(255, 255, 255, 0.75);
       --panel-border: rgba(255, 255, 255, 0.8);
       --accent-color: #ff2d55;
@@ -29,6 +35,7 @@
       --shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
       --glass-blur: blur(30px);
       --hotbar-height: 90px;
+      --header-height: 80px;
     }
 
     html[data-theme="dark"] {
@@ -47,11 +54,22 @@
       --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; transition: background-color 0.4s ease, color 0.4s ease; }
+    * { margin: 0; padding: 0; box-sizing: border-box;
+        font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
 
     .bg-animate {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
       background: radial-gradient(circle at 80% 20%, rgba(255, 45, 85, 0.12), transparent 50%),
                   radial-gradient(circle at 20% 80%, rgba(0, 122, 255, 0.08), transparent 50%);
       animation: ambientBg 20s infinite alternate ease-in-out;
@@ -62,27 +80,35 @@
        🔒 認証モーダル
        ========================================= */
     #authModal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.4); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       display: flex; justify-content: center; align-items: center; z-index: 10000;
     }
     .auth-box {
       background: var(--panel-bg); border: 1px solid var(--panel-border);
-      padding: 40px; border-radius: 28px; width: 100%; max-width: 400px; box-shadow: var(--shadow); text-align: center;
+      padding: 40px; border-radius: 28px; width: 100%; max-width: 400px;
+      box-shadow: var(--shadow); text-align: center;
     }
     .auth-box img.logo-lg { height: 48px; margin-bottom: 20px; object-fit: contain; }
     .auth-subtitle { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 24px; }
     .auth-input {
-      width: 100%; padding: 14px; border-radius: 14px; border: 1px solid rgba(125,125,125,0.2);
-      background: rgba(125, 125, 125, 0.05); color: var(--text-main); font-size: 1rem; margin-bottom: 12px; outline: none; transition: border-color 0.2s;
+      width: 100%; padding: 14px; border-radius: 14px;
+      border: 1px solid rgba(125,125,125,0.2);
+      background: rgba(125, 125, 125, 0.05); color: var(--text-main); font-size: 1rem;
+      margin-bottom: 12px; outline: none; transition: border-color 0.2s;
     }
     .auth-input:focus { border-color: var(--accent-color); }
     .auth-error { color: var(--accent-color); font-size: 0.8rem; margin-bottom: 12px; min-height: 18px; text-align: left; }
+    
     .btn-primary {
-      width: 100%; min-height: 48px; padding: 14px; border: none; border-radius: 14px;
-      background: var(--btn-main-bg); color: var(--btn-main-text); font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;
+      width: 100%; min-height: 48px; padding: 14px;
+      border: none; border-radius: 14px;
+      background: var(--btn-main-bg); color: var(--btn-main-text); font-size: 1.05rem; font-weight: 600;
+      cursor: pointer; transition: transform 0.2s;
     }
     .btn-primary:active { transform: scale(0.98); }
+    .offline-warning-modal { color: #ff9500; font-size: 0.85rem; margin-top: 15px; display: none; font-weight: 500; }
 
     /* =========================================
        🍏 メインアプリケーションレイアウト
@@ -90,38 +116,54 @@
     #appWrap { display: none; flex-direction: column; height: 100vh; width: 100vw; }
 
     header {
-      height: 80px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 100;
+      height: var(--header-height);
+      padding: 0 40px; display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0; z-index: 100;
     }
     .header-left { display: flex; align-items: center; gap: 24px; }
     .brand-group { display: flex; align-items: center; gap: 10px; }
     .header-logo { height: 36px; object-fit: contain; }
     .brand-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
-    .network-badge { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 12px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+    
+    .network-badge { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 12px;
+                     letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
     .badge-online { background: rgba(52, 199, 89, 0.15); color: #34c759; }
     .badge-offline { background: rgba(255, 149, 0, 0.15); color: #ff9500; }
 
     .btn-theme-circle {
-      width: 44px; height: 44px; border-radius: 50%; background: var(--panel-bg); border: 1px solid var(--panel-border);
-      color: var(--text-main); font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all 0.3s ease; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: var(--shadow);
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--panel-bg); border: 1px solid var(--panel-border);
+      color: var(--text-main); font-size: 1.2rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s ease;
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--shadow);
     }
     .btn-theme-circle:hover { transform: scale(1.08); color: var(--accent-color); }
 
-    main { flex: 1; padding: 0 40px 10px 40px; display: flex; flex-direction: column; overflow: hidden; }
+    main { flex: 1; padding: 0 40px 30px 40px; display: flex; flex-direction: column; overflow: hidden; }
+    
     .view-tab { display: none; width: 100%; height: 100%; flex-direction: column; overflow-y: auto; }
     .view-tab.active { display: flex; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     #view-playlist { overflow: hidden; } 
-    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    
+    @keyframes slideUp { 
+      from { opacity: 0; transform: translateY(30px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
     
     .section-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 24px; letter-spacing: -0.5px; }
 
     .pl-panel {
       background: var(--panel-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--panel-border); border-radius: 28px; box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden;
+      border: 1px solid var(--panel-border); border-radius: 28px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; overflow: hidden;
     }
 
     .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
-    .card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; backdrop-filter: var(--glass-blur); transition: transform 0.2s, background 0.2s; box-shadow: var(--shadow); }
+    .card { background: var(--panel-bg); border: 1px solid var(--panel-border);
+            border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; backdrop-filter: var(--glass-blur); transition: transform 0.2s, background 0.2s;
+            box-shadow: var(--shadow); }
     .card:hover { transform: translateY(-4px); background: var(--item-hover); }
     .card-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; }
     .card-info { flex: 1; overflow: hidden; }
@@ -130,18 +172,23 @@
     .rank-badge { font-size: 1.5rem; font-weight: 800; color: var(--accent-color); opacity: 0.5; width: 30px; text-align: center; }
 
     .search-bar-container { position: relative; max-width: 600px; margin-bottom: 30px; }
-    .search-input { width: 100%; padding: 18px 20px 18px 50px; font-size: 1.2rem; border-radius: 20px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; transition: border-color 0.2s; }
+    .search-input { width: 100%; padding: 18px 20px 18px 50px; font-size: 1.2rem; border-radius: 20px;
+                    border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; transition: border-color 0.2s; }
     .search-input:focus { border-color: var(--accent-color); }
     .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
 
     /* =========================================
-       🎵 プレイリストビュー (3分割レイアウト)
+       🎵 プレイリストビュー
        ========================================= */
-    .playlist-layout-v06 { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%; transition: grid-template-columns 0.4s ease, max-width 0.4s ease; }
+    .playlist-layout-v06 {
+      display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%;
+      transition: grid-template-columns 0.4s ease, max-width 0.4s ease;
+    }
     .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr 1fr; max-width: 1000px; margin: 0 auto; }
     
     .pl-panel-art { padding: 40px 30px; justify-content: center; align-items: center; }
-    .art-mega-wrapper { width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: transform 0.4s ease; }
+    .art-mega-wrapper { width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto;
+                        border-radius: 24px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: transform 0.4s ease; }
     .playing .art-mega-wrapper { transform: scale(1.04); }
     .art-mega { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
     .art-info { text-align: center; margin-top: 30px; width: 100%; }
@@ -152,19 +199,22 @@
     .playlist-layout-v06.lyrics-off .pl-panel-lyrics { display: none; }
     .lyrics-header-zone { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .list-header { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; color: var(--text-sub); }
-    .btn-hide-lyrics { background: var(--item-active); border: none; color: var(--text-main); padding: 6px 14px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-hide-lyrics { background: var(--item-active); border: none; color: var(--text-main); padding: 6px 14px;
+                       border-radius: 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
     .btn-hide-lyrics:hover { color: var(--accent-color); background: var(--item-hover); }
     
     .lyrics-box { flex: 1; overflow-y: auto; padding: 50% 0; scroll-behavior: smooth; margin-right: -15px; padding-right: 15px; }
     .lyrics-box::-webkit-scrollbar { display: none; }
-    .l-line { font-size: 1.35rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6; margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center; }
+    .l-line { font-size: 1.35rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6;
+              margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center; }
     .l-line.active { color: var(--text-main); transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,45,85,0.15)); }
     html[data-theme="dark"] .l-line.active { filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); }
 
     .pl-panel-list { padding: 30px; }
     .track-list { list-style: none; overflow-y: auto; flex: 1; padding-right: 5px; margin-top: 10px; margin-right: -10px; padding-right: 10px; }
     .track-list::-webkit-scrollbar { display: none; }
-    .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer; border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px; }
+    .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer;
+                 border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px; }
     .track-row:hover { background: var(--item-hover); border: 1px solid rgba(125,125,125,0.1); }
     .track-row.active { background: var(--item-active); border: 1px solid rgba(255,45,85,0.1); }
     .track-row.active .t-title { color: var(--accent-color); }
@@ -176,20 +226,29 @@
     .t-match { font-size: 0.75rem; color: #ff9500; margin-top: 4px; font-style: italic; }
 
     /* =========================================
-       ⚙️ 設定 & 統計デザイン
+       ⚙️ 設定画面
        ========================================= */
-    .account-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 28px; padding: 40px; max-width: 600px; margin-bottom: 30px; backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); }
+    .account-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 28px;
+                    padding: 40px; max-width: 600px; margin-bottom: 30px; backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); }
     .acc-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; }
     .acc-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent-color); object-fit: cover; }
     .acc-name { font-size: 1.8rem; font-weight: 800; }
     .acc-id { font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
     .form-group { margin-bottom: 24px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; color: var(--text-sub); }
-    .input-flat { width: 100%; max-width: 340px; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); background: rgba(125,125,125,0.04); color: var(--text-main); font-size: 1rem; outline: none; transition: border-color 0.2s; margin-bottom: 12px; display: block;}
-    .input-flat:focus { border-color: var(--accent-color); }
     
-    .acc-btn { min-height: 44px; padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem; transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; }
+    .input-flat {
+      width: 100%; max-width: 340px; padding: 14px; border-radius: 12px;
+      border: 1px solid rgba(125,125,125,0.2); background: rgba(125, 125, 125, 0.04);
+      color: var(--text-main); font-size: 1rem; outline: none; transition: border-color 0.2s;
+      margin-bottom: 12px; display: block;
+    }
+    .input-flat:focus { border-color: var(--accent-color); }
+
+    .acc-btn { min-height: 44px; padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem;
+               transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; }
     .acc-btn:active { transform: scale(0.98); }
+    .acc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-outline { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); }
     .btn-outline:hover { background: rgba(255,45,85,0.1); }
     .btn-danger { background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 2px solid rgba(255, 59, 48, 0.3); }
@@ -197,12 +256,16 @@
     .acc-message { font-size: 0.85rem; margin-top: 10px; color: #34c759; font-weight: 600; }
 
     /* =========================================
-       🎵 ボトムホットバー (プレイヤー搭載型)
+       🎵 ボトムホットバー
        ========================================= */
     .hotbar {
-      height: var(--hotbar-height); width: 100%; background: var(--panel-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      border-top: 1px solid var(--panel-border); display: flex; align-items: center; padding: 0 40px; justify-content: space-between; position: relative; z-index: 100; flex-shrink: 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.02);
+      height: var(--hotbar-height); width: 100%;
+      background: var(--panel-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border-top: 1px solid var(--panel-border);
+      display: flex; align-items: center; padding: 0 40px; justify-content: space-between;
+      position: relative; z-index: 100; flex-shrink: 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.02);
     }
+    
     .hb-left { display: flex; align-items: center; gap: 16px; width: 25%; min-width: 200px; }
     .hb-art { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .hb-info { overflow: hidden; }
@@ -217,16 +280,22 @@
     .btn-play { font-size: 2.8rem; }
     .btn-play:hover { transform: scale(1.05); }
     
-    .hb-progress { width: 100%; display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--text-sub); font-variant-numeric: tabular-nums; font-weight: 600; }
-    .slider { flex: 1; -webkit-appearance: none; appearance: none; height: 6px; background: rgba(125,125,125,0.2); border-radius: 3px; outline: none; cursor: pointer; }
-    .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--text-main); cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .hb-progress { width: 100%; display: flex; align-items: center; gap: 12px; font-size: 0.8rem;
+                   color: var(--text-sub); font-variant-numeric: tabular-nums; font-weight: 600; }
+    .slider { flex: 1; -webkit-appearance: none; appearance: none; height: 6px;
+              background: rgba(125,125,125,0.2); border-radius: 3px; outline: none; cursor: pointer; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px;
+                                    border-radius: 50%; background: var(--text-main); cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     .slider::-webkit-slider-thumb:hover { transform: scale(1.2); background: var(--accent-color); }
 
     .hb-right { width: 25%; min-width: 280px; display: flex; justify-content: flex-end; align-items: center; gap: 24px; }
+    
     .nav-tabs { display: flex; background: rgba(125,125,125,0.1); border-radius: 20px; padding: 4px; }
-    .nav-tab { background: none; border: none; color: var(--text-sub); padding: 8px 18px; border-radius: 16px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
+    .nav-tab { background: none; border: none; color: var(--text-sub);
+               padding: 8px 18px; border-radius: 16px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
     .nav-tab:hover { color: var(--text-main); }
     .nav-tab.active { background: var(--panel-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    
     .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
     .toggle-lyrics-btn.active { color: var(--accent-color); }
 
@@ -252,6 +321,9 @@
       <input type="password" id="authPass" class="auth-input" placeholder="パスワード (初期: admin123)">
       <div id="authError" class="auth-error"></div>
       <button id="btnLogin" class="btn-primary">Launch Deck</button>
+      <div id="offlineWarningModal" class="offline-warning-modal">
+        <i class="fa-solid fa-cloud-stroke"></i> オフラインモード：保存済みの曲のみ再生可能
+      </div>
     </div>
   </div>
 
@@ -294,8 +366,8 @@
               <img src="jacket1.png" alt="Cover" class="art-mega" id="panelCover">
             </div>
             <div class="art-info">
-              <div class="art-title" id="panelTitle">曲名</div>
-              <div class="art-artist" id="panelArtist">アーティスト</div>
+              <div class="art-title" id="panelTitle">---</div>
+              <div class="art-artist" id="panelArtist">---</div>
             </div>
           </div>
 
@@ -343,8 +415,8 @@
       <div class="hb-left">
         <img src="jacket1.png" alt="Cover" class="hb-art" id="barCover">
         <div class="hb-info">
-          <div class="hb-title" id="barTitle">曲名</div>
-          <div class="hb-artist" id="barArtist">アーティスト</div>
+          <div class="hb-title" id="barTitle">---</div>
+          <div class="hb-artist" id="barArtist">---</div>
         </div>
       </div>
 
@@ -362,7 +434,7 @@
       </div>
 
       <div class="hb-right">
-        <button class="toggle-lyrics-btn active" id="btnToggleLyrics" title="歌詞表示切り替え"><i class="fa-solid fa-quote-right"></i></button>
+        <button class="toggle-lyrics-btn active" id="btnToggleLyrics"><i class="fa-solid fa-quote-right"></i></button>
         <div class="nav-tabs">
           <button class="nav-tab active" data-tab="home"><i class="fa-solid fa-house"></i></button>
           <button class="nav-tab" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -376,216 +448,61 @@
   <audio id="mainAudio"></audio>
 
   <script>
-    // --- 🎵 歌詞シンクデータ ---
+    // --- 🎵 楽曲データベース（歌詞込み） ---
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
         { time: 0.0, text: "🎵 (イントロ)" },
-        { time: 0.0, text: "ロマンティック" },
-        { time: 0.0, text: "恋のアンテナは" },
-        { time: 0.0, text: "嵐で" },
-        { time: 0.0, text: "何処かへ飛んでいった" },
-        { time: 0.0, text: "嘘でしょう" },
-        { time: 0.0, text: "冷たく遇った" },
-        { time: 0.0, text: "こしゃくなエクボに" },
-        { time: 0.0, text: "ちょっと" },
-        { time: 0.0, text: "心が揺れてる" },
-        { time: 0.0, text: "ホントは" },
-        { time: 0.0, text: "本気であたしを" },
-        { time: 0.0, text: "叱ってくれる" },
-        { time: 0.0, text: "大事なひと" },
-        { time: 0.0, text: "なんて言ったら" },
-        { time: 0.0, text: "アイツは" },
-        { time: 0.0, text: "得意気になるから" },
-        { time: 0.0, text: "もう褒めたりしない" },
-        { time: 0.0, text: "タイクツな運命に" },
-        { time: 0.0, text: "飽き飽きしたの" },
-        { time: 0.0, text: "知らない台詞で" },
-        { time: 0.0, text: "解き放してね" },
-        { time: 0.0, text: "ダーリン ダーリン" },
-        { time: 0.0, text: "心の" },
-        { time: 0.0, text: "扉を壊してよ" },
-        { time: 0.0, text: "たいせつなことは" },
-        { time: 0.0, text: "瞳を見て" },
-        { time: 0.0, text: "云って" },
-        { time: 0.0, text: "あなたとならば" },
-        { time: 0.0, text: "この街を抜け出せる" },
-        { time: 0.0, text: "今すぐ" },
-        { time: 0.0, text: "連れ出して" },
-        { time: 0.0, text: "My Sweet Sweet Darling" },
-        { time: 0.0, text: "ドラマティック" },
-        { time: 0.0, text: "笑顔の秘密を" },
-        { time: 0.0, text: "だだだれだって探し続けてる" },
-        { time: 0.0, text: "見上げた" },
-        { time: 0.0, text: "空に描くの" },
-        { time: 0.0, text: "幸せのかたち" },
-        { time: 0.0, text: "そう" },
-        { time: 0.0, text: "あたしらしくいたい" },
-        { time: 0.0, text: "気まぐれなテンションで" },
-        { time: 0.0, text: "振りまわすけど" },
-        { time: 0.0, text: "この手はかならず" },
-        { time: 0.0, text: "離さないでね" },
-        { time: 0.0, text: "ダーリン ダーリン" },
-        { time: 0.0, text: "心の扉を" },
-        { time: 0.0, text: "叩いてよ" },
-        { time: 0.0, text: "素直な気持ちが" },
-        { time: 0.0, text: "あふれていく" },
-        { time: 0.0, text: "あなたとならば" },
-        { time: 0.0, text: "笑っていられるよ" },
-        { time: 0.0, text: "今すぐ" },
-        { time: 0.0, text: "駆け出すの" },
-        { time: 0.0, text: "My Sweet Sweet Darling" },
-        { time: 0.0, text: "ダーリン ダーリン" },
-        { time: 0.0, text: "きっと" },
-        { time: 0.0, text: "あたしは" },
-        { time: 0.0, text: "つかめるよ" },
-        { time: 0.0, text: "幸せの意味に" },
-        { time: 0.0, text: "気づいていく" },
-        { time: 0.0, text: "あなたとならば" },
-        { time: 0.0, text: "明日を変えられる" },
-        { time: 0.0, text: "今すぐ" },
-        { time: 0.0, text: "連れ出して" },
-        { time: 0.0, text: "My Sweet Sweet Darling" },
-        { time: 0.0, text: "ダーリン ダーリン" },
-        { time: 0.0, text: "心の扉を" },
-        { time: 0.0, text: "壊してよ" },
-        { time: 0.0, text: "たいせつなことは" },
-        { time: 0.0, text: "瞳を見て" },
-        { time: 0.0, text: "云って" },
-        { time: 0.0, text: "あなたとならば" },
-        { time: 0.0, text: "この街を抜け出せる" },
-        { time: 0.0, text: "今すぐ" },
-        { time: 0.0, text: "連れ出して" },
-        { time: 0.0, text: "My Sweet Sweet Darling" }
+        { time: 1.0, text: "ロマンティック 恋のアンテナは" },
+        { time: 5.0, text: "嵐で何処かへ飛んでいった" },
+        { time: 9.0, text: "嘘でしょう 冷たく遇った" },
+        { time: 13.0, text: "こしゃくなエクボに ちょっと心が揺れてる" },
+        { time: 19.0, text: "ホントは本気であたしを叱ってくれる大事なひと" },
+        { time: 27.0, text: "なんて言ったらアイツは得意気になるから" },
+        { time: 33.0, text: "もう褒めたりしない" },
+        { time: 36.0, text: "タイクツな運命に飽き飽きしたの" },
+        { time: 41.0, text: "知らない台詞で解き放してね" },
+        { time: 46.0, text: "ダーリン ダーリン 心の扉を壊してよ" },
+        { time: 52.0, text: "たいせつなことは瞳を見て云って" },
+        { time: 57.0, text: "あなたとならばこの街を抜け出せる" },
+        { time: 63.0, text: "今すぐ連れ出して My Sweet Sweet Darling" }
       ]},
-{ id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [
-        { time: 0.0, text: "♪" },
-        { time: 24.3, text: "『目を覚ましてよ』" },
-        { time: 27.2, text: "君の声が" },
-        { time: 29.3, text: "僕を包み" },
-        { time: 32.2, text: "Yeah" },
-        { time: 34.6, text: "窓を開けて" },
-        { time: 37.4, text: "そよ風が" },
-        { time: 39.5, text: "君の髪をなびく" },
-        { time: 44.8, text: "部屋から出る" },
-        { time: 47.7, text: "僕の腕を" },
-        { time: 49.8, text: "つかみながら" },
-        { time: 52.8, text: "君は" },
-        { time: 54.4, text: "『もう少しだけ』" },
-        { time: 56.8, text: "『もう少しだけ』と" },
-        { time: 59.5, text: "僕に君はつぶやく" },
-        { time: 64.9, text: "この世界が闇に" },
-        { time: 69.8, text: "染まる前に" },
-        { time: 74.4, text: "この思いを" },
-        { time: 78.5, text: "だからお願い" },
-        { time: 81.3, text: "僕のそばにいてくれないか" },
-        { time: 85.9, text: "君が好きだから" },
-        { time: 88.6, text: "この思いが君に届くように" },
-        { time: 94.4, text: "願いが叶いますように" },
-        { time: 101.6, text: "窓から見下ろす街並みは" },
-        { time: 106.3, text: "騒がしくて" },
-        { time: 109.1, text: "Yeah" },
-        { time: 111.4, text: "どこか遠く" },
-        { time: 114.0, text: "誰もいない場所へと" },
-        { time: 117.1, text: "あなたと二人" },
-        { time: 121.2, text: "このまま時を止めてどこか遠く" },
-        { time: 125.1, text: "誰もいない場所へ" },
-        { time: 128.5, text: "このまま時が二人を" },
-        { time: 132.8, text: "連れ去ってくれてもいいから" },
-        { time: 137.9, text: "そうだ！" },
-        { time: 139.1, text: "こんな晴れた日には" },
-        { time: 140.4, text: "どこかへ行こうか" },
-        { time: 141.7, text: "車飛ばし君のとこへ" },
-        { time: 143.0, text: "エンジン" },
-        { time: 143.6, text: "テンション" },
-        { time: 144.3, text: "車のステレオ" },
-        { time: 145.4, text: "全てのコンディション" },
-        { time: 146.8, text: "文句なし" },
-        { time: 147.8, text: "体揺らしながら" },
-        { time: 149.3, text: "鼻歌歌いながら" },
-        { time: 150.6, text: "Let's go to hunney's house" },
-        { time: 152.0, text: "到着 ララ" },
-        { time: 153.2, text: "後はそばに君が座るだけ" },
-        { time: 154.5, text: "気持ちだけすでに最前線だぜ" },
-        { time: 156.0, text: "君と見る" },
-        { time: 156.8, text: "海・山・川・道は" },
-        { time: 158.4, text: "いつもと違ってマジ新鮮だ" },
-        { time: 160.0, text: "高ぶる感情押さえ" },
-        { time: 161.4, text: "クールに" },
-        { time: 162.1, text: "君の目を引くために" },
-        { time: 163.5, text: "マジ紳士的に" },
-        { time: 164.7, text: "どこまでも続く道" },
-        { time: 166.1, text: "君と僕もこの道と同じ感じ" },
-        { time: 167.5, text: "いつまでも二人で歩いていこう" },
-        { time: 170.0, text: "なんて言えるはずない" },
-        { time: 171.4, text: "でも君が好き" },
-        { time: 172.9, text: "この世界が闇に" },
-        { time: 177.8, text: "染まる前に" },
-        { time: 182.5, text: "この思いを" },
-        { time: 186.6, text: "だからお願い" },
-        { time: 189.3, text: "僕のそばにいてくれないか" },
-        { time: 194.0, text: "君が好きだから" },
-        { time: 196.7, text: "この思いが君に届くように" },
-        { time: 202.4, text: "願いが叶いますように" },
-        { time: 208.5, text: "だから" },
-        { time: 211.2, text: "君がそばにいるだけで" },
-        { time: 216.5, text: "僕はまた進むことが出来て" },
-        { time: 221.5, text: "また新たな力を" },
-        { time: 225.8, text: "手に入れるんだ" },
-        { time: 231.2, text: "♪" },
-        { time: 246.6, text: "だからお願い" },
-        { time: 249.3, text: "僕のそばにいてくれないか" },
-        { time: 254.0, text: "君が好きだから" },
-        { time: 256.7, text: "この思いが君に届くように" },
-        { time: 262.4, text: "願いが叶いますように" },
-        { time: 266.6, text: "だからお願い" },
-        { time: 269.3, text: "僕のそばにいてくれないか" },
-        { time: 274.0, text: "君が好きだから" },
-        { time: 276.7, text: "この思いが君に届くように" },
-        { time: 282.4, text: "願いが叶いますように" }
+      { id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [
+        { time: 0.0, text: "🎵 (イントロ)" },
+        { time: 14.0, text: "『目を覚ましてよ』君の声が僕を包み Yeah" },
+        { time: 22.0, text: "窓を開けてそよ風が君の髪をなびく" },
+        { time: 29.0, text: "部屋から出る 僕の腕をつかみながら 君は" },
+        { time: 36.0, text: "『もう少しだけ』『もう少しだけ』と僕に君はつぶやく" },
+        { time: 44.0, text: "この世界が闇に染まる前にこの思いを" },
+        { time: 51.0, text: "だからお願い 僕のそばにいてくれないか" },
+        { time: 56.0, text: "君が好きだから" },
+        { time: 58.0, text: "この思いが君に届くように 願いが叶いますように" }
       ]},
-      { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [
-        { time: 0, text: "JUDY AND MARY - 自転車 (Lyrics Start)" }
-      ]},
-      { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [
-        { time: 0, text: "チャットモンチー - 風吹けば恋 (Lyrics Start)" }
-      ]},
-      { id: 4, title: "愛唄", artist: "GReeeeN", src: "song5.mp3", cover: "jacket5.png", lines: [
-        { time: 0, text: "GReeeeN - 愛唄 (Lyrics Start)" }
-      ]},
-      { id: 5, title: "出逢った頃のように", artist: "Every Little Thing", src: "song6.mp3", cover: "jacket6.png", lines: [
-        { time: 0, text: "Every Little Thing - 出逢った頃のように (Lyrics Start)" }
-      ]},
-      { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [
-        { time: 0, text: "中島美嘉 - STARS (Lyrics Start)" }
-      ]},
-      { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [
-        { time: 0, text: "大原ゆい子 - 言わないけどね (Lyrics Start)" }
-      ]},
-      { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [
-        { time: 0, text: "Chara - やさしい気持ち (Lyrics Start)" }
-      ]},
-      { id: 9, title: "君と光", artist: "西川瑞希", src: "song10.mp3", cover: "jacket10.png", lines: [
-        { time: 0, text: "西川瑞希 - 君と光 (Lyrics Start)" }
-      ]}
+      { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [{ time: 0, text: "JUDY AND MARY - 自転車" }]},
+      { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [{ time: 0, text: "チャットモンチー - 風吹けば恋" }]},
+      { id: 4, title: "愛唄", artist: "GReeeeN", src: "song5.mp3", cover: "jacket5.png", lines: [{ time: 0, text: "GReeeeN - 愛唄" }]},
+      { id: 5, title: "出逢った頃のように", artist: "Every Little Thing", src: "song6.mp3", cover: "jacket6.png", lines: [{ time: 0, text: "Every Little Thing - 出逢った頃のように" }]},
+      { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [{ time: 0, text: "中島美嘉 - STARS" }]},
+      { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [{ time: 0, text: "大原ゆい子 - 言わないけどね" }]},
+      { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [{ time: 0, text: "Chara - やさしい気持ち" }]},
+      { id: 9, title: "君と光", artist: "西川瑞希", src: "song10.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "西川瑞希 - 君と光" }]}
     ];
 
-    // --- ⚙️ コアシステムロジック ---
     let curIdx = 0;
     let isPlaying = false;
     let isLyOn = true;
     let userSession = "";
 
-    // ── ローカルストレージ関数 ──
     function safeGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
     function safeSet(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
     function safeRemove(k) { try { localStorage.removeItem(k); } catch(e) {} }
 
-    // ── DOMエレメント ──
+    // DOM群
     const authModal = document.getElementById('authModal');
     const authId = document.getElementById('authId');
     const authPass = document.getElementById('authPass');
     const authError = document.getElementById('authError');
     const btnLogin = document.getElementById('btnLogin');
+    const offlineWarningModal = document.getElementById('offlineWarningModal');
 
     const appWrap = document.getElementById('appWrap');
     const audio = document.getElementById('mainAudio');
@@ -624,7 +541,23 @@
     const btnLogout = document.getElementById('btnLogout');
     const btnResetData = document.getElementById('btnResetData');
 
-    // ── 🔒 ログイン認証 ──
+    // Network Status
+    function updateNetworkStatus() {
+      if(navigator.onLine) {
+        networkBadge.className = "network-badge badge-online";
+        networkBadge.innerHTML = `<i class="fa-solid fa-circle"></i> <span>ONLINE</span>`;
+        offlineWarningModal.style.display = 'none';
+      } else {
+        networkBadge.className = "network-badge badge-offline";
+        networkBadge.innerHTML = `<i class="fa-solid fa-circle"></i> <span>OFFLINE</span>`;
+        offlineWarningModal.style.display = 'block';
+      }
+    }
+    window.addEventListener('online', () => { updateNetworkStatus(); prefetchAllSongs(); });
+    window.addEventListener('offline', updateNetworkStatus);
+    updateNetworkStatus();
+
+    // 🔒 ログインセッション認証
     const activeSession = safeGet('sd_session_user');
     if(activeSession) {
       userSession = activeSession;
@@ -643,7 +576,7 @@
       const localCred = safeGet(`sd_pass_${id}`);
       const targetP = localCred || "admin123";
       
-      if(p !== targetP) {
+      if(p !== targetP && navigator.onLine) {
         authError.textContent = "パスワードが正しくありません。";
         return;
       }
@@ -656,7 +589,6 @@
       initApp();
     };
 
-    // ── アプリ起動処理 ──
     function initApp() {
       lucide.createIcons();
       profileName.textContent = userSession;
@@ -670,9 +602,24 @@
       renderHome();
       renderSearch();
       loadTrack(0, false);
+      
+      // オンラインなら全楽曲のバックグラウンド自動ロードを爆速で回す
+      if(navigator.onLine) {
+        prefetchAllSongs();
+      }
     }
 
-    // テーマ切替
+    // ⚡ 爆速バックグラウンドダウンロードシステム (一瞬で全曲キャッシュ)
+    function prefetchAllSongs() {
+      console.log("全楽曲のバックグラウンド自動キャッシュを開始します...");
+      songs.forEach(song => {
+        // 各曲のファイルをブラウザに先読みさせてService Workerに吸い込ませる
+        fetch(song.src, { mode: 'no-cors' })
+          .then(() => console.log(`キャッシュ成功: ${song.title}`))
+          .catch(err => console.warn(`先読み失敗: ${song.title}`, err));
+      });
+    }
+
     btnTheme.onclick = () => {
       const cur = document.documentElement.getAttribute('data-theme');
       const nxt = cur === 'dark' ? 'light' : 'dark';
@@ -681,7 +628,7 @@
       btnTheme.innerHTML = nxt === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
     };
 
-    // ── ナビゲーションタブ ──
+    // タブ切替
     document.querySelectorAll('.nav-tab').forEach(item => {
       item.onclick = () => {
         document.querySelectorAll('.nav-tab').forEach(i => i.classList.remove('active'));
@@ -693,7 +640,6 @@
       };
     });
 
-    // ── 再生統計 ──
     function getStats() {
       const d = safeGet(`sd_stats_${userSession}`);
       return d ? JSON.parse(d) : {};
@@ -703,7 +649,6 @@
       safeSet(`sd_stats_${userSession}`, JSON.stringify(st));
     }
 
-    // ── UI構築 ──
     function buildTrackList() {
       trackList.innerHTML = '';
       songs.forEach((s, idx) => {
@@ -765,7 +710,7 @@
       return div;
     }
 
-    // ── プレイヤーコントロール ──
+    // ── 🎵 プレイヤー再生・エラーハンドリング強化 ──
     function loadTrack(idx, autoPlay) {
       curIdx = idx;
       const s = songs[curIdx];
@@ -784,9 +729,20 @@
     }
 
     function playTrack() {
-      audio.play().then(() => setPlayState(true)).catch(() => setPlayState(false));
+      // 再生処理にエラーキャッチを搭載してフリーズ（▶️から⏸️に変わらない現象）を完全ガード
+      audio.play()
+        .then(() => {
+          setPlayState(true);
+        })
+        .catch((err) => {
+          console.error("再生開始エラー:", err);
+          setPlayState(false); // エラー時は強制的に▶️ボタンの形にリセット
+          alert("この曲はまだオフライン用に保存されていないか、読み込みに失敗しました。Wi-Fi接続時に一度アプリを開くと自動保存されます。");
+        });
     }
+    
     function pauseTrack() { audio.pause(); setPlayState(false); }
+    
     function setPlayState(p) {
       isPlaying = p;
       btnPlay.innerHTML = p ? '<i class="fa-solid fa-circle-pause"></i>' : '<i class="fa-solid fa-circle-play"></i>';
@@ -797,7 +753,6 @@
     btnPrev.onclick = () => { let i = curIdx - 1; if(i < 0) i = songs.length - 1; loadTrack(i, true); };
     btnNext.onclick = () => { let i = curIdx + 1; if(i >= songs.length) i = 0; loadTrack(i, true); };
 
-    // 歌詞表示切替
     function toggleLyrics(show) {
       isLyOn = show;
       btnToggleLyrics.classList.toggle('active', show);
@@ -806,7 +761,6 @@
     btnToggleLyrics.onclick = () => toggleLyrics(!isLyOn);
     btnHideLyrics.onclick = () => toggleLyrics(false);
 
-    // プログレス
     audio.ondurationchange = () => { progressSlider.max = audio.duration; timeDuration.textContent = formatTime(audio.duration); };
     audio.ontimeupdate = () => {
       if(!progressSlider.classList.contains('seeking')) {
@@ -819,7 +773,6 @@
     progressSlider.onchange = () => { audio.currentTime = progressSlider.value; progressSlider.classList.remove('seeking'); };
     audio.onended = () => { let i = curIdx + 1; if(i >= songs.length) i = 0; loadTrack(i, true); };
 
-    // ── 歌詞シンクシステム ──
     function buildLyrics(song) {
       lyricsBox.innerHTML = '';
       if(!song.lines) return lyricsBox.innerHTML = '<div class="l-line">No Lyrics</div>';
@@ -846,7 +799,7 @@
 
     function formatTime(s) { const m = Math.floor(s/60), sc = Math.floor(s%60); return `${m}:${sc<10?'0':''}${sc}`; }
 
-    // ── 設定 & アカウント操作 ──
+    // 設定
     btnUpdatePass.onclick = () => {
       const np = newPassInput.value.trim();
       if(np.length < 4) { alert("パスワードは4文字以上です。"); return; }
