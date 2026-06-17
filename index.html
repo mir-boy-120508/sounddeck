@@ -20,7 +20,7 @@
        🎨 Apple Style: Liquid Glass Theme
        ========================================= */
     :root {
-      --bg-main: #e2e8f0;
+      --bg-main: #e2e8f0; 
       --panel-bg: rgba(255, 255, 255, 0.75);
       --panel-border: rgba(255, 255, 255, 0.8);
       --accent-color: #ff2d55;
@@ -75,8 +75,7 @@
                   radial-gradient(circle at 20% 80%, rgba(0, 122, 255, 0.08), transparent 50%);
       animation: ambientBg 20s infinite alternate ease-in-out;
     }
-    @keyframes ambientBg { 0% { transform: scale(1);
-    } 100% { transform: scale(1.1); } }
+    @keyframes ambientBg { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
 
     /* =========================================
        🔒 認証モーダル
@@ -94,10 +93,8 @@
       padding: 40px; border-radius: 28px; width: 100%; max-width: 400px;
       box-shadow: var(--shadow); text-align: center;
     }
-    .auth-box img.logo-lg { height: 48px; margin-bottom: 20px; object-fit: contain;
-    }
-    .auth-subtitle { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 24px;
-    }
+    .auth-box img.logo-lg { height: 48px; margin-bottom: 20px; object-fit: contain; }
+    .auth-subtitle { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 24px; }
     .auth-input {
       width: 100%; padding: 14px; border-radius: 14px;
       border: 1px solid rgba(125,125,125,0.2);
@@ -117,14 +114,12 @@
       transition: transform 0.2s;
     }
     .btn-primary:active { transform: scale(0.98); }
-    .offline-warning-modal { color: #ff9500;
-      font-size: 0.85rem; margin-top: 15px; display: none; font-weight: 500; }
+    .offline-warning-modal { color: #ff9500; font-size: 0.85rem; margin-top: 15px; display: none; font-weight: 500; }
 
     /* =========================================
        🍏 メインアプリケーションレイアウト
        ========================================= */
-    #appWrap { display: none;
-      flex-direction: column; height: 100vh; width: 100vw; }
+    #appWrap { display: none; flex-direction: column; height: 100vh; width: 100vw; }
 
     header {
       height: var(--header-height);
@@ -132,19 +127,14 @@
       flex-shrink: 0; z-index: 100;
     }
     .header-left { display: flex; align-items: center; gap: 24px; }
-    .brand-group { display: flex;
-      align-items: center; gap: 10px; }
-    .header-logo { height: 36px; object-fit: contain;
-    }
-    .brand-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
-    }
+    .brand-group { display: flex; align-items: center; gap: 10px; }
+    .header-logo { height: 36px; object-fit: contain; }
+    .brand-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
     
     .network-badge { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 12px;
       letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
-    .badge-online { background: rgba(52, 199, 89, 0.15);
-      color: #34c759; }
-    .badge-offline { background: rgba(255, 149, 0, 0.15); color: #ff9500;
-    }
+    .badge-online { background: rgba(52, 199, 89, 0.15); color: #34c759; }
+    .badge-offline { background: rgba(255, 149, 0, 0.15); color: #ff9500; }
 
     .btn-theme-circle {
       width: 44px; height: 44px; border-radius: 50%;
@@ -156,240 +146,203 @@
       backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       box-shadow: var(--shadow);
     }
-    .btn-theme-circle:hover { transform: scale(1.08); color: var(--accent-color);
-    }
+    .btn-theme-circle:hover { transform: scale(1.08); color: var(--accent-color); }
 
-    main { flex: 1; padding: 0 40px 30px 40px; display: flex; flex-direction: column; overflow: hidden;
-    }
+    main { flex: 1; padding: 0 40px 30px 40px; display: flex; flex-direction: column; overflow: hidden; }
     
-    .view-tab { display: none; width: 100%; height: 100%; flex-direction: column; overflow-y: auto;
-    }
-    .view-tab.active { display: flex; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+    .view-tab { display: none; width: 100%; height: 100%; flex-direction: column; overflow-y: auto; }
+    .view-tab.active { display: flex; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     #view-playlist { overflow: hidden; } 
     
     @keyframes slideUp { 
-      from { opacity: 0;
-        transform: translateY(30px); } 
-      to { opacity: 1; transform: translateY(0);
-      } 
+      from { opacity: 0; transform: translateY(30px); } 
+      to { opacity: 1; transform: translateY(0); } 
     }
     
-    .section-title { font-size: 1.8rem; font-weight: 800;
-      margin-bottom: 24px; letter-spacing: -0.5px; }
+    .section-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 24px; letter-spacing: -0.5px; }
 
     .pl-panel {
-      background: var(--panel-bg); backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
+      background: var(--panel-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--panel-border); border-radius: 28px; box-shadow: var(--shadow);
       display: flex; flex-direction: column; overflow: hidden;
     }
 
-    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px;
-    }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
     .card { background: var(--panel-bg); border: 1px solid var(--panel-border);
             border-radius: 20px; padding: 20px; display: flex; align-items: center;
             gap: 16px; cursor: pointer; backdrop-filter: var(--glass-blur); transition: transform 0.2s, background 0.2s;
             box-shadow: var(--shadow);
     }
     .card:hover { transform: translateY(-4px); background: var(--item-hover); }
-    .card-img { width: 64px; height: 64px;
-      border-radius: 12px; object-fit: cover; }
-    .card-info { flex: 1; overflow: hidden;
-    }
-    .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
+    .card-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; }
+    .card-info { flex: 1; overflow: hidden; }
+    .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-desc { font-size: 0.85rem; color: var(--text-sub); }
-    .rank-badge { font-size: 1.5rem; font-weight: 800;
-      color: var(--accent-color); opacity: 0.5; width: 30px; text-align: center; }
+    .rank-badge { font-size: 1.5rem; font-weight: 800; color: var(--accent-color); opacity: 0.5; width: 30px; text-align: center; }
 
-    .search-bar-container { position: relative; max-width: 600px; margin-bottom: 30px;
-    }
+    .search-bar-container { position: relative; max-width: 600px; margin-bottom: 30px; }
     .search-input { width: 100%; padding: 18px 20px 18px 50px; font-size: 1.2rem; border-radius: 20px;
       border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; transition: border-color 0.2s;
     }
     .search-input:focus { border-color: var(--accent-color); }
-    .search-icon { position: absolute; left: 18px; top: 50%;
-      transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
+    .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
 
     /* =========================================
        🎵 プレイリストビュー
        ========================================= */
     .playlist-layout-v06 {
-      display: grid;
-      grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%;
+      display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%;
       transition: grid-template-columns 0.4s ease, max-width 0.4s ease;
     }
-    .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr 1fr; max-width: 1000px; margin: 0 auto;
-    }
+    .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr 1fr; max-width: 1000px; margin: 0 auto; }
     
-    .pl-panel-art { padding: 40px 30px; justify-content: center; align-items: center;
-    }
-    .art-mega-wrapper { width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto;
-                        border-radius: 24px; overflow: hidden;
+    .pl-panel-art { padding: 40px 30px; justify-content: center; align-items: center; }
+    .art-mega-wrapper { width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto; border-radius: 24px; overflow: hidden;
       box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: transform 0.4s ease; }
-    .playing .art-mega-wrapper { transform: scale(1.04);
-    }
-    .art-mega { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s;
-    }
+    .playing .art-mega-wrapper { transform: scale(1.04); }
+    .art-mega { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
     .art-info { text-align: center; margin-top: 30px; width: 100%; }
-    .art-title { font-size: 1.8rem;
-      font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
-    .art-artist { font-size: 1.1rem; color: var(--accent-color); font-weight: 600;
-    }
+    .art-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .art-artist { font-size: 1.1rem; color: var(--accent-color); font-weight: 600; }
 
     .pl-panel-lyrics { padding: 30px; position: relative; }
-    .playlist-layout-v06.lyrics-off .pl-panel-lyrics { display: none;
-    }
-    .lyrics-header-zone { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-    }
-    .list-header { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; color: var(--text-sub);
-    }
-    .btn-hide-lyrics { background: var(--item-active); border: none; color: var(--text-main); padding: 6px 14px;
-                       border-radius: 12px; font-size: 0.8rem;
+    .playlist-layout-v06.lyrics-off .pl-panel-lyrics { display: none; }
+    .lyrics-header-zone { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .list-header { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; color: var(--text-sub); }
+    .btn-hide-lyrics { background: var(--item-active); border: none; color: var(--text-main); padding: 6px 14px; border-radius: 12px; font-size: 0.8rem;
       font-weight: 700; cursor: pointer; transition: all 0.2s; }
-    .btn-hide-lyrics:hover { color: var(--accent-color); background: var(--item-hover);
-    }
+    .btn-hide-lyrics:hover { color: var(--accent-color); background: var(--item-hover); }
     
-    .lyrics-box { flex: 1; overflow-y: auto; padding: 50% 0; scroll-behavior: smooth;
-      margin-right: -15px; padding-right: 15px; }
+    .lyrics-box { flex: 1; overflow-y: auto; padding: 50% 0; scroll-behavior: smooth; margin-right: -15px; padding-right: 15px; }
     .lyrics-box::-webkit-scrollbar { display: none; }
-    .l-line { font-size: 1.35rem;
-      font-weight: 700; color: var(--lyrics-dim); line-height: 1.6;
+    .l-line { font-size: 1.35rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6;
               margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center;
     }
-    .l-line.active { color: var(--text-main); transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,45,85,0.15));
-    }
+    .l-line.active { color: var(--text-main); transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,45,85,0.15)); }
     html[data-theme="dark"] .l-line.active { filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); }
 
-    .pl-panel-list { padding: 30px;
-    }
-    .track-list { list-style: none; overflow-y: auto; flex: 1; padding-right: 5px; margin-top: 10px; margin-right: -10px; padding-right: 10px;
-    }
+    .pl-panel-list { padding: 30px; }
+    .track-list { list-style: none; overflow-y: auto; flex: 1; padding-right: 5px; margin-top: 10px; margin-right: -10px; padding-right: 10px; }
     .track-list::-webkit-scrollbar { display: none; }
-    .track-row { display: flex; align-items: center;
-      padding: 12px 16px; border-radius: 16px; cursor: pointer;
+    .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer;
                  border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px;
     }
     .track-row:hover { background: var(--item-hover); border: 1px solid rgba(125,125,125,0.1); }
-    .track-row.active { background: var(--item-active);
-      border: 1px solid rgba(255,45,85,0.1); }
-    .track-row.active .t-title { color: var(--accent-color);
-    }
-    .t-num { width: 36px; color: var(--text-sub); font-weight: 700; font-size: 0.95rem;
-    }
-    .t-art { width: 44px; height: 44px; border-radius: 10px; margin-right: 16px; object-fit: cover;
-    }
+    .track-row.active { background: var(--item-active); border: 1px solid rgba(255,45,85,0.1); }
+    .track-row.active .t-title { color: var(--accent-color); }
+    .t-num { width: 36px; color: var(--text-sub); font-weight: 700; font-size: 0.95rem; }
+    .t-art { width: 44px; height: 44px; border-radius: 10px; margin-right: 16px; object-fit: cover; }
     .t-info { flex: 1; overflow: hidden; }
-    .t-title { font-weight: 700; font-size: 1.05rem;
-      margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .t-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500;
-    }
+    .t-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .t-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
 
     /* =========================================
        ⚙️ 設定画面
        ========================================= */
-    .account-card { background: var(--panel-bg);
-      border: 1px solid var(--panel-border); border-radius: 28px;
+    .account-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 28px;
                     padding: 40px; max-width: 600px; margin-bottom: 30px; backdrop-filter: var(--glass-blur); box-shadow: var(--shadow);
     }
-    .acc-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px;
-    }
-    .acc-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent-color); object-fit: cover;
-    }
+    .acc-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; }
+    .acc-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent-color); object-fit: cover; }
     .acc-name { font-size: 1.8rem; font-weight: 800; }
-    .acc-id { font-size: 0.9rem; color: var(--text-sub);
-      font-weight: 600; }
+    .acc-id { font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
     .form-group { margin-bottom: 24px; }
-    .form-group label { display: block;
-      font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; color: var(--text-sub); }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; color: var(--text-sub); }
     
     .input-flat {
-      width: 100%;
-      max-width: 340px; padding: 14px; border-radius: 12px;
-      border: 1px solid rgba(125,125,125,0.2); background: rgba(125, 125, 125, 0.04);
-      color: var(--text-main); font-size: 1rem;
-      outline: none; transition: border-color 0.2s;
-      margin-bottom: 12px; display: block;
+      width: 100%; max-width: 340px; padding: 14px; border-radius: 12px;
+      border: 1px solid rgba(125,125,125,0.2); background: rgba(125, 125, 125, 0.04); color: var(--text-main); font-size: 1rem;
+      outline: none; transition: border-color 0.2s; margin-bottom: 12px; display: block;
     }
-    .input-flat:focus { border-color: var(--accent-color);
-    }
+    .input-flat:focus { border-color: var(--accent-color); }
 
-    .acc-btn { min-height: 44px; padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; border: none;
-      font-size: 0.95rem;
+    .acc-btn { min-height: 44px; padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem;
                transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center;
     }
     .acc-btn:active { transform: scale(0.98); }
-    .acc-btn:disabled { opacity: 0.5; cursor: not-allowed;
-    }
-    .btn-outline { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color);
-    }
+    .acc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); }
     .btn-outline:hover { background: rgba(255,45,85,0.1); }
-    .btn-danger { background: rgba(255, 59, 48, 0.1);
-      color: #ff3b30; border: 2px solid rgba(255, 59, 48, 0.3); }
-    .btn-danger:hover { background: rgba(255, 59, 48, 0.2);
-    }
-    .acc-message { font-size: 0.85rem; margin-top: 10px; color: #34c759; font-weight: 600;
-    }
+    .btn-danger { background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 2px solid rgba(255, 59, 48, 0.3); }
+    .btn-danger:hover { background: rgba(255, 59, 48, 0.2); }
+    .acc-message { font-size: 0.85rem; margin-top: 10px; color: #34c759; font-weight: 600; }
 
     /* =========================================
-       🎵 ボトムホットバー（浮かせて完全に角丸の四角にする修正）
+       🎵 ボトムホットバー（浮遊・角丸四角形への修正）
        ========================================= */
     .hotbar {
       position: fixed;
-      /* 🔽 操作しやすいように画面の下端から少し高め（32px）に浮かせます */
-      bottom: 32px;
+      /* 🔽 画面下部から24px浮かせ、左右にマージンを作る */
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
-
-      /* 🔽 画面の左右にしっかり余白を作り、完全に独立して浮いているように見せます */
       width: calc(100% - 48px);
-      max-width: 960px;
-
-      /* 🎨 四隅をしっかり丸めて、美しい角丸の四角いコンテナにします */
-      border-radius: 24px;
+      max-width: 1200px; /* フル幅に近いサイズ感を維持 */
+      border-radius: 20px; /* 綺麗な角丸の四角形 */
+      border: 1px solid var(--panel-border); /* 上だけでなく全周囲を囲む */
       
       height: var(--hotbar-height);
       background: var(--panel-bg);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
-      
-      /* 🎨 四隅すべてのボーダーラインを綺麗に表示します */
-      border: 1px solid var(--panel-border);
-      
       display: flex;
       align-items: center;
       padding: 0 40px;
       justify-content: space-between;
       z-index: 900; 
       flex-shrink: 0;
-      
-      /* 🎨 浮遊感を際立たせるため、少し強めで滑らかな高級感のあるシャドウをかけます */
-      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.14);
-      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); /* 浮遊感を出す影 */
     }
 
-    /* 🏎️ 倍速・フェイクコントローラースタイル */
-    .speed-btn { font-size: 0.85rem;
-      font-weight: 800; background: rgba(125,125,125,0.15); padding: 5px 10px; border-radius: 10px; border: none; color: var(--text-main); cursor: pointer;
-    }
+    /* 🛠️ 内部パーツ（要素サイズ、ボタン、ジャケ画）はすべて元の設定に戻しました */
+    .hb-left { display: flex; align-items: center; gap: 16px; min-width: 240px; }
+    .hb-art { width: 54px; height: 54px; border-radius: 12px; object-fit: cover; } /* 元のジャケ画サイズ */
+    .hb-info { overflow: hidden; }
+    .hb-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hb-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
+
+    .hb-center { flex: 1; max-width: 520px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .hb-controls { display: flex; align-items: center; gap: 24px; }
+    
+    .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; transition: all 0.2s;
+                width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; } /* 元のボタンサイズ */
+    .ctrl-btn:hover { background: var(--item-hover); color: var(--accent-color); }
+    .ctrl-btn.active { color: var(--accent-color); }
+    .ctrl-btn.btn-play { font-size: 2.4rem; width: 48px; height: 48px; color: var(--text-main); }
+    .ctrl-btn.btn-play:hover { transform: scale(1.05); color: var(--accent-color); background: none; }
+
+    .hb-progress { width: 100%; display: flex; align-items: center; gap: 12px; }
+    .hb-progress span { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); min-width: 32px; }
+    #timeCurrent { text-align: right; }
+
+    .slider { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; border-radius: 3px;
+              background: rgba(125,125,125,0.2); outline: none; cursor: pointer; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%;
+                                    background: var(--text-main); cursor: pointer; transition: transform 0.1s; }
+    .slider::-webkit-slider-thumb:hover { transform: scale(1.3); background: var(--accent-color); }
+
+    .hb-right { display: flex; align-items: center; gap: 20px; min-width: 240px; justify-content: flex-end; }
+    
+    .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.1rem; cursor: pointer; transition: color 0.2s; }
+    .toggle-lyrics-btn.active { color: var(--accent-color); }
+
+    .nav-tabs { background: rgba(125,125,125,0.08); padding: 4px; border-radius: 14px; display: flex; gap: 4px; }
+    .nav-tab { background: none; border: none; color: var(--text-sub); width: 38px; height: 34px; border-radius: 10px;
+               cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s; }
+    .nav-tab:hover { color: var(--text-main); }
+    .nav-tab.active { background: var(--panel-bg); color: var(--accent-color); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+    .speed-btn { font-size: 0.85rem; font-weight: 800; background: rgba(125,125,125,0.15); padding: 5px 10px; border-radius: 10px; border: none; color: var(--text-main); cursor: pointer; }
     .speed-btn.active { background: var(--accent-color); color: white; }
-    .fk-badge { font-size: 0.75rem; font-weight: 800;
-      background: #ff9500; color: white; padding: 4px 8px; border-radius: 8px; display: none;
-    }
+    .fk-badge { font-size: 0.75rem; font-weight: 800; background: #ff9500; color: white; padding: 4px 8px; border-radius: 8px; display: none; }
 
     @media (max-width: 1000px) {
-      .hotbar { padding: 0 20px;
-      }
+      .hotbar { padding: 0 20px; }
       .hb-left { display: none; }
-      .hb-right { min-width: auto;
-      }
-      .playlist-layout-v06, .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr; overflow-y: auto; height: auto; padding-bottom: 40px;
-      }
-      .pl-panel { min-height: 400px; margin-bottom: 20px;
-      }
-      main { padding: 20px;
-      }
+      .hb-right { min-width: auto; }
+      .playlist-layout-v06, .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr; overflow-y: auto; height: auto; padding-bottom: 40px; }
+      .pl-panel { min-height: 400px; margin-bottom: 20px; }
+      main { padding: 20px; }
     }
   </style>
 </head>
@@ -584,7 +537,7 @@
         { time: 44.0, text: "この世界が闇に染まる前にこの思いを" },
         { time: 51.0, text: "だからお願い 僕のそばにいてくれないか" },
         { time: 56.0, text: "君が好きだから" },
-        { time: 58.0, text: "この思いが君に届くように 願いが叶いますように" }
+        { time: 58.0, text: "この思いが君に届くように 願いが慢いますように" }
       ]},
       { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [{ time: 0, text: "JUDY AND MARY - 自転車" }]},
       { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [{ time: 0, text: "チャットモンチー - 風吹けば恋" }]},
@@ -729,13 +682,11 @@
       renderHome();
       renderSearch();
       loadTrack(0, false);
-      // オンラインなら全楽曲のバックグラウンド自動ロードを走らせる
       if(navigator.onLine) {
         prefetchAllSongs();
       }
     }
 
-    // ⚡ バックグラウンド自動保存
     function prefetchAllSongs() {
       console.log("全楽曲の自動バックグラウンド読み込みを開始します...");
       songs.forEach(song => {
@@ -745,7 +696,6 @@
       });
     }
 
-    // テーマ切替
     btnTheme.onclick = () => {
       const cur = document.documentElement.getAttribute('data-theme');
       const nxt = cur === 'dark' ? 'light' : 'dark';
@@ -755,7 +705,6 @@
         '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
     };
 
-    // 🏎️ 倍速切り替え
     btnSpeed.onclick = () => {
       curSpeedIdx = (curSpeedIdx + 1) % playSpeeds.length;
       const spd = playSpeeds[curSpeedIdx];
@@ -764,7 +713,6 @@
       btnSpeed.classList.toggle('active', spd !== 1.0);
     };
 
-    // タブ切替
     document.querySelectorAll('.nav-tab').forEach(item => {
       item.onclick = () => {
         document.querySelectorAll('.nav-tab').forEach(i => i.classList.remove('active'));
@@ -846,7 +794,6 @@
       return div;
     }
 
-    // 🎵 プレイヤー再生システム
     function loadTrack(idx, autoPlay) {
       curIdx = idx;
       const s = songs[curIdx];
@@ -924,9 +871,13 @@
         let sIdx = shuffledIndices.indexOf(curIdx);
         sIdx = sIdx + 1;
         if (sIdx >= shuffledIndices.length) {
-          btnShuffle.click();
-          btnShuffle.click(); 
-          sIdx = 0;
+          shuffledIndices = songs.map((_, i) => i).filter(i => i !== curIdx);
+          for (let i = shuffledIndices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+          }
+          shuffledIndices.unshift(curIdx);
+          sIdx = 1;
         }
         loadTrack(shuffledIndices[sIdx], true);
       } else {
@@ -992,14 +943,11 @@
       progressSlider.classList.remove('seeking');
     };
 
-    // 🔀 シャッフル機能の実装（構文バグを修正）
     btnShuffle.onclick = () => {
       isShuffle = !isShuffle;
       btnShuffle.classList.toggle('active', isShuffle);
-      
-      if (isShuffle) {
-        shuffledIndices = songs.map((_, i) => i);
-        shuffledIndices = shuffledIndices.filter(i => i !== curIdx);
+      if(isShuffle) {
+        shuffledIndices = songs.map((_, i) => i).filter(i => i !== curIdx);
         for (let i = shuffledIndices.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
@@ -1048,7 +996,6 @@
 
     function formatTime(s) { const m = Math.floor(s/60), sc = Math.floor(s%60); return `${m}:${sc<10?'0':''}${sc}`; }
 
-    // ⏱️ フェイクタイマーロジック
     btnStartFk.onclick = () => {
       const m = parseInt(fkMinInput.value) || 0;
       const sc = parseInt(fkSecInput.value) || 0;
@@ -1098,7 +1045,6 @@
 
     function stopFkTimer() { if(fkTimerId) { clearInterval(fkTimerId); fkTimerId = null; } }
 
-    // 設定管理
     btnUpdatePass.onclick = () => {
       const np = newPassInput.value.trim();
       if(np.length < 4) { alert("パスワードは4文字以上で入力してください。"); return; }
@@ -1110,20 +1056,18 @@
     };
 
     btnLogout.onclick = () => {
-      safeRemove('sd_session_user'); audio.pause();
-      stopFkTimer(); setPlayingState(false);
+      safeRemove('sd_session_user'); audio.pause(); stopFkTimer(); setPlayingState(false);
       appWrap.style.display = 'none'; authModal.style.display = 'flex';
       authId.value = ""; authPass.value = "";
     };
+
     btnResetData.onclick = () => {
       if(confirm('これまでの再生回数ランキングやカスタムパスワードがすべて削除されます。初期化しますか？')) {
-        safeRemove(`sd_stats_${userSession}`);
-        safeRemove(`sd_pass_${userSession}`);
+        safeRemove(`sd_stats_${userSession}`); safeRemove(`sd_pass_${userSession}`);
         alert('データを初期化しました。一度ログアウトします。'); btnLogout.click();
       }
     };
 
-    // iOS/iPadOS用リモコン連動
     if ('mediaSession' in navigator) {
       navigator.mediaSession.setActionHandler('play', playTrack);
       navigator.mediaSession.setActionHandler('pause', pauseTrack);
