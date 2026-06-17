@@ -23,6 +23,10 @@
       --bg-main: #e2e8f0; 
       --panel-bg: rgba(255, 255, 255, 0.75);
       --panel-border: rgba(255, 255, 255, 0.8);
+      /* 🌟 ボトムホットバー用：より透明度を高く、ガラス感を強化 */
+      --bar-glass-bg: rgba(255, 255, 255, 0.45);
+      --bar-glass-border: rgba(255, 255, 255, 0.6);
+      
       --accent-color: #ff2d55;
       --text-main: #000000;
       --text-muted: #1c1c1e;
@@ -33,8 +37,8 @@
       --item-active: rgba(255, 45, 85, 0.08);
       --lyrics-dim: rgba(0, 0, 0, 0.25);
       --shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-      --glass-blur: blur(30px);
-      --hotbar-height: 90px;
+      --glass-blur: blur(40px); /* ブラーを少し強めて高級感アップ */
+      --hotbar-height: 100px; /* バー自体を少し高めに */
       --header-height: 80px;
     }
 
@@ -42,6 +46,10 @@
       --bg-main: #030712;
       --panel-bg: rgba(28, 28, 30, 0.65);
       --panel-border: rgba(255, 255, 255, 0.1);
+      /* 🌟 ダークモード用：より透明度の高い漆黒の硝子 */
+      --bar-glass-bg: rgba(20, 20, 25, 0.4);
+      --bar-glass-border: rgba(255, 255, 255, 0.08);
+      
       --accent-color: #ff2d55;
       --text-main: #ffffff;
       --text-muted: #f2f2f7;
@@ -136,11 +144,12 @@
     .badge-online { background: rgba(52, 199, 89, 0.15); color: #34c759; }
     .badge-offline { background: rgba(255, 149, 0, 0.15); color: #ff9500; }
 
+    /* 🔽 ヘッダーのテーマ切り替えボタンを拡大 */
     .btn-theme-circle {
-      width: 44px; height: 44px; border-radius: 50%;
+      width: 50px; height: 50px; border-radius: 50%;
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
-      color: var(--text-main); font-size: 1.2rem;
+      color: var(--text-main); font-size: 1.35rem;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: all 0.3s ease;
       backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
@@ -276,12 +285,14 @@
       left: 50%;
       transform: translateX(-50%);
       width: calc(100% - 48px);
-      max-width: 1200px; 
-      border-radius: 20px; 
-      border: 1px solid var(--panel-border); 
+      max-width: 1240px; 
+      border-radius: 24px; 
       
+      /* 🌟 境界線と背景の不透明度を下げ、ガラス感・透明感を大幅に強化 */
+      border: 1px solid var(--bar-glass-border); 
       height: var(--hotbar-height);
-      background: var(--panel-bg);
+      background: var(--bar-glass-bg);
+      
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       display: flex;
@@ -290,26 +301,29 @@
       justify-content: space-between;
       z-index: 900; 
       flex-shrink: 0;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); 
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); 
     }
 
-    .hb-left { display: flex; align-items: center; gap: 16px; min-width: 240px; }
-    .hb-art { width: 54px; height: 54px; border-radius: 12px; object-fit: cover; } 
+    .hb-left { display: flex; align-items: center; gap: 18px; min-width: 260px; }
+    .hb-art { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; } /* アートワークも微拡大 */
     .hb-info { overflow: hidden; }
-    .hb-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hb-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
+    .hb-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hb-artist { font-size: 0.9rem; color: var(--text-sub); font-weight: 500; }
 
-    .hb-center { flex: 1; max-width: 520px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .hb-center { flex: 1; max-width: 560px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
     
-    /* 🔽 🔀⏪▶️⏩🔁 の間隔を 24px から 10px に近づけました */
-    .hb-controls { display: flex; align-items: center; gap: 10px; }
+    /* コントロールボタン類のレイアウト */
+    .hb-controls { display: flex; align-items: center; gap: 12px; }
     
-    .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; transition: all 0.2s;
-                width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; } 
+    /* 🔽 🔀⏪⏩🔁 ボタン自体を一回り大きく変更 (width/height 36px → 44px, font-size 1.2rem → 1.4rem) */
+    .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.4rem; cursor: pointer; transition: all 0.2s;
+                width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; } 
     .ctrl-btn:hover { background: var(--item-hover); color: var(--accent-color); }
     .ctrl-btn.active { color: var(--accent-color); }
-    .ctrl-btn.btn-play { font-size: 2.4rem; width: 48px; height: 48px; color: var(--text-main); }
-    .ctrl-btn.btn-play:hover { transform: scale(1.05); color: var(--accent-color); background: none; }
+    
+    /* 🔽 中央の再生ボタン（▶️）をさらにシンボリックに特大化 (width/height 48px → 58px, font-size 2.4rem → 3.2rem) */
+    .ctrl-btn.btn-play { font-size: 3.2rem; width: 58px; height: 58px; color: var(--text-main); }
+    .ctrl-btn.btn-play:hover { transform: scale(1.06); color: var(--accent-color); background: none; }
 
     .hb-progress { width: 100%; display: flex; align-items: center; gap: 12px; }
     .hb-progress span { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); min-width: 32px; }
@@ -321,28 +335,31 @@
                                     background: var(--text-main); cursor: pointer; transition: transform 0.1s; }
     .slider::-webkit-slider-thumb:hover { transform: scale(1.3); background: var(--accent-color); }
 
-    .hb-right { display: flex; align-items: center; gap: 20px; min-width: 240px; justify-content: flex-end; }
+    .hb-right { display: flex; align-items: center; gap: 24px; min-width: 260px; justify-content: flex-end; }
     
-    .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.1rem; cursor: pointer; transition: color 0.2s; }
+    /* 🔽 歌詞切り替えボタンを大きく変更 (font-size 1.1rem → 1.35rem) */
+    .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.35rem; cursor: pointer; transition: color 0.2s; }
     .toggle-lyrics-btn.active { color: var(--accent-color); }
 
-    /* 🔽 タブバーのコンテナを完全な半円（カプセル型）へ変更 */
-    .nav-tabs { background: rgba(125,125,125,0.08); padding: 4px; border-radius: 100px; display: flex; gap: 4px; }
+    /* 🔽 タブバーのコンテナを大きく、かつ「横長」に拡張 (padding拡大、gap拡大) */
+    .nav-tabs { background: rgba(125,125,125,0.08); padding: 5px 12px; border-radius: 100px; display: flex; gap: 8px; }
     
-    /* 🔽 中のボタンの丸みも、全体の半円に馴染むように調整 */
-    .nav-tab { background: none; border: none; color: var(--text-sub); width: 38px; height: 34px; border-radius: 100px;
-               cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s; }
+    /* 🔽 中の各タブボタンも大きくワイドに変更 (width 38px→46px, height 34px→40px, font-size 1rem→1.2rem) */
+    .nav-tab { background: none; border: none; color: var(--text-sub); width: 46px; height: 40px; border-radius: 100px;
+               cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.2s; }
     .nav-tab:hover { color: var(--text-main); }
-    .nav-tab.active { background: var(--panel-bg); color: var(--accent-color); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .nav-tab.active { background: var(--panel-bg); color: var(--accent-color); box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
 
-    .speed-btn { font-size: 0.85rem; font-weight: 800; background: rgba(125,125,125,0.15); padding: 5px 10px; border-radius: 10px; border: none; color: var(--text-main); cursor: pointer; }
+    /* 🔽 速度調整ボタンも少しだけ拡大 */
+    .speed-btn { font-size: 0.95rem; font-weight: 800; background: rgba(125,125,125,0.15); padding: 6px 12px; border-radius: 10px; border: none; color: var(--text-main); cursor: pointer; }
     .speed-btn.active { background: var(--accent-color); color: white; }
     .fk-badge { font-size: 0.75rem; font-weight: 800; background: #ff9500; color: white; padding: 4px 8px; border-radius: 8px; display: none; }
 
     @media (max-width: 1000px) {
-      .hotbar { padding: 0 20px; }
+      .hotbar { padding: 0 20px; height: auto; padding-top: 12px; padding-bottom: 12px; flex-direction: column; gap: 10px; }
       .hb-left { display: none; }
-      .hb-right { min-width: auto; }
+      .hb-right { min-width: auto; width: 100%; justify-content: center; }
+      .hb-center { width: 100%; }
       .playlist-layout-v06, .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr; overflow-y: auto; height: auto; padding-bottom: 40px; }
       .pl-panel { min-height: 400px; margin-bottom: 20px; }
       main { padding: 20px; }
@@ -379,7 +396,7 @@
         </div>
         <div id="fkBadge" class="fk-badge">FAKETIME ON</div>
       </div>
-      <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 14px;">
         <button id="btnSpeed" class="speed-btn">1.0x</button>
         <button id="btnTheme" class="btn-theme-circle"><i class="fa-solid fa-moon"></i></button>
       </div>
