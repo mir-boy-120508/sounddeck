@@ -268,18 +268,17 @@
     .acc-message { font-size: 0.85rem; margin-top: 10px; color: #34c759; font-weight: 600; }
 
     /* =========================================
-       🎵 ボトムホットバー（浮遊・角丸四角形への修正）
+       🎵 ボトムホットバー
        ========================================= */
     .hotbar {
       position: fixed;
-      /* 🔽 画面下部から24px浮かせ、左右にマージンを作る */
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
       width: calc(100% - 48px);
-      max-width: 1200px; /* フル幅に近いサイズ感を維持 */
-      border-radius: 20px; /* 綺麗な角丸の四角形 */
-      border: 1px solid var(--panel-border); /* 上だけでなく全周囲を囲む */
+      max-width: 1200px; 
+      border-radius: 20px; 
+      border: 1px solid var(--panel-border); 
       
       height: var(--hotbar-height);
       background: var(--panel-bg);
@@ -291,21 +290,22 @@
       justify-content: space-between;
       z-index: 900; 
       flex-shrink: 0;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); /* 浮遊感を出す影 */
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); 
     }
 
-    /* 🛠️ 内部パーツ（要素サイズ、ボタン、ジャケ画）はすべて元の設定に戻しました */
     .hb-left { display: flex; align-items: center; gap: 16px; min-width: 240px; }
-    .hb-art { width: 54px; height: 54px; border-radius: 12px; object-fit: cover; } /* 元のジャケ画サイズ */
+    .hb-art { width: 54px; height: 54px; border-radius: 12px; object-fit: cover; } 
     .hb-info { overflow: hidden; }
     .hb-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hb-artist { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
 
     .hb-center { flex: 1; max-width: 520px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .hb-controls { display: flex; align-items: center; gap: 24px; }
+    
+    /* 🔽 🔀⏪▶️⏩🔁 の間隔を 24px から 10px に近づけました */
+    .hb-controls { display: flex; align-items: center; gap: 10px; }
     
     .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; transition: all 0.2s;
-                width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; } /* 元のボタンサイズ */
+                width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; } 
     .ctrl-btn:hover { background: var(--item-hover); color: var(--accent-color); }
     .ctrl-btn.active { color: var(--accent-color); }
     .ctrl-btn.btn-play { font-size: 2.4rem; width: 48px; height: 48px; color: var(--text-main); }
@@ -326,8 +326,11 @@
     .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.1rem; cursor: pointer; transition: color 0.2s; }
     .toggle-lyrics-btn.active { color: var(--accent-color); }
 
-    .nav-tabs { background: rgba(125,125,125,0.08); padding: 4px; border-radius: 14px; display: flex; gap: 4px; }
-    .nav-tab { background: none; border: none; color: var(--text-sub); width: 38px; height: 34px; border-radius: 10px;
+    /* 🔽 タブバーのコンテナを完全な半円（カプセル型）へ変更 */
+    .nav-tabs { background: rgba(125,125,125,0.08); padding: 4px; border-radius: 100px; display: flex; gap: 4px; }
+    
+    /* 🔽 中のボタンの丸みも、全体の半円に馴染むように調整 */
+    .nav-tab { background: none; border: none; color: var(--text-sub); width: 38px; height: 34px; border-radius: 100px;
                cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s; }
     .nav-tab:hover { color: var(--text-main); }
     .nav-tab.active { background: var(--panel-bg); color: var(--accent-color); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -1058,7 +1061,7 @@
     btnLogout.onclick = () => {
       safeRemove('sd_session_user'); audio.pause(); stopFkTimer(); setPlayingState(false);
       appWrap.style.display = 'none'; authModal.style.display = 'flex';
-      authId.value = ""; authPass.value = "";
+      authId.value = ""; authPass = "";
     };
 
     btnResetData.onclick = () => {
