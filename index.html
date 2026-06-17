@@ -337,20 +337,16 @@
 
     .hb-right { display: flex; align-items: center; gap: 24px; min-width: 260px; justify-content: flex-end; }
     
-    /* 🔽 歌詞切り替えボタンを大きく変更 (font-size 1.1rem → 1.35rem) */
     .toggle-lyrics-btn { background: none; border: none; color: var(--text-sub); font-size: 1.35rem; cursor: pointer; transition: color 0.2s; }
     .toggle-lyrics-btn.active { color: var(--accent-color); }
 
-    /* 🔽 タブバーのコンテナを大きく、かつ「横長」に拡張 (padding拡大、gap拡大) */
     .nav-tabs { background: rgba(125,125,125,0.08); padding: 5px 12px; border-radius: 100px; display: flex; gap: 8px; }
-    
-    /* 🔽 中の各タブボタンも大きくワイドに変更 (width 38px→46px, height 34px→40px, font-size 1rem→1.2rem) */
+  
     .nav-tab { background: none; border: none; color: var(--text-sub); width: 46px; height: 40px; border-radius: 100px;
                cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.2s; }
     .nav-tab:hover { color: var(--text-main); }
-    .nav-tab.active { background: var(--panel-bg); color: var(--accent-color); box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
+    .nav-tab.active { background: var(--panel-bg); color: var(--accent-color); box-shadow: 0 3px 10px rgba(0,0,0,0.06); width: 54px; }
 
-    /* 🔽 速度調整ボタンも少しだけ拡大 */
     .speed-btn { font-size: 0.95rem; font-weight: 800; background: rgba(125,125,125,0.15); padding: 6px 12px; border-radius: 10px; border: none; color: var(--text-main); cursor: pointer; }
     .speed-btn.active { background: var(--accent-color); color: white; }
     .fk-badge { font-size: 0.75rem; font-weight: 800; background: #ff9500; color: white; padding: 4px 8px; border-radius: 8px; display: none; }
