@@ -258,17 +258,17 @@
        🎵 ボトムホットバー
        ========================================= */
 .hotbar {
-      /* 🔽 固定位置（fixed）にして、画面下部から20px浮かせます */
+      /* 🔽 画面最下部への固定をやめ、画面の下から24px浮かせる設定にします */
       position: fixed;
-      bottom: 20px;
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
 
-      /* 🔽 画面いっぱいに広がらないよう左右に少し隙間を作り、PCでは広がりすぎないようにします */
-      width: calc(100% - 32px);
+      /* 🔽 画面いっぱいに広がらないよう左右に余白を作り、iPadの大画面でも綺麗に収まる幅にします */
+      width: calc(100% - 40px);
       max-width: 960px;
 
-      /* 🎨 四隅すべてをしっかり丸めて、完全に浮いているカプセル型（ポップアップ風）にします */
+      /* 🎨 四隅すべてをしっかり丸めて、完全に独立して浮いているカプセル型にします */
       border-radius: 24px;
       
       height: var(--hotbar-height);
@@ -276,18 +276,18 @@
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       
-      /* 🎨 浮かせたので「border-top（上の線）」ではなく、四隅すべてに薄い枠線をつけます */
+      /* 🎨 浮かせたので、上だけでなく「四隅すべて」に綺麗な薄い枠線をつけます */
       border: 1px solid var(--panel-border);
       
       display: flex;
       align-items: center;
       padding: 0 40px;
       justify-content: space-between;
-      z-index: 900; /* 他の要素より手前に来るように少し高めの数値に設定 */
+      z-index: 900; /* 他の画面の下に潜り込まないように手前に引き上げます */
       flex-shrink: 0;
       
-      /* 🎨 下に浮いた影（シャドウ）を少し強めて、立体感を演出します */
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      /* 🎨 下に落ちる影（シャドウ）を少し滑らかで強めにして、フワッと浮いている立体感を強調します */
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
       
       transition: all 0.3s ease;
     }
