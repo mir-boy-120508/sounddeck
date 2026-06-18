@@ -1080,7 +1080,7 @@ main {
     btnLogout.onclick = () => {
       safeRemove('sd_session_user'); audio.pause(); stopFkTimer(); setPlayingState(false);
       appWrap.style.display = 'none'; authModal.style.display = 'flex';
-      authId.value = ""; authPass = "";
+      authId.value = ""; authPass.value = "";
     };
 
     btnResetData.onclick = () => {
