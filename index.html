@@ -516,14 +516,14 @@ main {
 
   <audio id="mainAudio"></audio>
 
-  <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('サービスワーカーの登録に成功しました！', reg))
-        .catch(err => console.log('サービスワーカーの登録に失敗しました...', err));
-    });
-  }
+<script>
+    // --- 状態管理変数 ---
+    let isPlaying = false;
+    let isShuffle = false;
+    let isRepeat = false; // 0: off, 1: all, 2: one
+    let currentTrackIndex = 0;
+    let userSession = "default_user";
+  
     // --- 🎵 楽曲データベース ---
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
@@ -564,531 +564,158 @@ main {
       { id: 10, title: "ゼロセンチメートル", artist: "大原ゆい子", src: "song11.mp3", cover: "jacket10.png", lines: [{ time: 0, text: 大原ゆい子 - ゼロセンチメートル" }]}
       { id: 11, title: "まっすぐ", artist: "大原ゆい子", src: "song12.mp3", cover: "logo.png", lines: [{ time: 0, text: "大原ゆい子 - まっすぐ" }]}
     ];
-    let curIdx = 0;
-    let isPlaying = false;
-    let isLyOn = true;
-    let userSession = "";
-    let playSpeeds = [1.0, 1.5, 2.0];
-    let curSpeedIdx = 0;
-    let isShuffle = false;
-    let repeatMode = 0;
-    let shuffledIndices = [];
-
-    // ⏱️ フェイクタイマー管理用変数
-    let isFb = false;
-    let fkDur = 0;
-    let fkCur = 0;
-    let fkTimerId = null;
-
-    function safeGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
-    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
-    function safeRemove(k) { try { localStorage.removeItem(k); } catch(e) {} }
-
-    // DOM要素群
-    const authModal = document.getElementById('authModal');
-    const authId = document.getElementById('authId');
-    const authPass = document.getElementById('authPass');
-    const authError = document.getElementById('authError');
-    const btnLogin = document.getElementById('btnLogin');
-    const offlineWarningModal = document.getElementById('offlineWarningModal');
-
-    const appWrap = document.getElementById('appWrap');
-    const audio = document.getElementById('mainAudio');
-    const btnTheme = document.getElementById('btnTheme');
-    const btnSpeed = document.getElementById('btnSpeed');
-    const networkBadge = document.getElementById('networkBadge');
-    const fkBadge = document.getElementById('fkBadge');
-    const homeQuickGrid = document.getElementById('homeQuickGrid');
-    const homeRankGrid = document.getElementById('homeRankGrid');
-    const searchInput = document.getElementById('searchInput');
-    const searchResultGrid = document.getElementById('searchResultGrid');
-    
-    const playlistLayout = document.getElementById('playlistLayout');
-    const panelCover = document.getElementById('panelCover');
-    const panelTitle = document.getElementById('panelTitle');
-    const panelArtist = document.getElementById('panelArtist');
-    const lyricsBox = document.getElementById('lyricsBox');
-    const trackList = document.getElementById('trackList');
-    const btnHideLyrics = document.getElementById('btnHideLyrics');
-
-    const barCover = document.getElementById('barCover');
-    const barTitle = document.getElementById('barTitle');
-    const barArtist = document.getElementById('barArtist');
+// --- DOM要素の取得 ---
     const btnPlay = document.getElementById('btnPlay');
     const btnPrev = document.getElementById('btnPrev');
     const btnNext = document.getElementById('btnNext');
     const btnShuffle = document.getElementById('btnShuffle');
     const btnRepeat = document.getElementById('btnRepeat');
-    const progressSlider = document.getElementById('progressSlider');
+    const playIcon = btnPlay ? btnPlay.querySelector('i') : null;
+    
+    const trackTitle = document.getElementById('trackTitle');
+    const trackArtist = document.getElementById('trackArtist');
+    const trackAlbum = document.getElementById('trackAlbum');
     const timeCurrent = document.getElementById('timeCurrent');
-    const timeDuration = document.getElementById('timeDuration');
-    const btnToggleLyrics = document.getElementById('btnToggleLyrics');
+    const timeTotal = document.getElementById('timeTotal');
+    const progressSlider = document.getElementById('progressSlider');
 
-    const profileName = document.getElementById('profileName');
-    const profileId = document.getElementById('profileId');
-    const newPassInput = document.getElementById('newPassInput');
-    const btnUpdatePass = document.getElementById('btnUpdatePass');
-    const passMsg = document.getElementById('passMsg');
-    const btnLogout = document.getElementById('btnLogout');
-    const btnResetData = document.getElementById('btnResetData');
+    const themeToggle = document.getElementById('themeToggle');
+    const btnToggleSettings = document.getElementById('btnToggleSettings');
+    const settingsPanel = document.getElementById('settingsPanel');
 
-    // フェイク用入力UI
-    const fkMinInput = document.getElementById('fkMinInput');
-    const fkSecInput = document.getElementById('fkSecInput');
-    const btnStartFk = document.getElementById('btnStartFk');
-    const fkStatusMsg = document.getElementById('fkStatusMsg');
-
-    // ネットワーク監視
-    function updateNetworkStatus() {
-      if(navigator.onLine) {
-        networkBadge.className = "network-badge badge-online";
-        networkBadge.innerHTML = `<i class="fa-solid fa-circle"></i> <span>ONLINE</span>`;
-        offlineWarningModal.style.display = 'none';
-      } else {
-        networkBadge.className = "network-badge badge-offline";
-        networkBadge.innerHTML = `<i class="fa-solid fa-circle"></i> <span>OFFLINE</span>`;
-        offlineWarningModal.style.display = 'block';
+    // --- 初期化処理 ---
+    window.addEventListener('DOMContentLoaded', () => {
+      // Lucideアイコンの初期化
+      if (window.lucide) {
+        lucide.createIcons();
       }
-    }
-    window.addEventListener('online', () => { updateNetworkStatus(); prefetchAllSongs(); });
-    window.addEventListener('offline', updateNetworkStatus);
-    updateNetworkStatus();
-
-    // 🔒 ログイン認証
-    const activeSession = safeGet('sd_session_user');
-    if(activeSession) {
-      userSession = activeSession;
-      authModal.style.display = 'none';
-      appWrap.style.display = 'flex';
-      initApp();
-    }
-
-    btnLogin.onclick = () => {
-      const id = authId.value.trim();
-      const p = authPass.value;
-      if(id.length < 4 || id.length > 15) {
-        authError.textContent = "ユーザーIDは4〜15文字で入力してください。";
-        return;
-      }
-      const localCred = safeGet(`sd_pass_${id}`);
-      const targetP = localCred || "0000";
-      if(p !== targetP && navigator.onLine) {
-        authError.textContent = "パスワードが正しくありません。";
-        return;
-      }
-
-      authError.textContent = "";
-      userSession = id;
-      safeSet('sd_session_user', id);
-      authModal.style.display = 'none';
-      appWrap.style.display = 'flex';
-      initApp();
-    };
-
-    function initApp() {
-      lucide.createIcons();
-      profileName.textContent = userSession;
-      profileId.textContent = `ID: ${userSession}`;
-      const savedTheme = safeGet('sd_theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      btnTheme.innerHTML = savedTheme === 'dark' ?
-        '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-
-      buildTrackList();
-      renderHome();
-      renderSearch();
-      loadTrack(0, false);
-      if(navigator.onLine) {
-        prefetchAllSongs();
-      }
-    }
-
-    function prefetchAllSongs() {
-      console.log("全楽曲の自動バックグラウンド読み込みを開始します...");
-      songs.forEach(song => {
-        fetch(song.src, { mode: 'no-cors' })
-          .then(() => console.log(`キャッシュ成功: ${song.title}`))
-          .catch(err => console.warn(`先読み失敗: ${song.title}`, err));
-      });
-    }
-
-    btnTheme.onclick = () => {
-      const cur = document.documentElement.getAttribute('data-theme');
-      const nxt = cur === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', nxt);
-      safeSet('sd_theme', nxt);
-      btnTheme.innerHTML = nxt === 'dark' ?
-        '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-    };
-
-    btnSpeed.onclick = () => {
-      curSpeedIdx = (curSpeedIdx + 1) % playSpeeds.length;
-      const spd = playSpeeds[curSpeedIdx];
-      btnSpeed.textContent = `${spd.toFixed(1)}x`;
-      audio.playbackRate = spd;
-      btnSpeed.classList.toggle('active', spd !== 1.0);
-    };
-
-    document.querySelectorAll('.nav-tab').forEach(item => {
-      item.onclick = () => {
-        document.querySelectorAll('.nav-tab').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        const tab = item.getAttribute('data-tab');
-        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab-${tab}`).classList.add('active');
-        if(tab === 'home') renderHome();
-      };
+      loadTrack(currentTrackIndex);
+      
+      // 最初はログインモーダルを隠してメイン画面を出す（テスト用）
+      const authModal = document.getElementById('authModal');
+      const appWrap = document.getElementById('appWrap');
+      if (authModal) authModal.style.display = 'none';
+      if (appWrap) appWrap.style.display = 'block';
     });
 
-    function getStats() {
-      const d = safeGet(`sd_stats_${userSession}`);
-      return d ? JSON.parse(d) : {};
-    }
-    function incPlayCount(id) {
-      const st = getStats();
-      st[id] = (st[id] || 0) + 1;
-      safeSet(`sd_stats_${userSession}`, JSON.stringify(st));
-    }
-
-    function buildTrackList() {
-      trackList.innerHTML = '';
-      songs.forEach((s, idx) => {
-        const li = document.createElement('div');
-        li.className = `track-row ${idx === curIdx ? 'active' : ''}`;
-        li.onclick = () => loadTrack(idx, true);
-        li.innerHTML = `
-          <div class="t-num">${String(idx + 1).padStart(2, '0')}</div>
-          <img src="${s.cover}" class="t-art" onerror="this.src='jacket1.png'">
-          <div class="t-info">
-            <div class="t-title">${s.title}</div>
-            <div class="t-artist">${s.artist}</div>
-          </div>
-        `;
-        trackList.appendChild(li);
-      });
-    }
-
-    function renderHome() {
-      homeQuickGrid.innerHTML = '';
-      songs.slice(0, 3).forEach(s => homeQuickGrid.appendChild(createCard(s)));
-      homeRankGrid.innerHTML = '';
-      const st = getStats();
-      const sorted = [...songs].sort((a,b) => (st[b.id]||0) - (st[a.id]||0));
-      sorted.slice(0, 3).forEach((s, i) => {
-        const div = createCard(s);
-        const b = document.createElement('div'); b.className = 'rank-badge'; b.textContent = i + 1;
-        div.insertBefore(b, div.firstChild);
-        homeRankGrid.appendChild(div);
-      });
-    }
-
-    function renderSearch() {
-      searchResultGrid.innerHTML = '';
-      const q = searchInput.value.toLowerCase();
-      songs.forEach(s => {
-        if(s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)) {
-          searchResultGrid.appendChild(createCard(s));
-        }
-      });
-    }
-    searchInput.oninput = renderSearch;
-
-    function createCard(song) {
-      const idx = songs.findIndex(x => x.id === song.id);
-      const div = document.createElement('div'); div.className = 'card';
-      div.onclick = () => {
-        loadTrack(idx, true);
-        document.querySelector('.nav-tab[data-tab="playlist"]').click();
-      };
-      div.innerHTML = `
-        <img src="${song.cover}" class="card-img" onerror="this.src='jacket1.png'">
-        <div class="card-info">
-          <div class="card-title">${song.title}</div>
-          <div class="card-desc">${song.artist}</div>
-        </div>
-      `;
-      return div;
-    }
-
-    function loadTrack(idx, autoPlay) {
-      curIdx = idx;
-      const s = songs[curIdx];
-      audio.src = s.src;
-
-      document.querySelectorAll('.track-row').forEach((r, i) => r.classList.toggle('active', i === idx));
-
-      panelCover.src = s.cover; panelTitle.textContent = s.title;
-      panelArtist.textContent = s.artist;
-      barCover.src = s.cover; barTitle.textContent = s.title; barArtist.textContent = s.artist;
-
-      buildLyrics(s);
-      if(isFb) {
-        progressSlider.max = fkDur;
-        timeDuration.textContent = formatTime(fkDur);
-        fkCur = 0;
+    // --- トラック読み込み関数 ---
+    function loadTrack(index) {
+      const track = playlist[index];
+      if (!track) return;
+      if (trackTitle) trackTitle.textContent = track.title;
+      if (trackArtist) trackArtist.textContent = track.artist;
+      if (trackAlbum) trackAlbum.textContent = track.album;
+      if (timeTotal) timeTotal.textContent = formatTime(track.duration);
+      if (progressSlider) {
+        progressSlider.max = track.duration;
         progressSlider.value = 0;
-        timeCurrent.textContent = "0:00";
-      } else {
-        progressSlider.value = 0;
-        timeCurrent.textContent = "0:00";
-      }
-
-      if(autoPlay) { incPlayCount(s.id); playTrack(); } else { setPlayingState(false); }
-    }
-
-    function playTrack() {
-      if(isFb) {
-        startFkTimer();
-        setPlayingState(true);
-      } else {
-        audio.play()
-          .then(() => {
-            audio.playbackRate = playSpeeds[curSpeedIdx];
-            setPlayingState(true);
-          })
-          .catch((err) => {
-            console.error("再生に失敗しました:", err);
-            setPlayingState(false);
-            alert("この曲はまだオフライン用に保存されていないか、読み込みに失敗しました。Wi-Fi接続時に一度アプリを開くと自動ダウンロードが始まります。");
-          });
-      }
-    }
-    
-    function pauseTrack() {
-      if(isFb) { stopFkTimer(); } else { audio.pause(); }
-      setPlayingState(false);
-    }
-    
-    function setPlayingState(p) {
-      isPlaying = p;
-      btnPlay.innerHTML = p ? '<i class="fa-solid fa-circle-pause"></i>' : '<i class="fa-solid fa-circle-play"></i>';
-      playlistLayout.classList.toggle('playing', p);
-    }
-
-    btnPlay.onclick = () => isPlaying ? pauseTrack() : playTrack();
-    btnPrev.onclick = () => prevTrack();
-    btnNext.onclick = () => nextTrack();
-
-    function prevTrack() {
-      if (isShuffle && shuffledIndices.length > 0) {
-        let sIdx = shuffledIndices.indexOf(curIdx);
-        sIdx = sIdx - 1;
-        if (sIdx < 0) sIdx = shuffledIndices.length - 1;
-        loadTrack(shuffledIndices[sIdx], true);
-      } else {
-        let i = curIdx - 1;
-        if(i < 0) i = songs.length - 1; 
-        loadTrack(i, true);
       }
     }
 
-    function nextTrack() {
-      if (isShuffle && shuffledIndices.length > 0) {
-        let sIdx = shuffledIndices.indexOf(curIdx);
-        sIdx = sIdx + 1;
-        if (sIdx >= shuffledIndices.length) {
-          shuffledIndices = songs.map((_, i) => i).filter(i => i !== curIdx);
-          for (let i = shuffledIndices.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    // --- 🎵 ボタンのクリックイベント設定 🎵 ---
+
+    // 1. 再生・一時停止ボタン
+    if (btnPlay) {
+      btnPlay.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+          // 再生状態
+          if (playIcon) {
+            playIcon.classList.remove('fa-play');
+            playIcon.classList.add('fa-pause');
           }
-          shuffledIndices.unshift(curIdx);
-          sIdx = 1;
-        }
-        loadTrack(shuffledIndices[sIdx], true);
-      } else {
-        let i = curIdx + 1;
-        if(i >= songs.length) i = 0;
-        loadTrack(i, true);
-      }
-    }
-    
-    audio.onended = () => {
-      if (!isFb) {
-        if (repeatMode === 2) {
-          loadTrack(curIdx, true);
-        } else if (repeatMode === 1) {
-          nextTrack();
+          btnPlay.style.transform = "scale(0.95)";
+          // ここに audio.play() などの処理が入ります
+          console.log("再生開始");
         } else {
-          if (isShuffle) {
-            let sIdx = shuffledIndices.indexOf(curIdx);
-            if (sIdx === shuffledIndices.length - 1) {
-              setPlayingState(false);
-            } else {
-              nextTrack();
-            }
-          } else {
-            if (curIdx === songs.length - 1) {
-              setPlayingState(false);
-            } else {
-              nextTrack();
-            }
+          // 一時停止状態
+          if (playIcon) {
+            playIcon.classList.remove('fa-pause');
+            playIcon.classList.add('fa-play');
           }
+          btnPlay.style.transform = "scale(1)";
+          console.log("一時停止");
         }
-      }
-    };
-
-    function toggleLyrics(show) {
-      isLyOn = show;
-      btnToggleLyrics.classList.toggle('active', show);
-      playlistLayout.classList.toggle('lyrics-off', !show);
-    }
-    btnToggleLyrics.onclick = () => toggleLyrics(!isLyOn);
-    btnHideLyrics.onclick = () => toggleLyrics(false);
-
-    audio.ondurationchange = () => { if(!isFb) { progressSlider.max = audio.duration; timeDuration.textContent = formatTime(audio.duration); } };
-    audio.ontimeupdate = () => {
-      if(!isFb) {
-        if(!progressSlider.classList.contains('seeking')) {
-          progressSlider.value = audio.currentTime;
-          timeCurrent.textContent = formatTime(audio.currentTime);
-        }
-        syncLyrics(audio.currentTime);
-      }
-    };
-    progressSlider.oninput = () => {
-      progressSlider.classList.add('seeking');
-      timeCurrent.textContent = formatTime(progressSlider.value);
-    };
-    progressSlider.onchange = () => {
-      if(isFb) {
-        fkCur = parseFloat(progressSlider.value);
-      } else {
-        audio.currentTime = progressSlider.value;
-      }
-      progressSlider.classList.remove('seeking');
-    };
-
-    btnShuffle.onclick = () => {
-      isShuffle = !isShuffle;
-      btnShuffle.classList.toggle('active', isShuffle);
-      if(isShuffle) {
-        shuffledIndices = songs.map((_, i) => i).filter(i => i !== curIdx);
-        for (let i = shuffledIndices.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
-        }
-        shuffledIndices.unshift(curIdx);
-      }
-    };
-
-    btnRepeat.onclick = () => {
-      repeatMode = (repeatMode + 1) % 3;
-      if (repeatMode === 0) {
-        btnRepeat.className = "ctrl-btn";
-        btnRepeat.innerHTML = '<i class="fa-solid fa-repeat"></i>';
-      } else if (repeatMode === 1) {
-        btnRepeat.className = "ctrl-btn active";
-        btnRepeat.innerHTML = '<i class="fa-solid fa-repeat"></i>';
-      } else if (repeatMode === 2) {
-        btnRepeat.className = "ctrl-btn active";
-        btnRepeat.innerHTML = '<i class="fa-solid fa-repeat-1"></i>';
-      }
-    };
-
-    function buildLyrics(song) {
-      lyricsBox.innerHTML = '';
-      if(!song.lines) return lyricsBox.innerHTML = '<div class="l-line">No Lyrics</div>';
-      song.lines.forEach(l => {
-        const d = document.createElement('div'); d.className = 'l-line'; d.textContent = l.text;
-        d.onclick = () => { if(isFb) fkCur = l.time; else audio.currentTime = l.time; };
-        lyricsBox.appendChild(d);
       });
     }
 
-    function syncLyrics(time) {
-      if(!isLyOn) return; const s = songs[curIdx]; if(!s.lines) return;
-      let aIdx = -1; for(let i=0; i<s.lines.length; i++) { if(time >= s.lines[i].time) aIdx = i; else break; }
-      const els = lyricsBox.querySelectorAll('.l-line');
-      els.forEach((el, i) => {
-        if(i === aIdx) {
-          if(!el.classList.contains('active')) {
-            el.classList.add('active');
-            lyricsBox.scrollTo({ top: el.offsetTop - (lyricsBox.clientHeight/2) + (el.clientHeight/2), behavior: 'smooth' });
-          }
-        } else el.classList.remove('active');
+    // 2. 次の曲ボタン
+    if (btnNext) {
+      btnNext.addEventListener('click', () => {
+        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+        loadTrack(currentTrackIndex);
+        console.log("次の曲へ:", currentTrackIndex);
       });
     }
 
-    function formatTime(s) { const m = Math.floor(s/60), sc = Math.floor(s%60); return `${m}:${sc<10?'0':''}${sc}`; }
-
-    btnStartFk.onclick = () => {
-      const m = parseInt(fkMinInput.value) || 0;
-      const sc = parseInt(fkSecInput.value) || 0;
-      const totalSec = (m * 60) + sc;
-      if(totalSec <= 0) {
-        isFb = false;
-        stopFkTimer();
-        fkBadge.style.display = 'none';
-        fkStatusMsg.textContent = "フェイクタイマーをオフにしました。";
-        loadTrack(curIdx, false);
-        return;
-      }
-
-      isFb = true;
-      fkDur = totalSec;
-      fkCur = 0;
-      fkBadge.style.display = 'block';
-      fkStatusMsg.textContent = `タイマー設定完了: ${m}分${sc}秒`;
-      
-      progressSlider.max = fkDur;
-      timeDuration.textContent = formatTime(fkDur);
-      progressSlider.value = 0;
-      timeCurrent.textContent = "0:00";
-      
-      pauseTrack();
-    };
-
-    function startFkTimer() {
-      stopFkTimer();
-      fkTimerId = setInterval(() => {
-        const spd = playSpeeds[curSpeedIdx];
-        fkCur += (0.1 * spd);
-        if(fkCur >= fkDur) {
-          fkCur = fkDur;
-          stopFkTimer();
-          setPlayingState(false);
-          nextTrack();
-        }
-     
-        if(!progressSlider.classList.contains('seeking')) {
-          progressSlider.value = fkCur;
-          timeCurrent.textContent = formatTime(fkCur);
-        }
-        syncLyrics(fkCur);
-      }, 100);
+    // 3. 前の曲ボタン
+    if (btnPrev) {
+      btnPrev.addEventListener('click', () => {
+        currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+        loadTrack(currentTrackIndex);
+        console.log("前の曲へ:", currentTrackIndex);
+      });
     }
 
-    function stopFkTimer() { if(fkTimerId) { clearInterval(fkTimerId); fkTimerId = null; } }
+    // 4. シャッフルボタン
+    if (btnShuffle) {
+      btnShuffle.addEventListener('click', () => {
+        isShuffle = !isShuffle;
+        btnShuffle.style.color = isShuffle ? "var(--accent-color)" : "";
+        btnShuffle.style.opacity = isShuffle ? "1" : "0.7";
+        console.log("シャッフル:", isShuffle);
+      });
+    }
 
-    btnUpdatePass.onclick = () => {
-      const np = newPassInput.value.trim();
-      if(np.length < 4) { alert("パスワードは4文字以上で入力してください。"); return; }
-      safeSet(`sd_pass_${userSession}`, np);
-      passMsg.style.display = "block";
-      passMsg.textContent = "パスワードを更新しました。";
-      newPassInput.value = "";
-      setTimeout(() => passMsg.style.display="none", 3000);
-    };
+    // 5. リピートボタン
+    if (btnRepeat) {
+      btnRepeat.addEventListener('click', () => {
+        isRepeat = !isRepeat;
+        btnRepeat.style.color = isRepeat ? "var(--accent-color)" : "";
+        btnRepeat.style.opacity = isRepeat ? "1" : "0.7";
+        console.log("リピート:", isRepeat);
+      });
+    }
 
-    btnLogout.onclick = () => {
-      safeRemove('sd_session_user'); audio.pause(); stopFkTimer(); setPlayingState(false);
-      appWrap.style.display = 'none'; authModal.style.display = 'flex';
-      authId.value = ""; authPass.value = "";
-    };
+    // 6. テーマ切り替え（ライト / ダーク）
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+          document.documentElement.removeAttribute('data-theme');
+          themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+      });
+    }
 
-    btnResetData.onclick = () => {
-      if(confirm('これまでの再生回数ランキングやカスタムパスワードがすべて削除されます。初期化しますか？')) {
-        safeRemove(`sd_stats_${userSession}`); safeRemove(`sd_pass_${userSession}`);
-        alert('データを初期化しました。一度ログアウトします。'); btnLogout.click();
-      }
-    };
+    // 7. 設定パネルの開閉
+    if (btnToggleSettings && settingsPanel) {
+      btnToggleSettings.addEventListener('click', () => {
+        if (settingsPanel.style.display === 'none' || settingsPanel.style.display === '') {
+          settingsPanel.style.display = 'block';
+          settingsPanel.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          settingsPanel.style.display = 'none';
+        }
+      });
+    }
 
-    if ('mediaSession' in navigator) {
-      navigator.mediaSession.setActionHandler('play', playTrack);
-      navigator.mediaSession.setActionHandler('pause', pauseTrack);
-      navigator.mediaSession.setActionHandler('previoustrack', prevTrack);
-      navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
+    // 8. シークバー（スライダー）を動かしたときの処理
+    if (progressSlider) {
+      progressSlider.addEventListener('input', (e) => {
+        if (timeCurrent) {
+          timeCurrent.textContent = formatTime(e.target.value);
+        }
+      });
     }
   </script>
 </body>
