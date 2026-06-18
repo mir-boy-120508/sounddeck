@@ -20,13 +20,12 @@
        🎨 Apple Style: Liquid Glass Theme
        ========================================= */
     :root {
-      --bg-main: #e2e8f0; 
+      --bg-main: #e2e8f0;
       --panel-bg: rgba(255, 255, 255, 0.75);
       --panel-border: rgba(255, 255, 255, 0.8);
       /* 🌟 ボトムホットバー用：より透明度を高く、ガラス感を強化 */
       --bar-glass-bg: rgba(255, 255, 255, 0.45);
       --bar-glass-border: rgba(255, 255, 255, 0.6);
-      
       --accent-color: #ff2d55;
       --text-main: #000000;
       --text-muted: #1c1c1e;
@@ -37,7 +36,8 @@
       --item-active: rgba(255, 45, 85, 0.08);
       --lyrics-dim: rgba(0, 0, 0, 0.25);
       --shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-      --glass-blur: blur(40px); /* ブラーを少し強めて高級感アップ */
+      --glass-blur: blur(40px);
+      /* ブラーを少し強めて高級感アップ */
       --hotbar-height: 100px; /* バー自体を少し高めに */
       --header-height: 80px;
     }
@@ -84,50 +84,16 @@
       animation: ambientBg 20s infinite alternate ease-in-out;
     }
     @keyframes ambientBg { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
-
-    /* =========================================
-       🔒 認証モーダル
-       ========================================= */
-    #authModal {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.4); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      display: flex;
-      justify-content: center; align-items: center; z-index: 10000;
-    }
-    .auth-box {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      padding: 40px; border-radius: 28px; width: 100%; max-width: 400px;
-      box-shadow: var(--shadow); text-align: center;
-    }
-    .auth-box img.logo-lg { height: 48px; margin-bottom: 20px; object-fit: contain; }
-    .auth-subtitle { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 24px; }
-    .auth-input {
-      width: 100%; padding: 14px; border-radius: 14px;
-      border: 1px solid rgba(125,125,125,0.2);
-      background: rgba(125, 125, 125, 0.05); color: var(--text-main); font-size: 1rem;
-      margin-bottom: 12px; outline: none; transition: border-color 0.2s;
-    }
-    .auth-input:focus { border-color: var(--accent-color); }
-    .auth-error { color: var(--accent-color); font-size: 0.8rem; margin-bottom: 12px;
-      min-height: 18px; text-align: left; }
     
-    .btn-primary {
-      width: 100%;
-      min-height: 48px; padding: 14px;
-      border: none; border-radius: 14px;
-      background: var(--btn-main-bg); color: var(--btn-main-text); font-size: 1.05rem; font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .btn-primary:active { transform: scale(0.98); }
-    .offline-warning-modal { color: #ff9500; font-size: 0.85rem; margin-top: 15px; display: none; font-weight: 500; }
-
     /* =========================================
        🍏 メインアプリケーションレイアウト
        ========================================= */
-    #appWrap { display: none; flex-direction: column; height: 100vh; width: 100vw; }
+    #appWrap {
+      display: flex; /* 最初から表示されるように変更 */
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
 
     header {
       height: var(--header-height);
@@ -140,13 +106,14 @@
     .brand-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
     
     .network-badge { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 12px;
-      letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+                     letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
     .badge-online { background: rgba(52, 199, 89, 0.15); color: #34c759; }
     .badge-offline { background: rgba(255, 149, 0, 0.15); color: #ff9500; }
 
     /* 🔽 ヘッダーのテーマ切り替えボタンを拡大 */
     .btn-theme-circle {
-      width: 50px; height: 50px; border-radius: 50%;
+      width: 50px;
+      height: 50px; border-radius: 50%;
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
       color: var(--text-main); font-size: 1.35rem;
@@ -180,8 +147,7 @@
     .card { background: var(--panel-bg); border: 1px solid var(--panel-border);
             border-radius: 20px; padding: 20px; display: flex; align-items: center;
             gap: 16px; cursor: pointer; backdrop-filter: var(--glass-blur); transition: transform 0.2s, background 0.2s;
-            box-shadow: var(--shadow);
-    }
+            box-shadow: var(--shadow); }
     .card:hover { transform: translateY(-4px); background: var(--item-hover); }
     .card-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; }
     .card-info { flex: 1; overflow: hidden; }
@@ -191,8 +157,7 @@
 
     .search-bar-container { position: relative; max-width: 600px; margin-bottom: 30px; }
     .search-input { width: 100%; padding: 18px 20px 18px 50px; font-size: 1.2rem; border-radius: 20px;
-      border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; transition: border-color 0.2s;
-    }
+                    border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; transition: border-color 0.2s; }
     .search-input:focus { border-color: var(--accent-color); }
     .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
 
@@ -200,14 +165,15 @@
        🎵 プレイリストビュー
        ========================================= */
     .playlist-layout-v06 {
-      display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%;
       transition: grid-template-columns 0.4s ease, max-width 0.4s ease;
     }
     .playlist-layout-v06.lyrics-off { grid-template-columns: 1fr 1fr; max-width: 1000px; margin: 0 auto; }
     
     .pl-panel-art { padding: 40px 30px; justify-content: center; align-items: center; }
     .art-mega-wrapper { width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto; border-radius: 24px; overflow: hidden;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: transform 0.4s ease; }
+                        box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: transform 0.4s ease; }
     .playing .art-mega-wrapper { transform: scale(1.04); }
     .art-mega { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
     .art-info { text-align: center; margin-top: 30px; width: 100%; }
@@ -219,14 +185,13 @@
     .lyrics-header-zone { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .list-header { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; color: var(--text-sub); }
     .btn-hide-lyrics { background: var(--item-active); border: none; color: var(--text-main); padding: 6px 14px; border-radius: 12px; font-size: 0.8rem;
-      font-weight: 700; cursor: pointer; transition: all 0.2s; }
+                       font-weight: 700; cursor: pointer; transition: all 0.2s; }
     .btn-hide-lyrics:hover { color: var(--accent-color); background: var(--item-hover); }
     
     .lyrics-box { flex: 1; overflow-y: auto; padding: 50% 0; scroll-behavior: smooth; margin-right: -15px; padding-right: 15px; }
     .lyrics-box::-webkit-scrollbar { display: none; }
     .l-line { font-size: 1.35rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6;
-              margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center;
-    }
+              margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center; }
     .l-line.active { color: var(--text-main); transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,45,85,0.15)); }
     html[data-theme="dark"] .l-line.active { filter: drop-shadow(0 0 10px rgba(255,255,255,0.15)); }
 
@@ -234,8 +199,7 @@
     .track-list { list-style: none; overflow-y: auto; flex: 1; padding-right: 5px; margin-top: 10px; margin-right: -10px; padding-right: 10px; }
     .track-list::-webkit-scrollbar { display: none; }
     .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer;
-                 border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px;
-    }
+                 border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px; }
     .track-row:hover { background: var(--item-hover); border: 1px solid rgba(125,125,125,0.1); }
     .track-row.active { background: var(--item-active); border: 1px solid rgba(255,45,85,0.1); }
     .track-row.active .t-title { color: var(--accent-color); }
@@ -249,8 +213,7 @@
        ⚙️ 設定画面
        ========================================= */
     .account-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 28px;
-                    padding: 40px; max-width: 600px; margin-bottom: 30px; backdrop-filter: var(--glass-blur); box-shadow: var(--shadow);
-    }
+                    padding: 40px; max-width: 600px; margin-bottom: 30px; backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); }
     .acc-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; }
     .acc-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent-color); object-fit: cover; }
     .acc-name { font-size: 1.8rem; font-weight: 800; }
@@ -266,8 +229,7 @@
     .input-flat:focus { border-color: var(--accent-color); }
 
     .acc-btn { min-height: 44px; padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem;
-               transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center;
-    }
+               transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; }
     .acc-btn:active { transform: scale(0.98); }
     .acc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-outline { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); }
@@ -280,27 +242,10 @@
        🎵 ボトムホットバー
        ========================================= */
     .hotbar {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 48px);
-      max-width: 1240px; 
-      border-radius: 24px; 
-      
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); width: calc(100% - 48px); max-width: 1240px; border-radius: 24px;
       /* 🌟 境界線と背景の不透明度を下げ、ガラス感・透明感を大幅に強化 */
-      border: 1px solid var(--bar-glass-border); 
-      height: var(--hotbar-height);
-      background: var(--bar-glass-bg);
-      
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      display: flex;
-      align-items: center;
-      padding: 0 40px;
-      justify-content: space-between;
-      z-index: 900; 
-      flex-shrink: 0;
+      border: 1px solid var(--bar-glass-border); height: var(--hotbar-height); background: var(--bar-glass-bg);
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); display: flex; align-items: center; padding: 0 40px; justify-content: space-between; z-index: 900; flex-shrink: 0;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); 
     }
 
@@ -311,8 +256,6 @@
     .hb-artist { font-size: 0.9rem; color: var(--text-sub); font-weight: 500; }
 
     .hb-center { flex: 1; max-width: 560px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    
-    /* コントロールボタン類のレイアウト */
     .hb-controls { display: flex; align-items: center; gap: 12px; }
     
     /* 🔽 🔀⏪⏩🔁 ボタン自体を一回り大きく変更 (width/height 36px → 44px, font-size 1.2rem → 1.4rem) */
@@ -341,7 +284,6 @@
     .toggle-lyrics-btn.active { color: var(--accent-color); }
 
     .nav-tabs { background: rgba(125,125,125,0.08); padding: 3px 3px; border-radius: 100px; display: flex; gap: 12px; }
-  
     .nav-tab { background: none; border: none; color: var(--text-sub); width: 46px; height: 40px; border-radius: 100px;
                cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.2s; }
     .nav-tab:hover { color: var(--text-main); }
@@ -361,29 +303,13 @@
       main { padding: 20px; }
     }
     /* パネルが下のバーに被らないように底上げ */
-main {
-  padding-bottom: 140px !important;
-}
+    main { padding-bottom: 140px !important; }
   </style>
 </head>
 <body>
 
   <div class="bg-animate"></div>
 
-  <div id="authModal">
-    <div class="auth-box">
-      <img src="logo.png" alt="Logo" class="logo-lg">
-      <div class="auth-subtitle">PWA Offline Sync Track Service</div>
-      <input type="text" id="authId" class="auth-input" placeholder="ユーザーID (4〜15文字)" autocomplete="off">
-      <input type="password" id="authPass" class="auth-input" placeholder="パスワード (初期: admin123)">
-      <div id="authError" class="auth-error"></div>
-      <button id="btnLogin" class="btn-primary">Launch Deck</button>
-      <div id="offlineWarningModal" class="offline-warning-modal">
-         オフラインモード：保存済みの曲のみ再生可能
-      </div>
-    </div>
-  </div>
-  
   <div id="appWrap">
     <header>
       <div class="header-left">
@@ -458,7 +384,7 @@ main {
               <div class="acc-id" id="profileId">ID: ----</div>
             </div>
           </div>
-           
+
           <div class="form-group" style="background: rgba(125,125,125,0.05); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
             <label style="color: var(--accent-color); font-weight: 800;">⏱️ フェイク進行タイマーシステム</label>
             <div style="display:flex; gap:10px; margin-top:10px;">
@@ -475,9 +401,9 @@ main {
             <button id="btnUpdatePass" class="acc-btn btn-outline">パスワードを更新</button>
             <div id="passMsg" class="acc-message" style="display:none;"></div>
           </div>
-         
+
           <div style="margin-top:40px; border-top:1px solid rgba(125,125,125,0.1); padding-top:20px; display:flex; gap:14px;">
-            <button id="btnLogout" class="acc-btn btn-danger">ログアウト</button>
+            <button id="btnLogout" class="acc-btn btn-danger" style="display:none;">ログアウト</button>
             <button id="btnResetData" class="acc-btn btn-danger" style="background:rgba(255,45,85,0.05); border-color:rgba(255,45,85,0.2); color:var(--accent-color);">データを初期化</button>
           </div>
         </div>
@@ -503,35 +429,28 @@ main {
         </div>
         <div class="hb-progress">
           <span id="timeCurrent">0:00</span>
-          <input type="range" id="progressSlider" class="slider" min="0" value="0" step="0.1">
-          <span id="timeDuration">0:00</span>
+          <input type="range" id="progressSlider" class="slider" min="0" value="0">
+          <span id="timeTotal">0:00</span>
         </div>
       </div>
 
       <div class="hb-right">
-        <button class="toggle-lyrics-btn active" id="btnToggleLyrics"><i class="fa-solid fa-quote-right"></i></button>
+        <button class="toggle-lyrics-btn" id="btnToggleLyrics" title="歌詞表示"><i class="fa-solid fa-quote-right"></i></button>
         <div class="nav-tabs">
-          <button class="nav-tab active" data-tab="home"><i class="fa-solid fa-house"></i></button>
-          <button class="nav-tab" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i></button>
-          <button class="nav-tab" data-tab="playlist"><i class="fa-solid fa-music"></i></button>
-          <button class="nav-tab" data-tab="settings"><i class="fa-solid fa-gear"></i></button>
+          <button class="nav-tab active" data-tab="home" title="Home"><i class="fa-solid fa-house"></i></button>
+          <button class="nav-tab" data-tab="search" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <button class="nav-tab" data-tab="playlist" title="Playlist"><i class="fa-solid fa-music"></i></button>
+          <button class="nav-tab" data-tab="settings" title="Settings"><i class="fa-solid fa-gear"></i></button>
         </div>
       </div>
     </div>
   </div>
 
-  <audio id="mainAudio"></audio>
-
   <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('サービスワーカーの登録に成功しました！', reg))
-        .catch(err => console.log('サービスワーカーの登録に失敗しました...', err));
-    });
-  }
-    // --- 🎵 楽曲データベース ---
-    let songs = [
+    /* =========================================
+       📦 楽曲データベース＆歌詞データ（完全維持）
+       ========================================= */
+    const songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
         { time: 0.0, text: "🎵 (イントロ)" },
         { time: 1.0, text: "ロマンティック 恋のアンテナは" },
@@ -569,41 +488,41 @@ main {
       { id: 9, title: "君と光", artist: "大原ゆい子", src: "song10.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - 君と光" }]}
       { id: 10, title: "ゼロセンチメートル", artist: "大原ゆい子", src: "song11.mp3", cover: "jacket10.png", lines: [{ time: 0, text: 大原ゆい子 - ゼロセンチメートル" }]}
       { id: 11, title: "まっすぐ", artist: "大原ゆい子", src: "song12.mp3", cover: "logo.png", lines: [{ time: 0, text: "大原ゆい子 - まっすぐ" }]}
-    ];
-    let curIdx = 0;
-    let isPlaying = false;
-    let isLyOn = true;
-    let userSession = "";
-    let playSpeeds = [1.0, 1.5, 2.0];
-    let curSpeedIdx = 0;
-    let isShuffle = false;
-    let repeatMode = 0;
-    let shuffledIndices = [];
+    ]
 
-    // ⏱️ フェイクタイマー管理用変数
-    let isFb = false;
-    let fkDur = 0;
-    let fkCur = 0;
+    /* =========================================
+       💾 ローカルストレージ安全ラッパー
+       ========================================= */
+    function safeGet(key) { try { return localStorage.getItem(key); } catch(e) { return null; } }
+    function safeSet(key, val) { try { localStorage.setItem(key, val); } catch(e) {} }
+    function safeRemove(key) { try { localStorage.removeItem(key); } catch(e) {} }
+
+    /* =========================================
+       🎮 状態管理と初期定義
+       ========================================= */
+    // 💡 ログイン状態（userSession）をはじめから"guest"に固定化
+    const userSession = "guest";
+
+    let currentPlaylist = [...songs];
+    let currentSongIndex = 0;
+    let isPlaying = false;
+    let isShuffle = false;
+    let isRepeat = false; // false=順次, true=1曲
+    let audio = new Audio();
+    let parsedLyrics = [];
+
+    // フェイクタイム関連
+    let fkBaseTime = 0; 
+    let fkStartTime = 0; 
     let fkTimerId = null;
 
-    function safeGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
-    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
-    function safeRemove(k) { try { localStorage.removeItem(k); } catch(e) {} }
-
-    // DOM要素群
-    const authModal = document.getElementById('authModal');
-    const authId = document.getElementById('authId');
-    const authPass = document.getElementById('authPass');
-    const authError = document.getElementById('authError');
-    const btnLogin = document.getElementById('btnLogin');
-    const offlineWarningModal = document.getElementById('offlineWarningModal');
-
+    // DOMの取得
     const appWrap = document.getElementById('appWrap');
-    const audio = document.getElementById('mainAudio');
-    const btnTheme = document.getElementById('btnTheme');
-    const btnSpeed = document.getElementById('btnSpeed');
     const networkBadge = document.getElementById('networkBadge');
     const fkBadge = document.getElementById('fkBadge');
+    const btnSpeed = document.getElementById('btnSpeed');
+    const btnTheme = document.getElementById('btnTheme');
+    
     const homeQuickGrid = document.getElementById('homeQuickGrid');
     const homeRankGrid = document.getElementById('homeRankGrid');
     const searchInput = document.getElementById('searchInput');
@@ -613,456 +532,515 @@ main {
     const panelCover = document.getElementById('panelCover');
     const panelTitle = document.getElementById('panelTitle');
     const panelArtist = document.getElementById('panelArtist');
+    const btnHideLyrics = document.getElementById('btnHideLyrics');
     const lyricsBox = document.getElementById('lyricsBox');
     const trackList = document.getElementById('trackList');
-    const btnHideLyrics = document.getElementById('btnHideLyrics');
-
-    const barCover = document.getElementById('barCover');
-    const barTitle = document.getElementById('barTitle');
-    const barArtist = document.getElementById('barArtist');
-    const btnPlay = document.getElementById('btnPlay');
-    const btnPrev = document.getElementById('btnPrev');
-    const btnNext = document.getElementById('btnNext');
-    const btnShuffle = document.getElementById('btnShuffle');
-    const btnRepeat = document.getElementById('btnRepeat');
-    const progressSlider = document.getElementById('progressSlider');
-    const timeCurrent = document.getElementById('timeCurrent');
-    const timeDuration = document.getElementById('timeDuration');
-    const btnToggleLyrics = document.getElementById('btnToggleLyrics');
-
+    
     const profileName = document.getElementById('profileName');
     const profileId = document.getElementById('profileId');
+    const fkMinInput = document.getElementById('fkMinInput');
+    const fkSecInput = document.getElementById('fkSecInput');
+    const btnStartFk = document.getElementById('btnStartFk');
+    const fkStatusMsg = document.getElementById('fkStatusMsg');
     const newPassInput = document.getElementById('newPassInput');
     const btnUpdatePass = document.getElementById('btnUpdatePass');
     const passMsg = document.getElementById('passMsg');
     const btnLogout = document.getElementById('btnLogout');
     const btnResetData = document.getElementById('btnResetData');
 
-    // フェイク用入力UI
-    const fkMinInput = document.getElementById('fkMinInput');
-    const fkSecInput = document.getElementById('fkSecInput');
-    const btnStartFk = document.getElementById('btnStartFk');
-    const fkStatusMsg = document.getElementById('fkStatusMsg');
+    const barCover = document.getElementById('barCover');
+    const barTitle = document.getElementById('barTitle');
+    const barArtist = document.getElementById('barArtist');
+    const btnShuffle = document.getElementById('btnShuffle');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnPlay = document.getElementById('btnPlay');
+    const btnNext = document.getElementById('btnNext');
+    const btnRepeat = document.getElementById('btnRepeat');
+    const progressSlider = document.getElementById('progressSlider');
+    const timeCurrent = document.getElementById('timeCurrent');
+    const timeTotal = document.getElementById('timeTotal');
+    const btnToggleLyrics = document.getElementById('btnToggleLyrics');
 
-    // ネットワーク監視
-    function updateNetworkStatus() {
-      if(navigator.onLine) {
-        networkBadge.className = "network-badge badge-online";
-        networkBadge.innerHTML = `<i class="fa-solid fa-circle"></i> <span>ONLINE</span>`;
-        offlineWarningModal.style.display = 'none';
-      } else {
-        networkBadge.className = "network-badge badge-offline";
-        networkBadge.innerHTML = `<i class="fa-solid fa-circle"></i> <span>OFFLINE</span>`;
-        offlineWarningModal.style.display = 'block';
-      }
-    }
-    window.addEventListener('online', () => { updateNetworkStatus(); prefetchAllSongs(); });
-    window.addEventListener('offline', updateNetworkStatus);
-    updateNetworkStatus();
+    /* =========================================
+       🚀 アプリケーション起動処理 (window.onload)
+       ========================================= */
+    window.onload = () => {
+      // ネットワーク監視
+      updateOnlineStatus();
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
 
-    // 🔒 ログイン認証
-    const activeSession = safeGet('sd_session_user');
-    if(activeSession) {
-      userSession = activeSession;
-      authModal.style.display = 'none';
-      appWrap.style.display = 'flex';
-      initApp();
-    }
+      // テーマ初期化
+      const savedTheme = safeGet('sd_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
 
-    btnLogin.onclick = () => {
-      const id = authId.value.trim();
-      const p = authPass.value;
-      if(id.length < 4 || id.length > 15) {
-        authError.textContent = "ユーザーIDは4〜15文字で入力してください。";
-        return;
-      }
-      const localCred = safeGet(`sd_pass_${id}`);
-      const targetP = localCred || "admin123";
-      if(p !== targetP && navigator.onLine) {
-        authError.textContent = "パスワードが正しくありません。";
-        return;
-      }
-
-      authError.textContent = "";
-      userSession = id;
-      safeSet('sd_session_user', id);
-      authModal.style.display = 'none';
-      appWrap.style.display = 'flex';
+      // 💡 認証をスキップして直接初期化
       initApp();
     };
 
-    function initApp() {
-      lucide.createIcons();
-      profileName.textContent = userSession;
-      profileId.textContent = `ID: ${userSession}`;
-      const savedTheme = safeGet('sd_theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      btnTheme.innerHTML = savedTheme === 'dark' ?
-        '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-
-      buildTrackList();
-      renderHome();
-      renderSearch();
-      loadTrack(0, false);
+    function updateOnlineStatus() {
       if(navigator.onLine) {
-        prefetchAllSongs();
+        networkBadge.className = "network-badge badge-online";
+        networkBadge.querySelector('span').textContent = "ONLINE";
+      } else {
+        networkBadge.className = "network-badge badge-offline";
+        networkBadge.querySelector('span').textContent = "OFFLINE";
       }
     }
 
-    function prefetchAllSongs() {
-      console.log("全楽曲の自動バックグラウンド読み込みを開始します...");
-      songs.forEach(song => {
-        fetch(song.src, { mode: 'no-cors' })
-          .then(() => console.log(`キャッシュ成功: ${song.title}`))
-          .catch(err => console.warn(`先読み失敗: ${song.title}`, err));
-      });
+    function updateThemeIcon(theme) {
+      const icon = btnTheme.querySelector('i');
+      if(theme === 'dark') {
+        icon.className = 'fa-solid fa-sun';
+      } else {
+        icon.className = 'fa-solid fa-moon';
+      }
     }
 
     btnTheme.onclick = () => {
       const cur = document.documentElement.getAttribute('data-theme');
-      const nxt = cur === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', nxt);
-      safeSet('sd_theme', nxt);
-      btnTheme.innerHTML = nxt === 'dark' ?
-        '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      safeSet('sd_theme', next);
+      updateThemeIcon(next);
     };
 
-    btnSpeed.onclick = () => {
-      curSpeedIdx = (curSpeedIdx + 1) % playSpeeds.length;
-      const spd = playSpeeds[curSpeedIdx];
-      btnSpeed.textContent = `${spd.toFixed(1)}x`;
-      audio.playbackRate = spd;
-      btnSpeed.classList.toggle('active', spd !== 1.0);
-    };
+    function initApp() {
+      // プロファイル表示更新
+      profileName.textContent = "Guest User";
+      profileId.textContent = `ID: ${userSession}`;
 
-    document.querySelectorAll('.nav-tab').forEach(item => {
-      item.onclick = () => {
-        document.querySelectorAll('.nav-tab').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        const tab = item.getAttribute('data-tab');
-        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab-${tab}`).classList.add('active');
-        if(tab === 'home') renderHome();
-      };
-    });
+      // データ構造構築
+      buildHomeView();
+      buildTrackList();
+      loadSong(0, false);
 
-    function getStats() {
-      const d = safeGet(`sd_stats_${userSession}`);
-      return d ? JSON.parse(d) : {};
+      // タブマネージャ初期化
+      initTabs();
+
+      // 再生回数に応じたランキング初期更新
+      updateRankGrid();
     }
-    function incPlayCount(id) {
-      const st = getStats();
-      st[id] = (st[id] || 0) + 1;
-      safeSet(`sd_stats_${userSession}`, JSON.stringify(st));
+
+    /* =========================================
+       🗂 タブ制御
+       ========================================= */
+    function initTabs() {
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.onclick = () => {
+          const target = btn.getAttribute('data-tab');
+          document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+          
+          btn.classList.add('active');
+          document.getElementById(`tab-${target}`).classList.add('active');
+        };
+      });
+    }
+
+    /* =========================================
+       🏠 画面ビルド & 統計処理
+       ========================================= */
+    function getStats() {
+      const raw = safeGet(`sd_stats_${userSession}`);
+      return raw ? JSON.parse(raw) : {};
+    }
+    function incrementStats(songId) {
+      const stats = getStats();
+      stats[songId] = (stats[songId] || 0) + 1;
+      safeSet(`sd_stats_${userSession}`, JSON.stringify(stats));
+      updateRankGrid();
+    }
+
+    function buildHomeView() {
+      homeQuickGrid.innerHTML = "";
+      songs.forEach((song, idx) => {
+        const card = document.createElement('div');
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${song.cover}" class="card-img" onerror="this.src='jacket1.png'">
+          <div class="card-info">
+            <div class="card-title">${song.title}</div>
+            <div class="card-desc">${song.artist}</div>
+          </div>
+        `;
+        card.onclick = () => {
+          currentPlaylist = [...songs];
+          isShuffle = false;
+          btnShuffle.classList.remove('active');
+          const sIdx = songs.findIndex(s => s.id === song.id);
+          loadSong(sIdx >= 0 ? sIdx : 0, true);
+          switchToPlaylistTab();
+        };
+        homeQuickGrid.appendChild(card);
+      });
+    }
+
+    function updateRankGrid() {
+      homeRankGrid.innerHTML = "";
+      const stats = getStats();
+      const sorted = [...songs].map(s => ({...s, count: stats[s.id] || 0}))
+                               .sort((a,b) => b.count - a.count);
+
+      sorted.forEach((song, idx) => {
+        const card = document.createElement('div');
+        card.className = "card";
+        card.innerHTML = `
+          <div class="rank-badge">${idx + 1}</div>
+          <img src="${song.cover}" class="card-img" onerror="this.src='jacket1.png'">
+          <div class="card-info">
+            <div class="card-title">${song.title}</div>
+            <div class="card-desc">再生回数: ${song.count}回</div>
+          </div>
+        `;
+        card.onclick = () => {
+          currentPlaylist = [...songs];
+          isShuffle = false;
+          btnShuffle.classList.remove('active');
+          const sIdx = songs.findIndex(s => s.id === song.id);
+          loadSong(sIdx >= 0 ? sIdx : 0, true);
+          switchToPlaylistTab();
+        };
+        homeRankGrid.appendChild(card);
+      });
     }
 
     function buildTrackList() {
-      trackList.innerHTML = '';
-      songs.forEach((s, idx) => {
-        const li = document.createElement('div');
-        li.className = `track-row ${idx === curIdx ? 'active' : ''}`;
-        li.onclick = () => loadTrack(idx, true);
-        li.innerHTML = `
-          <div class="t-num">${String(idx + 1).padStart(2, '0')}</div>
-          <img src="${s.cover}" class="t-art" onerror="this.src='jacket1.png'">
+      trackList.innerHTML = "";
+      songs.forEach((song, idx) => {
+        const row = document.createElement('div');
+        row.className = "track-row";
+        row.id = `track-${idx}`;
+        row.innerHTML = `
+          <div class="t-num">${String(idx+1).padStart(2,'0')}</div>
+          <img src="${song.cover}" class="t-art" onerror="this.src='jacket1.png'">
           <div class="t-info">
-            <div class="t-title">${s.title}</div>
-            <div class="t-artist">${s.artist}</div>
+            <div class="t-title">${song.title}</div>
+            <div class="t-artist">${song.artist}</div>
           </div>
         `;
-        trackList.appendChild(li);
+        row.onclick = () => {
+          if(isShuffle) {
+            const pIdx = currentPlaylist.findIndex(s => s.id === song.id);
+            loadSong(pIdx >= 0 ? pIdx : 0, true);
+          } else {
+            loadSong(idx, true);
+          }
+        };
+        trackList.appendChild(row);
       });
     }
 
-    function renderHome() {
-      homeQuickGrid.innerHTML = '';
-      songs.slice(0, 3).forEach(s => homeQuickGrid.appendChild(createCard(s)));
-      homeRankGrid.innerHTML = '';
-      const st = getStats();
-      const sorted = [...songs].sort((a,b) => (st[b.id]||0) - (st[a.id]||0));
-      sorted.slice(0, 3).forEach((s, i) => {
-        const div = createCard(s);
-        const b = document.createElement('div'); b.className = 'rank-badge'; b.textContent = i + 1;
-        div.insertBefore(b, div.firstChild);
-        homeRankGrid.appendChild(div);
+    function switchToPlaylistTab() {
+      const pTabBtn = document.querySelector('.nav-tab[data-tab="playlist"]');
+      if(pTabBtn) pTabBtn.click();
+    }
+
+    /* =========================================
+       🔍 検索システム
+       ========================================= */
+    searchInput.oninput = () => {
+      const q = searchInput.value.trim().toLowerCase();
+      searchResultGrid.innerHTML = "";
+      if(!q) return;
+
+      const filtered = songs.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+      filtered.forEach(song => {
+        const card = document.createElement('div');
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${song.cover}" class="card-img" onerror="this.src='jacket1.png'">
+          <div class="card-info">
+            <div class="card-title">${song.title}</div>
+            <div class="card-desc">${song.artist}</div>
+          </div>
+        `;
+        card.onclick = () => {
+          currentPlaylist = [...songs];
+          isShuffle = false;
+          btnShuffle.classList.remove('active');
+          const sIdx = songs.findIndex(s => s.id === song.id);
+          loadSong(sIdx >= 0 ? sIdx : 0, true);
+          switchToPlaylistTab();
+        };
+        searchResultGrid.appendChild(card);
       });
-    }
+    };
 
-    function renderSearch() {
-      searchResultGrid.innerHTML = '';
-      const q = searchInput.value.toLowerCase();
-      songs.forEach(s => {
-        if(s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)) {
-          searchResultGrid.appendChild(createCard(s));
-        }
-      });
-    }
-    searchInput.oninput = renderSearch;
+    /* =========================================
+       🎵 オーディオ＆プレイヤー制御コア
+       ========================================= */
+    function loadSong(index, autoPlay = false) {
+      if(index < 0 || index >= currentPlaylist.length) return;
+      currentSongIndex = index;
+      const song = currentPlaylist[currentSongIndex];
 
-    function createCard(song) {
-      const idx = songs.findIndex(x => x.id === song.id);
-      const div = document.createElement('div'); div.className = 'card';
-      div.onclick = () => {
-        loadTrack(idx, true);
-        document.querySelector('.nav-tab[data-tab="playlist"]').click();
-      };
-      div.innerHTML = `
-        <img src="${song.cover}" class="card-img" onerror="this.src='jacket1.png'">
-        <div class="card-info">
-          <div class="card-title">${song.title}</div>
-          <div class="card-desc">${song.artist}</div>
-        </div>
-      `;
-      return div;
-    }
+      audio.src = song.src;
+      audio.load();
 
-    function loadTrack(idx, autoPlay) {
-      curIdx = idx;
-      const s = songs[curIdx];
-      audio.src = s.src;
+      // UIの書き換え
+      panelTitle.textContent = song.title;
+      panelArtist.textContent = song.artist;
+      panelCover.src = song.cover;
+      barTitle.textContent = song.title;
+      barArtist.textContent = song.artist;
+      barCover.src = song.cover;
 
-      document.querySelectorAll('.track-row').forEach((r, i) => r.classList.toggle('active', i === idx));
+      // 歌詞のパースと展開
+      parseLyrics(song.lyrics);
 
-      panelCover.src = s.cover; panelTitle.textContent = s.title;
-      panelArtist.textContent = s.artist;
-      barCover.src = s.cover; barTitle.textContent = s.title; barArtist.textContent = s.artist;
+      // トラックリストのアクティブインジケータ更新
+      const originIdx = songs.findIndex(s => s.id === song.id);
+      document.querySelectorAll('.track-row').forEach(r => r.classList.remove('active'));
+      const activeRow = document.getElementById(`track-${originIdx}`);
+      if(activeRow) activeRow.classList.add('active');
 
-      buildLyrics(s);
-      if(isFb) {
-        progressSlider.max = fkDur;
-        timeDuration.textContent = formatTime(fkDur);
-        fkCur = 0;
-        progressSlider.value = 0;
-        timeCurrent.textContent = "0:00";
+      progressSlider.value = 0;
+      timeCurrent.textContent = "0:00";
+      timeTotal.textContent = "0:00";
+
+      if(autoPlay) {
+        playAudio();
       } else {
-        progressSlider.value = 0;
-        timeCurrent.textContent = "0:00";
+        setPlayingState(false);
       }
-
-      if(autoPlay) { incPlayCount(s.id); playTrack(); } else { setPlayingState(false); }
     }
 
-    function playTrack() {
-      if(isFb) {
-        startFkTimer();
+    function playAudio() {
+      audio.play().then(() => {
         setPlayingState(true);
-      } else {
-        audio.play()
-          .then(() => {
-            audio.playbackRate = playSpeeds[curSpeedIdx];
-            setPlayingState(true);
-          })
-          .catch((err) => {
-            console.error("再生に失敗しました:", err);
-            setPlayingState(false);
-            alert("この曲はまだオフライン用に保存されていないか、読み込みに失敗しました。Wi-Fi接続時に一度アプリを開くと自動ダウンロードが始まります。");
-          });
-      }
+        const song = currentPlaylist[currentSongIndex];
+        incrementStats(song.id);
+      }).catch(e => {
+        console.log("Play failed:", e);
+        setPlayingState(false);
+      });
     }
-    
-    function pauseTrack() {
-      if(isFb) { stopFkTimer(); } else { audio.pause(); }
+
+    function pauseAudio() {
+      audio.pause();
       setPlayingState(false);
     }
-    
-    function setPlayingState(p) {
-      isPlaying = p;
-      btnPlay.innerHTML = p ? '<i class="fa-solid fa-circle-pause"></i>' : '<i class="fa-solid fa-circle-play"></i>';
-      playlistLayout.classList.toggle('playing', p);
-    }
 
-    btnPlay.onclick = () => isPlaying ? pauseTrack() : playTrack();
-    btnPrev.onclick = () => prevTrack();
-    btnNext.onclick = () => nextTrack();
-
-    function prevTrack() {
-      if (isShuffle && shuffledIndices.length > 0) {
-        let sIdx = shuffledIndices.indexOf(curIdx);
-        sIdx = sIdx - 1;
-        if (sIdx < 0) sIdx = shuffledIndices.length - 1;
-        loadTrack(shuffledIndices[sIdx], true);
+    function setPlayingState(playing) {
+      isPlaying = playing;
+      const icon = btnPlay.querySelector('i');
+      if(isPlaying) {
+        icon.className = "fa-solid fa-circle-pause";
+        appWrap.classList.add('playing');
       } else {
-        let i = curIdx - 1;
-        if(i < 0) i = songs.length - 1; 
-        loadTrack(i, true);
+        icon.className = "fa-solid fa-circle-play";
+        appWrap.classList.remove('playing');
       }
     }
 
-    function nextTrack() {
-      if (isShuffle && shuffledIndices.length > 0) {
-        let sIdx = shuffledIndices.indexOf(curIdx);
-        sIdx = sIdx + 1;
-        if (sIdx >= shuffledIndices.length) {
-          shuffledIndices = songs.map((_, i) => i).filter(i => i !== curIdx);
-          for (let i = shuffledIndices.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
-          }
-          shuffledIndices.unshift(curIdx);
-          sIdx = 1;
-        }
-        loadTrack(shuffledIndices[sIdx], true);
-      } else {
-        let i = curIdx + 1;
-        if(i >= songs.length) i = 0;
-        loadTrack(i, true);
-      }
-    }
-    
-    audio.onended = () => {
-      if (!isFb) {
-        if (repeatMode === 2) {
-          loadTrack(curIdx, true);
-        } else if (repeatMode === 1) {
-          nextTrack();
-        } else {
-          if (isShuffle) {
-            let sIdx = shuffledIndices.indexOf(curIdx);
-            if (sIdx === shuffledIndices.length - 1) {
-              setPlayingState(false);
-            } else {
-              nextTrack();
-            }
-          } else {
-            if (curIdx === songs.length - 1) {
-              setPlayingState(false);
-            } else {
-              nextTrack();
-            }
-          }
-        }
-      }
+    btnPlay.onclick = () => { isPlaying ? pauseAudio() : playAudio(); };
+
+    btnNext.onclick = () => {
+      if(isRepeat) { audio.currentTime = 0; playAudio(); return; }
+      let next = currentSongIndex + 1;
+      if(next >= currentPlaylist.length) next = 0;
+      loadSong(next, true);
     };
 
-    function toggleLyrics(show) {
-      isLyOn = show;
-      btnToggleLyrics.classList.toggle('active', show);
-      playlistLayout.classList.toggle('lyrics-off', !show);
-    }
-    btnToggleLyrics.onclick = () => toggleLyrics(!isLyOn);
-    btnHideLyrics.onclick = () => toggleLyrics(false);
-
-    audio.ondurationchange = () => { if(!isFb) { progressSlider.max = audio.duration; timeDuration.textContent = formatTime(audio.duration); } };
-    audio.ontimeupdate = () => {
-      if(!isFb) {
-        if(!progressSlider.classList.contains('seeking')) {
-          progressSlider.value = audio.currentTime;
-          timeCurrent.textContent = formatTime(audio.currentTime);
-        }
-        syncLyrics(audio.currentTime);
-      }
-    };
-    progressSlider.oninput = () => {
-      progressSlider.classList.add('seeking');
-      timeCurrent.textContent = formatTime(progressSlider.value);
-    };
-    progressSlider.onchange = () => {
-      if(isFb) {
-        fkCur = parseFloat(progressSlider.value);
-      } else {
-        audio.currentTime = progressSlider.value;
-      }
-      progressSlider.classList.remove('seeking');
+    btnPrev.onclick = () => {
+      let prev = currentSongIndex - 1;
+      if(prev < 0) prev = currentPlaylist.length - 1;
+      loadSong(prev, true);
     };
 
     btnShuffle.onclick = () => {
       isShuffle = !isShuffle;
-      btnShuffle.classList.toggle('active', isShuffle);
       if(isShuffle) {
-        shuffledIndices = songs.map((_, i) => i).filter(i => i !== curIdx);
-        for (let i = shuffledIndices.length - 1; i > 0; i--) {
+        btnShuffle.classList.add('active');
+        const currentSong = currentPlaylist[currentSongIndex];
+        // 現在の曲を除いたシャッフル
+        let arr = songs.filter(s => s.id !== currentSong.id);
+        for(let i = arr.length - 1; i > 0; i--){
           const j = Math.floor(Math.random() * (i + 1));
-          [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+          [arr[i], arr[j]] = [arr[j], arr[i]];
         }
-        shuffledIndices.unshift(curIdx);
+        currentPlaylist = [currentSong, ...arr];
+        currentSongIndex = 0;
+      } else {
+        btnShuffle.classList.remove('active');
+        const currentSong = currentPlaylist[currentSongIndex];
+        currentPlaylist = [...songs];
+        const sIdx = currentPlaylist.findIndex(s => s.id === currentSong.id);
+        currentSongIndex = sIdx >= 0 ? sIdx : 0;
       }
     };
 
     btnRepeat.onclick = () => {
-      repeatMode = (repeatMode + 1) % 3;
-      if (repeatMode === 0) {
-        btnRepeat.className = "ctrl-btn";
-        btnRepeat.innerHTML = '<i class="fa-solid fa-repeat"></i>';
-      } else if (repeatMode === 1) {
-        btnRepeat.className = "ctrl-btn active";
-        btnRepeat.innerHTML = '<i class="fa-solid fa-repeat"></i>';
-      } else if (repeatMode === 2) {
-        btnRepeat.className = "ctrl-btn active";
-        btnRepeat.innerHTML = '<i class="fa-solid fa-repeat-1"></i>';
+      isRepeat = !isRepeat;
+      if(isRepeat) {
+        btnRepeat.classList.add('active');
+        btnRepeat.setAttribute('title', '1曲リピート中');
+      } else {
+        btnRepeat.classList.remove('active');
+        btnRepeat.setAttribute('title', 'リピート');
       }
     };
 
-    function buildLyrics(song) {
-      lyricsBox.innerHTML = '';
-      if(!song.lines) return lyricsBox.innerHTML = '<div class="l-line">No Lyrics</div>';
-      song.lines.forEach(l => {
-        const d = document.createElement('div'); d.className = 'l-line'; d.textContent = l.text;
-        d.onclick = () => { if(isFb) fkCur = l.time; else audio.currentTime = l.time; };
-        lyricsBox.appendChild(d);
-      });
-    }
-
-    function syncLyrics(time) {
-      if(!isLyOn) return; const s = songs[curIdx]; if(!s.lines) return;
-      let aIdx = -1; for(let i=0; i<s.lines.length; i++) { if(time >= s.lines[i].time) aIdx = i; else break; }
-      const els = lyricsBox.querySelectorAll('.l-line');
-      els.forEach((el, i) => {
-        if(i === aIdx) {
-          if(!el.classList.contains('active')) {
-            el.classList.add('active');
-            lyricsBox.scrollTo({ top: el.offsetTop - (lyricsBox.clientHeight/2) + (el.clientHeight/2), behavior: 'smooth' });
-          }
-        } else el.classList.remove('active');
-      });
-    }
-
-    function formatTime(s) { const m = Math.floor(s/60), sc = Math.floor(s%60); return `${m}:${sc<10?'0':''}${sc}`; }
-
-    btnStartFk.onclick = () => {
-      const m = parseInt(fkMinInput.value) || 0;
-      const sc = parseInt(fkSecInput.value) || 0;
-      const totalSec = (m * 60) + sc;
-      if(totalSec <= 0) {
-        isFb = false;
-        stopFkTimer();
-        fkBadge.style.display = 'none';
-        fkStatusMsg.textContent = "フェイクタイマーをオフにしました。";
-        loadTrack(curIdx, false);
-        return;
-      }
-
-      isFb = true;
-      fkDur = totalSec;
-      fkCur = 0;
-      fkBadge.style.display = 'block';
-      fkStatusMsg.textContent = `タイマー設定完了: ${m}分${sc}秒`;
-      
-      progressSlider.max = fkDur;
-      timeDuration.textContent = formatTime(fkDur);
-      progressSlider.value = 0;
-      timeCurrent.textContent = "0:00";
-      
-      pauseTrack();
+    // 再生速度コントローラ
+    const speeds = [1.0, 1.25, 1.5, 2.0];
+    let speedIdx = 0;
+    btnSpeed.onclick = () => {
+      speedIdx = (speedIdx + 1) % speeds.length;
+      const sp = speeds[speedIdx];
+      audio.playbackRate = sp;
+      btnSpeed.textContent = sp + "x";
+      if(sp !== 1.0) btnSpeed.classList.add('active');
+      else btnSpeed.classList.remove('active');
     };
 
-    function startFkTimer() {
-      stopFkTimer();
-      fkTimerId = setInterval(() => {
-        const spd = playSpeeds[curSpeedIdx];
-        fkCur += (0.1 * spd);
-        if(fkCur >= fkDur) {
-          fkCur = fkDur;
-          stopFkTimer();
-          setPlayingState(false);
-          nextTrack();
+    /* =========================================
+       ⏱️ 再生位置同期システム
+       ========================================= */
+    audio.onloadedmetadata = () => {
+      progressSlider.max = Math.floor(audio.duration);
+      timeTotal.textContent = formatTime(audio.duration);
+    };
+
+    audio.ontimeupdate = () => {
+      if(fkTimerId) return; // フェイクタイムタイマー稼働中はそちらが優先
+      if(!progressSlider.classList.contains('seeking')) {
+        progressSlider.value = Math.floor(audio.currentTime);
+        timeCurrent.textContent = formatTime(audio.currentTime);
+      }
+      syncLyrics(audio.currentTime);
+    };
+
+    audio.onended = () => {
+      if(isRepeat) {
+        audio.currentTime = 0; playAudio();
+      } else {
+        btnNext.click();
+      }
+    };
+
+    progressSlider.oninput = () => { progressSlider.classList.add('seeking'); timeCurrent.textContent = formatTime(progressSlider.value); };
+    progressSlider.onchange = () => {
+      progressSlider.classList.remove('seeking');
+      if(fkTimerId) {
+        // フェイクタイム動作中のスキップ補正
+        const gap = progressSlider.value - getFakeTime();
+        fkBaseTime += gap;
+      } else {
+        audio.currentTime = progressSlider.value;
+      }
+    };
+
+    function formatTime(secs) {
+      if(isNaN(secs)) return "0:00";
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${String(s).padStart(2,'0')}`;
+    }
+
+    /* =========================================
+       📝 タイムリリック同期コア
+       ========================================= */
+    function parseLyrics(text) {
+      parsedLyrics = [];
+      lyricsBox.innerHTML = "";
+      if(!text) return;
+
+      const lines = text.split('\n');
+      const timeReg = /\[(\d{2}):(\d{2})\.(\d{2})\]/;
+
+      lines.forEach((line, idx) => {
+        const match = timeReg.exec(line);
+        if(match) {
+          const min = parseInt(match[1]);
+          const sec = parseInt(match[2]);
+          const time = min * 60 + sec;
+          const txt = line.replace(timeReg, '').trim();
+          
+          parsedLyrics.push({ time, txt, id: `lyric-line-${idx}` });
+
+          const p = document.createElement('p');
+          p.className = "l-line";
+          p.id = `lyric-line-${idx}`;
+          p.textContent = txt || "♪";
+          p.onclick = () => {
+            if(fkTimerId) { fkBaseTime = time; fkStartTime = Date.now(); }
+            else { audio.currentTime = time; }
+            progressSlider.value = time;
+          };
+          lyricsBox.appendChild(p);
         }
-     
+      });
+    }
+
+    let lastActiveId = null;
+    function syncLyrics(time) {
+      if(parsedLyrics.length === 0) return;
+      let activeItem = parsedLyrics[0];
+
+      for(let i=0; i<parsedLyrics.length; i++) {
+        if(time >= parsedLyrics[i].time) {
+          activeItem = parsedLyrics[i];
+        } else {
+          break;
+        }
+      }
+
+      if(activeItem && activeItem.id !== lastActiveId) {
+        document.querySelectorAll('.l-line').forEach(el => el.classList.remove('active'));
+        const targetEl = document.getElementById(activeItem.id);
+        if(targetEl) {
+          targetEl.classList.add('active');
+          // スムーズスクロール
+          const containerHeight = lyricsBox.clientHeight;
+          const elOffset = targetEl.offsetTop;
+          const elHeight = targetEl.clientHeight;
+          lyricsBox.scrollTop = elOffset - (containerHeight / 2) + (elHeight / 2);
+        }
+        lastActiveId = activeItem.id;
+      }
+    }
+
+    btnToggleLyrics.onclick = () => {
+      playlistLayout.classList.toggle('lyrics-off');
+      btnToggleLyrics.classList.toggle('active');
+    };
+    btnHideLyrics.onclick = () => {
+      playlistLayout.classList.add('lyrics-off');
+      btnToggleLyrics.classList.remove('active');
+    };
+
+    /* =========================================
+       ⏱️ フェイク進行タイマーシステム
+       ========================================= */
+    btnStartFk.onclick = () => {
+      if(fkTimerId) { stopFkTimer(); fkStatusMsg.textContent = ""; btnStartFk.textContent = "タイマー起動"; fkBadge.style.display="none"; return; }
+      const mins = parseInt(fkMinInput.value) || 0;
+      const secs = parseInt(fkSecInput.value) || 0;
+      const targetTime = mins * 60 + secs;
+
+      if(targetTime <= 0) { alert("有効なフェイク目標時間を指定してください。"); return; }
+
+      fkBaseTime = targetTime;
+      fkStartTime = Date.now();
+      fkBadge.style.display = "inline-block";
+      btnStartFk.textContent = "タイマー解除";
+      fkStatusMsg.textContent = "フェイクタイム同期中...";
+
+      fkTimerId = setInterval(() => {
+        const fkCur = getFakeTime();
         if(!progressSlider.classList.contains('seeking')) {
           progressSlider.value = fkCur;
           timeCurrent.textContent = formatTime(fkCur);
         }
         syncLyrics(fkCur);
       }, 100);
+    };
+
+    function getFakeTime() {
+      const elapsed = (Date.now() - fkStartTime) / 1000;
+      return fkBaseTime + elapsed;
     }
 
     function stopFkTimer() { if(fkTimerId) { clearInterval(fkTimerId); fkTimerId = null; } }
@@ -1077,24 +1055,22 @@ main {
       setTimeout(() => passMsg.style.display="none", 3000);
     };
 
-    btnLogout.onclick = () => {
-      safeRemove('sd_session_user'); audio.pause(); stopFkTimer(); setPlayingState(false);
-      appWrap.style.display = 'none'; authModal.style.display = 'flex';
-      authId.value = ""; authPass = "";
-    };
-
     btnResetData.onclick = () => {
       if(confirm('これまでの再生回数ランキングやカスタムパスワードがすべて削除されます。初期化しますか？')) {
         safeRemove(`sd_stats_${userSession}`); safeRemove(`sd_pass_${userSession}`);
-        alert('データを初期化しました。一度ログアウトします。'); btnLogout.click();
+        alert('データを初期化しました。');
+        updateRankGrid();
       }
     };
 
+    /* =========================================
+       📱 バックグラウンド・メディアコントロール
+       ========================================= */
     if ('mediaSession' in navigator) {
-      navigator.mediaSession.setActionHandler('play', playTrack);
-      navigator.mediaSession.setActionHandler('pause', pauseTrack);
-      navigator.mediaSession.setActionHandler('previoustrack', prevTrack);
-      navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
+      navigator.mediaSession.setActionHandler('play', () => { playAudio(); });
+      navigator.mediaSession.setActionHandler('pause', () => { pauseAudio(); });
+      navigator.mediaSession.setActionHandler('previoustrack', () => { btnPrev.click(); });
+      navigator.mediaSession.setActionHandler('nexttrack', () => { btnNext.click(); });
     }
   </script>
 </body>
