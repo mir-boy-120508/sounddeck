@@ -433,27 +433,44 @@
     let isRepeat = false; 
     let currentTrackIndex = 0;
     
-    // 著作権フリー・パブリックドメイン等の安全なテスト用音源に設定（必要に応じて各自書き換えてください）
     let songs = [
-      { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", cover: "jacket1.png", lines: [
+      { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
         { time: 0.0, text: "🎵 (イントロ)" },
-        { time: 5.0, text: "ロマンティック 恋のアンテナは" },
-        { time: 10.0, text: "嵐で何処かへ飛んでいった" },
-        { time: 15.0, text: "嘘でしょう 冷たく遇った" },
-        { time: 20.0, text: "こしゃくなエクボに ちょっと心が揺れてる" },
-        { time: 25.0, text: "ホントは本気であたしを叱ってくれる大事なひと" },
-        { time: 30.0, text: "なんて言ったらアイツは得意気になるから" }
+        { time: 1.0, text: "ロマンティック 恋のアンテナは" },
+        { time: 5.0, text: "嵐で何処かへ飛んでいった" },
+        { time: 9.0, text: "嘘でしょう 冷たく遇った" },
+        { time: 13.0, text: "こしゃくなエクボに ちょっと心が揺れてる" },
+        { time: 19.0, text: "ホントは本気であたしを叱ってくれる大事なひと" },
+        { time: 27.0, text: "なんて言ったらアイツは得意気になるから" },
+        { time: 33.0, text: "もう褒めたりしない" },
+        { time: 36.0, text: "タイクツな運命に飽き飽きしたの" },
+        { time: 41.0, text: "知らない台詞で解き放してね" },
+        { time: 46.0, text: "ダーリン ダーリン 心の扉を壊してよ" },
+        { time: 52.0, text: "たいせつなことは瞳を見て云って" },
+        { time: 57.0, text: "あなたとならばこの街を抜け出せる" },
+        { time: 63.0, text: "今すぐ連れ出して My Sweet Sweet Darling" }
       ]},
-      { id: 1, title: "AM11:00", artist: "HY", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", cover: "jacket2.png", lines: [
+      { id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [
         { time: 0.0, text: "🎵 (イントロ)" },
-        { time: 5.0, text: "『目を覚ましてよ』君の声が僕を包み Yeah" },
-        { time: 12.0, text: "窓を開けてそよ風が君の髪をなびく" },
-        { time: 18.0, text: "部屋から出る 僕の腕をつかみながら 君は" }
+        { time: 14.0, text: "『目を覚ましてよ』君の声が僕を包み Yeah" },
+        { time: 22.0, text: "窓を開けてそよ風が君の髪をなびく" },
+        { time: 29.0, text: "部屋から出る 僕の腕をつかみながら 君は" },
+        { time: 36.0, text: "『もう少しだけ』『もう少しだけ』と僕に君はつぶやく" },
+        { time: 44.0, text: "この世界が闇に染まる前にこの思いを" },
+        { time: 51.0, text: "だからお願い 僕のそばにいてくれないか" },
+        { time: 56.0, text: "君が好きだから" },
+        { time: 58.0, text: "この思いが君に届くように 願いが慢いますように" }
       ]},
-      { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", cover: "jacket3.png", lines: [{ time: 0, text: "JUDY AND MARY - 自転車 (Instrumental)" }]},
-      { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", cover: "jacket4.png", lines: [{ time: 0, text: "チャットモンチー - 風吹けば恋" }]},
-      { id: 4, title: "愛唄", artist: "GReeeeN", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", cover: "jacket5.png", lines: [{ time: 0, text: "GReeeeN - 愛唄" }]},
-      { id: 5, title: "出逢った頃のように", artist: "Every Little Thing", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", cover: "jacket6.png", lines: [{ time: 0, text: "Every Little Thing - 出逢った頃のように" }]}
+      { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [{ time: 0, text: "JUDY AND MARY - 自転車" }]},
+      { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [{ time: 0, text: "チャットモンチー - 風吹けば恋" }]},
+      { id: 4, title: "愛唄", artist: "GReeeeN", src: "song5.mp3", cover: "jacket5.png", lines: [{ time: 0, text: "GReeeeN - 愛唄" }]},
+      { id: 5, title: "出逢った頃のように", artist: "Every Little Thing", src: "song6.mp3", cover: "jacket6.png", lines: [{ time: 0, text: "Every Little Thing - 出逢った頃のように" }]},
+      { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [{ time: 0, text: "中島美嘉 - STARS" }]},
+      { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [{ time: 0, text: "大原ゆい子 - 言わないけどね" }]},
+      { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [{ time: 0, text: "Chara - やさしい気持ち" }]},
+      { id: 9, title: "君と光", artist: "大原ゆい子", src: "song10.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - 君と光" }]}
+      { id: 10, title: "ゼロセンチメートル", artist: "大原ゆい子", src: "song11.mp3", cover: "jacket10.png", lines: [{ time: 0, text: 大原ゆい子 - ゼロセンチメートル" }]}
+      { id: 11, title: "まっすぐ", artist: "大原ゆい子", src: "song12.mp3", cover: "logo.png", lines: [{ time: 0, text: "大原ゆい子 - まっすぐ" }]}
     ];
 
     // --- DOM要素取得 ---
