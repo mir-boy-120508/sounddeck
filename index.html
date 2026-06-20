@@ -517,220 +517,139 @@ main {
   <audio id="mainAudio"></audio>
 
 <script>
-// --- 状態管理変数 ---
-let isPlaying = false;
-let isShuffle = false;
-let isRepeat = false; 
-let currentTrackIndex = 0;
-let userSession = "default_user";
-
-// --- 🎵 楽曲データベース（カンマとクォーテーションを修正） ---
-let songs = [
-  { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
-    { time: 0.0, text: "🎵 (イントロ)" },
-    { time: 1.0, text: "ロマンティック 恋のアンテナは" },
-    { time: 5.0, text: "嵐で何処かへ飛んでいった" },
-    { time: 9.0, text: "嘘でしょう 冷たく遇った" },
-    { time: 13.0, text: "こしゃくなエクボに ちょっと心が揺れてる" },
-    { time: 19.0, text: "ホントは本気であたしを叱ってくれる大事なひと" },
-    { time: 27.0, text: "なんて言ったらアイツは得意気になるから" },
-    { time: 33.0, text: "もう褒めたりしない" },
-    { time: 36.0, text: "タイクツな運命に飽き飽きしたの" },
-    { time: 41.0, text: "知らない台詞で解き放してね" },
-    { time: 46.0, text: "ダーリン ダーリン 心の扉を壊してよ" },
-    { time: 52.0, text: "たいせつなことは瞳を見て云って" },
-    { time: 57.0, text: "あなたとならばこの街を抜け出せる" },
-    { time: 63.0, text: "今すぐ連れ出して My Sweet Sweet Darling" }
-  ]},
-  { id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [
-    { time: 0.0, text: "🎵 (イントロ)" },
-    { time: 14.0, text: "『目を覚ましてよ』君の声が僕を包み Yeah" },
-    { time: 22.0, text: "窓を開けてそよ風が君の髪をなびく" },
-    { time: 29.0, text: "部屋から出る 僕の腕をつかみながら 君は" },
-    { time: 36.0, text: "『もう少しだけ』『もう少しだけ』と僕に君はつぶやく" },
-    { time: 44.0, text: "この世界が闇に染まる前にこの思いを" },
-    { time: 51.0, text: "だからお願い 僕のそばにいてくれないか" },
-    { time: 56.0, text: "君が好きだから" },
-    { time: 58.0, text: "この思いが君に届くように 願いが届きますように" }
-  ]},
-  { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [{ time: 0, text: "JUDY AND MARY - 自転車" }]},
-  { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [{ time: 0, text: "チャットモンチー - 風吹けば恋" }]},
-  { id: 4, title: "愛唄", artist: "GReeeeN", src: "song5.mp3", cover: "jacket5.png", lines: [{ time: 0, text: "GReeeeN - 愛唄" }]},
-  { id: 5, title: "出逢った頃のように", artist: "Every Little Thing", src: "song6.mp3", cover: "jacket6.png", lines: [{ time: 0, text: "Every Little Thing - 出逢った頃のように" }]},
-  { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [{ time: 0, text: "中島美嘉 - STARS" }]},
-  { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [{ time: 0, text: "大原ゆい子 - 言わないけどね" }]},
-  { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [{ time: 0, text: "Chara - やさしい気持ち" }]},
-  { id: 9, title: "君と光", artist: "大原ゆい子", src: "song10.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - 君と光" }]}, // 👈 カンマを追加
-  { id: 10, title: "ゼロセンチメートル", artist: "大原ゆい子", src: "song11.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - ゼロセンチメートル" }]}, // 👈 カンマとクォーテーションを修正
-  { id: 11, title: "まっすぐ", artist: "大原ゆい子", src: "song12.mp3", cover: "logo.png", lines: [{ time: 0, text: "大原ゆい子 - まっすぐ" }]}
-];
-
-// --- DOM要素の取得（HTML側のIDと一致するように修正） ---
-const btnPlay = document.getElementById('btnPlay');
-const btnPrev = document.getElementById('btnPrev');
-const btnNext = document.getElementById('btnNext');
-const btnShuffle = document.getElementById('btnShuffle');
-const btnRepeat = document.getElementById('btnRepeat');
-const playIcon = btnPlay ? btnPlay.querySelector('i') : null;
-
-// ホットバーの表示用要素
-const barTitle = document.getElementById('barTitle');
-const barArtist = document.getElementById('barArtist');
-const barCover = document.getElementById('barCover');
-
-// プレイリストパネルの表示用要素
-const panelTitle = document.getElementById('panelTitle');
-const panelArtist = document.getElementById('panelArtist');
-const panelCover = document.getElementById('panelCover');
-
-const timeCurrent = document.getElementById('timeCurrent');
-const timeDuration = document.getElementById('timeDuration'); // HTML側は timeDuration
-const progressSlider = document.getElementById('progressSlider');
-const themeToggle = document.getElementById('btnTheme'); // HTML側は btnTheme
-
-// --- 初期化処理 ---
-window.addEventListener('DOMContentLoaded', () => {
-  if (window.lucide) {
-    lucide.createIcons();
-  }
-  loadTrack(currentTrackIndex);
+    // --- 状態管理変数 ---
+    let isPlaying = false;
+    let isShuffle = false;
+    let isRepeat = false; 
+    let currentTrackIndex = 0;
+    let userSession = "default_user";
   
-  const authModal = document.getElementById('authModal');
-  const appWrap = document.getElementById('appWrap');
-  if (authModal) authModal.style.display = 'none';
-  if (appWrap) appWrap.style.display = 'block';
-});
+    // --- 🎵 楽曲データベース（バグ修正版） ---
+    let songs = [
+      { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
+        { time: 0.0, text: "🎵 (イントロ)" },
+        { time: 1.0, text: "ロマンティック 恋のアンテナは" },
+        { time: 5.0, text: "嵐で何処かへ飛んでいった" },
+        { time: 9.0, text: "嘘でしょう 冷たく遇った" },
+        { time: 13.0, text: "こしゃくなエクボに ちょっと心が揺れてる" },
+        { time: 19.0, text: "ホントは本気であたしを叱ってくれる大事なひと" },
+        { time: 27.0, text: "なんて言ったらアイツは得意気になるから" },
+        { time: 33.0, text: "もう褒めたりしない" },
+        { time: 36.0, text: "タイクツな運命に飽き飽きしたの" },
+        { time: 41.0, text: "知らない台詞で解き放してね" },
+        { time: 46.0, text: "ダーリン ダーリン 心の扉を壊してよ" },
+        { time: 52.0, text: "たいせつなことは瞳を見て云って" },
+        { time: 57.0, text: "あなたとならばこの街を抜け出せる" },
+        { time: 63.0, text: "今すぐ連れ出して My Sweet Sweet Darling" }
+      ]},
+      { id: 1, title: "AM11:00", artist: "HY", src: "song2.mp3", cover: "jacket2.png", lines: [
+        { time: 0.0, text: "🎵 (イントロ)" },
+        { time: 14.0, text: "『目を覚ましてよ』君の声が僕を包み Yeah" },
+        { time: 22.0, text: "窓を開けてそよ風が君の髪をなびく" },
+        { time: 29.0, text: "部屋から出る 僕の腕をつかみながら 君は" },
+        { time: 36.0, text: "『もう少しだけ』『もう少しだけ』と僕に君はつぶやく" },
+        { time: 44.0, text: "この世界が闇に染まる前にこの思いを" },
+        { time: 51.0, text: "だからお願い 僕のそばにいてくれないか" },
+        { time: 56.0, text: "君が好きだから" },
+        { time: 58.0, text: "この思いが君に届くように 願いが届きますように" }
+      ]},
+      { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [{ time: 0, text: "JUDY AND MARY - 自転車" }]},
+      { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [{ time: 0, text: "チャットモンチー - 風吹けば恋" }]},
+      { id: 4, title: "愛唄", artist: "GReeeeN", src: "song5.mp3", cover: "jacket5.png", lines: [{ time: 0, text: "GReeeeN - 愛唄" }]},
+      { id: 5, title: "出逢った頃のように", artist: "Every Little Thing", src: "song6.mp3", cover: "jacket6.png", lines: [{ time: 0, text: "Every Little Thing - 出逢った頃のように" }]},
+      { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [{ time: 0, text: "中島美嘉 - STARS" }]},
+      { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [{ time: 0, text: "大原ゆい子 - 言わないけどね" }]},
+      { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [{ time: 0, text: "Chara - やさしい気持ち" }]},
+      { id: 9, title: "君と光", artist: "大原ゆい子", src: "song10.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - 君と光" }]},
+      { id: 10, title: "ゼロセンチメートル", artist: "大原ゆい子", src: "song11.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - ゼロセンチメートル" }]},
+      { id: 11, title: "まっすぐ", artist: "大原ゆい子", src: "song12.mp3", cover: "logo.png", lines: [{ time: 0, text: "大原ゆい子 - まっすぐ" }]}
+    ];
 
-// --- トラック読み込み関数（songs 配列を参照するように修正） ---
-function loadTrack(index) {
-  const track = songs[index]; // 👈 playlist から songs に修正
-  if (!track) return;
-  
-  // ホットバーの更新
-  if (barTitle) barTitle.textContent = track.title;
-  if (barArtist) barArtist.textContent = track.artist;
-  if (barCover) barCover.src = track.cover;
+    // --- DOM要素の取得（HTML側の実際のID名にすべて修正） ---
+    const btnPlay = document.getElementById('btnPlay');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const btnShuffle = document.getElementById('btnShuffle');
+    const btnRepeat = document.getElementById('btnRepeat');
+    const playIcon = btnPlay ? btnPlay.querySelector('i') : null;
+    
+    // ホットバー表示用要素
+    const barTitle = document.getElementById('barTitle');
+    const barArtist = document.getElementById('barArtist');
+    const barCover = document.getElementById('barCover');
 
-  // プレイリスト詳細パネルの更新
-  if (panelTitle) panelTitle.textContent = track.title;
-  if (panelArtist) panelArtist.textContent = track.artist;
-  if (panelCover) panelCover.src = track.cover;
-  
-  if (progressSlider) {
-    progressSlider.max = 180; // 仮に1曲3分（180秒）として設定
-    progressSlider.value = 0;
-  }
-  if (timeDuration) timeDuration.textContent = "3:00";
-}
+    // プレイリストタブ内表示用要素
+    const panelTitle = document.getElementById('panelTitle');
+    const panelArtist = document.getElementById('panelArtist');
+    const panelCover = document.getElementById('panelCover');
 
-function formatTime(secs) {
-  const m = Math.floor(secs / 60);
-  const s = Math.floor(secs % 60);
-  return `${m}:${s < 10 ? '0' : ''}${s}`;
-}
+    const timeCurrent = document.getElementById('timeCurrent');
+    const timeDuration = document.getElementById('timeDuration');
+    const progressSlider = document.getElementById('progressSlider');
+    const themeToggle = document.getElementById('btnTheme'); // HTMLは「btnTheme」でした
 
-// --- ボタンのイベントリスナー ---
-if (btnPlay) {
-  btnPlay.addEventListener('click', () => {
-    isPlaying = !isPlaying;
-    if (isPlaying) {
-      if (playIcon) {
-        playIcon.classList.remove('fa-circle-play');
-        playIcon.classList.add('fa-circle-pause');
+    // --- 初期化処理 ---
+    window.addEventListener('DOMContentLoaded', () => {
+      // Lucideアイコンの初期化
+      if (window.lucide) {
+        lucide.createIcons();
       }
-      console.log("再生開始");
-    } else {
-      if (playIcon) {
-        playIcon.classList.remove('fa-circle-pause');
-        playIcon.classList.add('fa-circle-play');
-      }
-      console.log("一時停止");
-    }
-  });
-}
-
-if (btnNext) {
-  btnNext.addEventListener('click', () => {
-    currentTrackIndex = (currentTrackIndex + 1) % songs.length;
-    loadTrack(currentTrackIndex);
-  });
-}
-
-if (btnPrev) {
-  btnPrev.addEventListener('click', () => {
-    currentTrackIndex = (currentTrackIndex - 1 + songs.length) % songs.length;
-    loadTrack(currentTrackIndex);
-  });
-}
-
-if (themeToggle) {
-  themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    if (currentTheme === 'dark') {
-      document.documentElement.removeAttribute('data-theme');
-      themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
-    }
-  });
-}
-  
-// --- 初期化処理 ---
-window.addEventListener('DOMContentLoaded', () => {
-  if (window.lucide) {
-    lucide.createIcons();
-  }
-  loadTrack(currentTrackIndex);
-  
-  const authModal = document.getElementById('authModal');
-  const appWrap = document.getElementById('appWrap');
-  if (authModal) authModal.style.display = 'none';
-  if (appWrap) appWrap.style.display = 'block';
-
-  const tabButtons = document.querySelectorAll('.nav-tab'); // 全てのタブボタンを取得
-  const views = document.querySelectorAll('.view-tab');    // 全ての画面（コンテンツ）を取得
-
-  tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      // 1. すべてのタブボタンから「active」クラスを外す
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      // 2. クリックされたタブボタンに「active」クラスをつける
-      button.classList.add('active');
-
-      // 3. ボタンの「data-tab」属性の値を取得（例: "search", "playlist"）
-      const targetTabId = button.getAttribute('data-tab');
-
-      // 4. すべての画面から「active」クラスを外して非表示にする
-      views.forEach(view => view.classList.remove('active'));
-
-      // 5. 連動するIDの画面（例: #tab-search）に「active」クラスをつけて表示する
-      const targetView = document.getElementById(`tab-${targetTabId}`);
-      if (targetView) {
-        targetView.classList.add('active');
-      }
-    });
-  });
-});
-      // 最初はログインモーダルを隠してメイン画面を出す（テスト用）
+      
+      // 最初の曲を読み込む
+      loadTrack(currentTrackIndex);
+      
+      // 認証モーダルを隠してメイン画面を出す
       const authModal = document.getElementById('authModal');
       const appWrap = document.getElementById('appWrap');
       if (authModal) authModal.style.display = 'none';
       if (appWrap) appWrap.style.display = 'block';
+
+      // 🔄【新規追加】タブ切り替え機能
+      const tabButtons = document.querySelectorAll('.nav-tab');
+      const views = document.querySelectorAll('.view-tab');
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // すべてのタブから active クラスを消す
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          // クリックしたタブに active クラスを付与
+          button.classList.add('active');
+
+          // 切り替え先画面のIDを取得
+          const targetTabId = button.getAttribute('data-tab');
+
+          // すべての画面を非表示にする
+          views.forEach(view => view.classList.remove('active'));
+
+          // 対象の画面を表示する
+          const targetView = document.getElementById(`tab-${targetTabId}`);
+          if (targetView) {
+            targetView.classList.add('active');
+          }
+        });
+      });
     });
 
     // --- トラック読み込み関数 ---
     function loadTrack(index) {
-      const track = playlist[index];
+      const track = songs[index]; // playlist から songs に修正
       if (!track) return;
-      if (trackTitle) trackTitle.textContent = track.title;
-      if (trackArtist) trackArtist.textContent = track.artist;
-      if (trackAlbum) trackAlbum.textContent = track.album;
-      if (timeTotal) timeTotal.textContent = formatTime(track.duration);
+      
+      // 下部ホットバーを更新
+      if (barTitle) barTitle.textContent = track.title;
+      if (barArtist) barArtist.textContent = track.artist;
+      if (barCover) barCover.src = track.cover;
+
+      // プレイリスト詳細パネルを更新
+      if (panelTitle) panelTitle.textContent = track.title;
+      if (panelArtist) panelArtist.textContent = track.artist;
+      if (panelCover) panelCover.src = track.cover;
+
       if (progressSlider) {
-        progressSlider.max = track.duration;
+        progressSlider.max = 180; // 仮で3分に設定
         progressSlider.value = 0;
       }
+      if (timeDuration) timeDuration.textContent = "3:00";
     }
 
     function formatTime(secs) {
@@ -746,21 +665,16 @@ window.addEventListener('DOMContentLoaded', () => {
       btnPlay.addEventListener('click', () => {
         isPlaying = !isPlaying;
         if (isPlaying) {
-          // 再生状態
           if (playIcon) {
-            playIcon.classList.remove('fa-play');
-            playIcon.classList.add('fa-pause');
+            playIcon.classList.remove('fa-circle-play');
+            playIcon.classList.add('fa-circle-pause');
           }
-          btnPlay.style.transform = "scale(0.95)";
-          // ここに audio.play() などの処理が入ります
           console.log("再生開始");
         } else {
-          // 一時停止状態
           if (playIcon) {
-            playIcon.classList.remove('fa-pause');
-            playIcon.classList.add('fa-play');
+            playIcon.classList.remove('fa-circle-pause');
+            playIcon.classList.add('fa-circle-play');
           }
-          btnPlay.style.transform = "scale(1)";
           console.log("一時停止");
         }
       });
@@ -769,7 +683,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // 2. 次の曲ボタン
     if (btnNext) {
       btnNext.addEventListener('click', () => {
-        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+        currentTrackIndex = (currentTrackIndex + 1) % songs.length;
         loadTrack(currentTrackIndex);
         console.log("次の曲へ:", currentTrackIndex);
       });
@@ -778,7 +692,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // 3. 前の曲ボタン
     if (btnPrev) {
       btnPrev.addEventListener('click', () => {
-        currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+        currentTrackIndex = (currentTrackIndex - 1 + songs.length) % songs.length;
         loadTrack(currentTrackIndex);
         console.log("前の曲へ:", currentTrackIndex);
       });
@@ -818,18 +732,6 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // 7. 設定パネルの開閉
-    if (btnToggleSettings && settingsPanel) {
-      btnToggleSettings.addEventListener('click', () => {
-        if (settingsPanel.style.display === 'none' || settingsPanel.style.display === '') {
-          settingsPanel.style.display = 'block';
-          settingsPanel.scrollIntoView({ behavior: 'smooth' });
-        } else {
-          settingsPanel.style.display = 'none';
-        }
-      });
-    }
-
     // 8. シークバー（スライダー）を動かしたときの処理
     if (progressSlider) {
       progressSlider.addEventListener('input', (e) => {
@@ -838,6 +740,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       });
     }
-  </script>
+</script>
 </body>
 </html>
