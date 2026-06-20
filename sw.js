@@ -11,6 +11,8 @@ const ASSETS = [
   'song8.mp3',
   'song9.mp3',
   'song10.mp3'
+  'song11.mp3'
+  'song12.mp3'
 ];
 
 self.addEventListener('install', e => {
