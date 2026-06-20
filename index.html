@@ -426,13 +426,14 @@
 
   <audio id="mainAudio"></audio>
 
-  <script>
+<script>
     // --- 状態管理変数 ---
     let isPlaying = false;
     let isShuffle = false;
     let isRepeat = false; 
     let currentTrackIndex = 0;
     
+    // 🌟 ご提示いただいた12曲のオリジナルリストを（エラーを修正して）完全に復活させました！
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
         { time: 0.0, text: "🎵 (イントロ)" },
@@ -459,7 +460,7 @@
         { time: 44.0, text: "この世界が闇に染まる前にこの思いを" },
         { time: 51.0, text: "だからお願い 僕のそばにいてくれないか" },
         { time: 56.0, text: "君が好きだから" },
-        { time: 58.0, text: "この思いが君に届くように 願いが慢いますように" }
+        { time: 58.0, text: "この思いが君に届くように 願いが届きますように" }
       ]},
       { id: 2, title: "自転車", artist: "JUDY AND MARY", src: "song3.mp3", cover: "jacket3.png", lines: [{ time: 0, text: "JUDY AND MARY - 自転車" }]},
       { id: 3, title: "風吹けば恋", artist: "チャットモンチー", src: "song4.mp3", cover: "jacket4.png", lines: [{ time: 0, text: "チャットモンチー - 風吹けば恋" }]},
@@ -468,8 +469,8 @@
       { id: 6, title: "STARS", artist: "中島美嘉", src: "song7.mp3", cover: "jacket7.png", lines: [{ time: 0, text: "中島美嘉 - STARS" }]},
       { id: 7, title: "言わないけどね", artist: "大原ゆい子", src: "song8.mp3", cover: "jacket8.png", lines: [{ time: 0, text: "大原ゆい子 - 言わないけどね" }]},
       { id: 8, title: "やさしい気持ち", artist: "Chara", src: "song9.mp3", cover: "jacket9.png", lines: [{ time: 0, text: "Chara - やさしい気持ち" }]},
-      { id: 9, title: "君と光", artist: "大原ゆい子", src: "song10.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - 君と光" }]}
-      { id: 10, title: "ゼロセンチメートル", artist: "大原ゆい子", src: "song11.mp3", cover: "jacket10.png", lines: [{ time: 0, text: 大原ゆい子 - ゼロセンチメートル" }]}
+      { id: 9, title: "君と光", artist: "大原ゆい子", src: "song10.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - 君と光" }]},
+      { id: 10, title: "ゼロセンチメートル", artist: "大原ゆい子", src: "song11.mp3", cover: "jacket10.png", lines: [{ time: 0, text: "大原ゆい子 - ゼロセンチメートル" }]},
       { id: 11, title: "まっすぐ", artist: "大原ゆい子", src: "song12.mp3", cover: "logo.png", lines: [{ time: 0, text: "大原ゆい子 - まっすぐ" }]}
     ];
 
@@ -530,7 +531,7 @@
       if (homeQuickGrid) {
         homeQuickGrid.innerHTML = songs.map((song, idx) => `
           <div class="card" onclick="selectTrack(${idx})">
-            <img src="${song.cover}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=100&q=80'">
+            <img src="${song.cover}" class="card-img" onerror="this.src='logo.png'">
             <div class="card-info">
               <div class="card-title">${song.title}</div>
               <div class="card-desc">${song.artist}</div>
@@ -539,10 +540,10 @@
         `).join('');
       }
       if (homeRankGrid) {
-        homeRankGrid.innerHTML = songs.slice(0, 4).map((song, idx) => `
+        homeRankGrid.innerHTML = songs.slice(0, 5).map((song, idx) => `
           <div class="card" onclick="selectTrack(${idx})">
             <span class="rank-badge">${idx + 1}</span>
-            <img src="${song.cover}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=100&q=80'">
+            <img src="${song.cover}" class="card-img" onerror="this.src='logo.png'">
             <div class="card-info">
               <div class="card-title">${song.title}</div>
               <div class="card-desc">${song.artist}</div>
@@ -558,7 +559,7 @@
       trackListContainer.innerHTML = songs.map((song, idx) => `
         <div class="track-row ${idx === currentTrackIndex ? 'active' : ''}" onclick="selectTrack(${idx})">
           <span class="t-num">${String(idx + 1).padStart(2, '0')}</span>
-          <img src="${song.cover}" class="t-art" onerror="this.src='https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=100&q=80'">
+          <img src="${song.cover}" class="t-art" onerror="this.src='logo.png'">
           <div class="t-info">
             <div class="t-title">${song.title}</div>
             <div class="t-artist">${song.artist}</div>
@@ -579,13 +580,15 @@
       const track = songs[index];
       if (!track) return;
 
-      audio.src = track.src;
+      audio.src = track.src; // あなたのローカルファイル（song1.mp3など）を読み込みます
       audio.load();
 
       if (barTitle) barTitle.textContent = track.title;
       if (barArtist) barArtist.textContent = track.artist;
+      if (barCover) barCover.src = track.cover;
       if (panelTitle) panelTitle.textContent = track.title;
       if (panelArtist) panelArtist.textContent = track.artist;
+      if (panelCover) panelCover.src = track.cover;
 
       // 歌詞生成
       const lyricsBox = document.getElementById('lyricsBox');
@@ -610,7 +613,9 @@
           playIcon.classList.remove('fa-circle-play');
           playIcon.classList.add('fa-circle-pause');
         }
-      }).catch(err => console.log("再生ブロック回避:", err));
+      }).catch(err => {
+        console.log("再生エラー（ファイルが正しい場所にあるか確認してください）:", err);
+      });
     }
 
     function pauseAudio() {
@@ -653,7 +658,7 @@
       if (timeCurrent) timeCurrent.textContent = formatTime(curr);
       if (progressSlider) progressSlider.value = curr;
 
-      // 🌟 歌詞の自動ジャストスクロール・ハイライト
+      // 歌詞の自動ジャストスクロール・ハイライト
       const lines = document.querySelectorAll('.l-line');
       let activeLine = null;
 
@@ -668,7 +673,6 @@
         lines.forEach(l => l.classList.remove('active'));
         activeLine.classList.add('active');
         
-        // 歌詞ボックスの真ん中にスクロールさせる
         const box = document.getElementById('lyricsBox');
         if (box) {
           const activeOffset = activeLine.offsetTop;
@@ -720,7 +724,7 @@
       });
     }
 
-    // リピート & シャッフルの見た目だけトグル
+    // リピート & シャッフルの見た目
     if (btnRepeat) {
       btnRepeat.addEventListener('click', () => {
         isRepeat = !isRepeat;
@@ -762,7 +766,7 @@
             const origIdx = songs.findIndex(s => s.id === song.id);
             return `
               <div class="card" onclick="selectTrack(${origIdx})">
-                <img src="${song.cover}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=100&q=80'">
+                <img src="${song.cover}" class="card-img" onerror="this.src='logo.png'">
                 <div class="card-info">
                   <div class="card-title">${song.title}</div>
                   <div class="card-desc">${song.artist}</div>
