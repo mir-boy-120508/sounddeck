@@ -1,6 +1,18 @@
 const CACHE_NAME = 'sounddeck-cache-v1';
 const ASSETS = [
   'index.html',
+  'logo.png',
+  'jacket1.png',
+  'jacket2.png',
+  'jacket3.png',
+  'jacket4.png',
+  'jacket5.png',
+  'jacket6.png',
+  'jacket7.png',
+  'jacket8.png',
+  'jacket9.png',
+  'jacket10.png',
+  'jacket12.png',
   'song1.mp3',
   'song2.mp3',
   'song3.mp3',
@@ -10,9 +22,9 @@ const ASSETS = [
   'song7.mp3',
   'song8.mp3',
   'song9.mp3',
-  'song10.mp3'
-  'song11.mp3'
-  'song12.mp3'
+  'song10.mp3',
+  'song11.mp3',
+  'song12.mp3',
 ];
 
 self.addEventListener('install', e => {
