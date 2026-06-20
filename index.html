@@ -794,15 +794,19 @@
       });
     }
 
+    // --- シャッフル＆リピートのON/OFF完全切り替え ---
     if (btnRepeat) {
       btnRepeat.addEventListener('click', () => {
         isRepeat = !isRepeat;
+        // isRepeat が true ならアクセントカラー（赤）、false なら空（元の色）にする
         btnRepeat.style.color = isRepeat ? "var(--accent-color)" : "";
       });
     }
+
     if (btnShuffle) {
       btnShuffle.addEventListener('click', () => {
         isShuffle = !isShuffle;
+        // isShuffle が true ならアクセントカラー（赤）、false なら空（元の色）にする
         btnShuffle.style.color = isShuffle ? "var(--accent-color)" : "";
       });
     }
