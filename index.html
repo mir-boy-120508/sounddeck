@@ -794,20 +794,30 @@
       });
     }
 
-    // --- シャッフル＆リピートのON/OFF完全切り替え ---
+// --- シャッフル＆リピート---
     if (btnRepeat) {
-      btnRepeat.addEventListener('click', () => {
+      btnRepeat.addEventListener('click', (e) => {
         isRepeat = !isRepeat;
-        // isRepeat が true ならアクセントカラー（赤）、false なら空（元の色）にする
+        // 色と不透明度を切り替え
         btnRepeat.style.color = isRepeat ? "var(--accent-color)" : "";
+        
+        // 🌟 押した瞬間にボタンのフォーカスを強制解除して、色が残るのを防ぐ！
+        btnRepeat.blur(); 
+        // モバイル環境などでイベントが残るのを防ぐ
+        e.currentTarget.blur();
       });
     }
 
     if (btnShuffle) {
-      btnShuffle.addEventListener('click', () => {
+      btnShuffle.addEventListener('click', (e) => {
         isShuffle = !isShuffle;
-        // isShuffle が true ならアクセントカラー（赤）、false なら空（元の色）にする
+        // 色と不透明度を切り替え
         btnShuffle.style.color = isShuffle ? "var(--accent-color)" : "";
+        
+        // 🌟 押した瞬間にボタンのフォーカスを強制解除して、色が残るのを防ぐ！
+        btnShuffle.blur();
+        // モバイル環境などでイベントが残るのを防ぐ
+        e.currentTarget.blur();
       });
     }
 
