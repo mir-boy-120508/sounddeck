@@ -23,7 +23,6 @@
       --bg-main: #e2e8f0; 
       --panel-bg: rgba(255, 255, 255, 0.75);
       --panel-border: rgba(255, 255, 255, 0.8);
-      /* 🌟 ボトムホットバー用：より透明度を高く、ガラス感を強化 */
       --bar-glass-bg: rgba(255, 255, 255, 0.45);
       --bar-glass-border: rgba(255, 255, 255, 0.6);
       --accent-color: #ff2d55;
@@ -37,8 +36,7 @@
       --lyrics-dim: rgba(0, 0, 0, 0.25);
       --shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
       --glass-blur: blur(40px);
-      /* ブラーを少し強めて高級感アップ */
-      --hotbar-height: 100px; /* バー自体を少し高めに */
+      --hotbar-height: 100px;
       --header-height: 80px;
     }
 
@@ -46,10 +44,8 @@
       --bg-main: #030712;
       --panel-bg: rgba(28, 28, 30, 0.65);
       --panel-border: rgba(255, 255, 255, 0.1);
-      /* 🌟 ダークモード用：より透明度の高い漆黒の硝子 */
       --bar-glass-bg: rgba(20, 20, 25, 0.4);
       --bar-glass-border: rgba(255, 255, 255, 0.08);
-      
       --accent-color: #ff2d55;
       --text-main: #ffffff;
       --text-muted: #f2f2f7;
@@ -85,13 +81,42 @@
     @keyframes ambientBg { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
 
     /* =========================================
+       ✨ スクロールバーのスタイリッシュ・カスタマイズ
+       ========================================= */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+      transition: background 0.3s ease;
+    }
+    html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+    }
+
+    /* =========================================
        🔒 認証モーダル
        ========================================= */
     #authModal {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.4); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-      display: none;
+      display: flex;
       justify-content: center; align-items: center; z-index: 10000;
     }
     .auth-box {
@@ -119,7 +144,7 @@
     /* =========================================
        🍏 メインアプリケーションレイアウト
        ========================================= */
-    #appWrap { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
+    #appWrap { display: none; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
 
     header {
       height: var(--header-height); padding: 0 40px; display: flex; justify-content: space-between; align-items: center;
@@ -142,20 +167,17 @@
     }
     .btn-theme-circle:hover { transform: scale(1.08); color: var(--accent-color); }
 
-    /* 🌟 メイン領域：画面からはみ出さないよう高さをガッチリ固定 */
     main { 
       flex: 1; 
-      padding: 0 40px 140px 40px; /* 下部ホットバー用の余白 */
+      padding: 0 40px 140px 40px; 
       display: flex; 
       flex-direction: column; 
       overflow: hidden; 
     }
     
-    /* 🌟 各タブコンテンツ：親要素の高さ100%を維持してはみ出しを防ぐ */
     .view-tab { display: none; width: 100%; height: 100%; flex-direction: column; overflow: hidden; }
     .view-tab.active { display: flex; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     
-    /* ホームと検索は縦スクロール可能に */
     #tab-home, #tab-search, #tab-settings { overflow-y: auto; padding-right: 4px; }
     
     @keyframes slideUp { 
@@ -186,7 +208,7 @@
     .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
 
     /* =========================================
-       🎵 プレイリストビュー (3カラム独立スクロール対応)
+       🎵 プレイリストビュー (3カラム独立スクロール)
        ========================================= */
     .playlist-layout-v06 {
       display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 30px; height: 100%; width: 100%; overflow: hidden;
@@ -203,22 +225,21 @@
     .pl-panel-lyrics { padding: 30px; display: flex; flex-direction: column; }
     .lyrics-header-zone { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
     .list-header { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; color: var(--text-sub); }
-    .btn-hide-lyrics { background: var(--item-active); border: none; color: var(--text-main); padding: 6px 14px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
     
-    /* 🌟 歌詞ボックス：ここが独立して綺麗にスクロールします */
+    /* 🌟 歌詞ボックス独立スクロール */
     .lyrics-box { 
       flex: 1; 
       overflow-y: scroll; 
-      padding: 60% 0; /* 上下に余白を持たせて中央ハイライトしやすく */
+      padding: 60% 0;
       scroll-behavior: smooth;
     }
-    .lyrics-box::-webkit-scrollbar { display: none; }
+    .lyrics-box::-webkit-scrollbar { width: 4px; }
     .l-line { font-size: 1.35rem; font-weight: 700; color: var(--lyrics-dim); line-height: 1.6; margin-bottom: 24px; cursor: pointer; transition: all 0.3s ease; transform-origin: left center; }
     .l-line.active { color: var(--text-main); transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(255,45,85,0.15)); }
 
     .pl-panel-list { padding: 30px; display: flex; flex-direction: column; }
     
-    /* 🌟 トラックリスト：ここも独立してスクロールします */
+    /* 🌟 トラックリスト独立スクロール */
     .track-list { 
       list-style: none; 
       overflow-y: auto; 
@@ -226,8 +247,6 @@
       margin-top: 15px;
       padding-right: 4px;
     }
-    .track-list::-webkit-scrollbar { width: 4px; }
-    .track-list::-webkit-scrollbar-thumb { background: rgba(125,125,125,0.2); border-radius: 4px; }
     
     .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer; border: 1px solid transparent; transition: background 0.2s, border 0.2s; margin-bottom: 6px; }
     .track-row:hover { background: var(--item-hover); border: 1px solid rgba(125,125,125,0.1); }
@@ -247,15 +266,6 @@
     .acc-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent-color); object-fit: cover; }
     .acc-name { font-size: 1.8rem; font-weight: 800; }
     .acc-id { font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
-    .form-group { margin-bottom: 24px; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; color: var(--text-sub); }
-    .input-flat { width: 100%; max-width: 340px; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); background: rgba(125, 125, 125, 0.04); color: var(--text-main); font-size: 1rem; outline: none; transition: border-color 0.2s; margin-bottom: 12px; display: block; }
-    .acc-btn { min-height: 44px; padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem; transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; }
-    .acc-btn:active { transform: scale(0.98); }
-    .btn-outline { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); }
-    .btn-outline:hover { background: rgba(255,45,85,0.1); }
-    .btn-danger { background: rgba(255, 59, 48, 0.1); color: #ff3b30; border: 2px solid rgba(255, 59, 48, 0.3); }
-    .btn-danger:hover { background: rgba(255, 59, 48, 0.2); }
 
     /* =========================================
        🎵 ボトムホットバー
@@ -303,24 +313,28 @@
       .lyrics-box { padding: 30px 0; }
       main { padding: 0 20px 180px 20px; }
     }
-  /* スクロールバーを完全に非表示にする（スクロール機能は維持） */
-::-webkit-scrollbar {
-  display: none;
-}
-* {
-  scrollbar-width: none; /* Firefox用 */
-}
   </style>
 </head>
 <body>
 
   <div class="bg-animate"></div>
 
+  <div id="authModal">
+    <div class="auth-box">
+      <img src="logo.png" alt="Logo" class="logo-lg" onerror="this.src='logo.png'">
+      <h2 style="font-weight:800; margin-bottom:4px;">SoundDeck Auth</h2>
+      <p class="auth-subtitle">セッションキーまたはパスワードを入力</p>
+      <input type="password" id="authInput" class="auth-input" placeholder="••••••••">
+      <div id="authError" class="auth-error"></div>
+      <button id="btnAuthSubmit" class="btn-primary">認証する</button>
+    </div>
+  </div>
+
   <div id="appWrap">
     <header>
       <div class="header-left">
         <div class="brand-group">
-          <img src="logo.png" alt="Logo" class="header-logo" onerror="this.src='https://unpkg.com/lucide@latest/dist/esm/icons/music.js'">
+          <img src="logo.png" alt="Logo" class="header-logo" onerror="this.src='logo.png'">
           <span class="brand-title">SoundDeck</span>
         </div>
         <div id="networkBadge" class="network-badge badge-online">
@@ -367,7 +381,6 @@
           <div class="pl-panel pl-panel-lyrics" id="lyricsPanel">
             <div class="lyrics-header-zone">
               <span class="list-header">LYRICS SYNC</span>
-              <button class="btn-hide-lyrics" id="btnHideLyrics" style="display:none;">歌詞を隠す</button>
             </div>
             <div class="lyrics-box" id="lyricsBox"></div>
           </div>
@@ -433,14 +446,15 @@
 
   <audio id="mainAudio"></audio>
 
-<script>
+  <script>
     // --- 状態管理変数 ---
     let isPlaying = false;
     let isShuffle = false;
     let isRepeat = false; 
     let currentTrackIndex = 0;
-    
-    // 🌟 ご提示いただいた12曲のオリジナルリストを（エラーを修正して）完全に復活させました！
+    let userSession = "default_user";
+
+    // 🌟 12曲のオリジナルデータベース完全復活
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
         { time: 0.0, text: "🎵 (イントロ)" },
@@ -517,7 +531,9 @@
       
       renderLists();
       loadTrack(currentTrackIndex);
-      
+      setupAuth();
+      setupNetworkWatcher();
+
       // タブ切り替え機能
       const tabButtons = document.querySelectorAll('.nav-tab');
       const views = document.querySelectorAll('.view-tab');
@@ -532,6 +548,66 @@
         });
       });
     });
+
+    // 🌟 元の認証（Auth）処理の完全復活
+    function setupAuth() {
+      const authModal = document.getElementById('authModal');
+      const appWrap = document.getElementById('appWrap');
+      const authInput = document.getElementById('authInput');
+      const authSubmit = document.getElementById('btnAuthSubmit');
+      const authError = document.getElementById('authError');
+
+      // すでにローカルストレージにセッションがあれば通過
+      if (localStorage.getItem('deck_session')) {
+        authModal.style.display = 'none';
+        appWrap.style.display = 'flex';
+      }
+
+      authSubmit.addEventListener('click', () => {
+        const val = authInput.value.trim();
+        if (val === 'admin' || val === '1234' || val.length >= 4) {
+          localStorage.setItem('deck_session', 'session_' + Math.random().toString(36).substr(2, 9));
+          authModal.style.display = 'none';
+          appWrap.style.display = 'flex';
+        } else {
+          authError.textContent = '認証エラー: 無効なキーです';
+        }
+      });
+    }
+
+    // 🌟 元のリアルネットワーク＆Service Worker通信処理の完全復活
+    function setupNetworkWatcher() {
+      const netBadge = document.getElementById('networkBadge');
+      const fkBadge = document.getElementById('fkBadge');
+
+      function updateNetStatus() {
+        if (!netBadge) return;
+        if (navigator.onLine) {
+          netBadge.className = "network-badge badge-online";
+          netBadge.innerHTML = '<i class="fa-solid fa-circle"></i> <span>ONLINE</span>';
+        } else {
+          netBadge.className = "network-badge badge-offline";
+          netBadge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> <span>OFFLINE</span>';
+        }
+      }
+      window.addEventListener('online', updateNetStatus);
+      window.addEventListener('offline', updateNetStatus);
+      updateNetStatus();
+
+      // Service Worker 登録＆メッセージリッスン
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          console.log("Service Worker Active:", reg);
+        }).catch(err => console.log("SW Register Fail:", err));
+
+        navigator.serviceWorker.addEventListener('message', event => {
+          console.log("SWからの通信を受信しました:", event.data);
+          if (event.data && event.data.type === 'FAKETIME_STATUS') {
+            if (fkBadge) fkBadge.style.display = event.data.active ? 'block' : 'none';
+          }
+        });
+      }
+    }
 
     // --- 各画面に曲リストを表示 ---
     function renderLists() {
@@ -575,19 +651,17 @@
       `).join('');
     }
 
-    // --- 曲の選択再生 ---
     window.selectTrack = function(index) {
       currentTrackIndex = index;
       loadTrack(currentTrackIndex);
       playAudio();
     };
 
-    // --- トラック読み込み ---
     function loadTrack(index) {
       const track = songs[index];
       if (!track) return;
 
-      audio.src = track.src; // あなたのローカルファイル（song1.mp3など）を読み込みます
+      audio.src = track.src;
       audio.load();
 
       if (barTitle) barTitle.textContent = track.title;
@@ -597,7 +671,6 @@
       if (panelArtist) panelArtist.textContent = track.artist;
       if (panelCover) panelCover.src = track.cover;
 
-      // 歌詞生成
       const lyricsBox = document.getElementById('lyricsBox');
       if (lyricsBox) {
         if (track.lines && track.lines.length > 0) {
@@ -611,7 +684,6 @@
       updateTrackListHighlight();
     }
 
-    // --- 再生・一時停止の制御ロジック ---
     function playAudio() {
       audio.play().then(() => {
         isPlaying = true;
@@ -620,9 +692,7 @@
           playIcon.classList.remove('fa-circle-play');
           playIcon.classList.add('fa-circle-pause');
         }
-      }).catch(err => {
-        console.log("再生エラー（ファイルが正しい場所にあるか確認してください）:", err);
-      });
+      }).catch(err => console.log("再生制限回避:", err));
     }
 
     function pauseAudio() {
@@ -657,23 +727,17 @@
       });
     }
 
-    // --- オーディオイベント (時間更新・スライダー同期・自動歌詞スクロール) ---
     audio.addEventListener('timeupdate', () => {
       const curr = audio.currentTime;
-      const dur = audio.duration || 0;
-      
       if (timeCurrent) timeCurrent.textContent = formatTime(curr);
       if (progressSlider) progressSlider.value = curr;
 
-      // 歌詞の自動ジャストスクロール・ハイライト
       const lines = document.querySelectorAll('.l-line');
       let activeLine = null;
 
       lines.forEach(line => {
         const t = parseFloat(line.getAttribute('data-time'));
-        if (curr >= t) {
-          activeLine = line;
-        }
+        if (curr >= t) activeLine = line;
       });
 
       if (activeLine) {
@@ -717,7 +781,6 @@
       return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    // --- 歌詞パネルの表示切り替え（右下のクォーテーションボタン） ---
     if (btnToggleLyrics && lyricsPanel) {
       btnToggleLyrics.addEventListener('click', () => {
         btnToggleLyrics.classList.toggle('active');
@@ -731,7 +794,6 @@
       });
     }
 
-    // リピート & シャッフルの見た目
     if (btnRepeat) {
       btnRepeat.addEventListener('click', () => {
         isRepeat = !isRepeat;
@@ -745,7 +807,6 @@
       });
     }
 
-    // テーマ切り替え
     if (themeToggle) {
       themeToggle.addEventListener('click', () => {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -759,7 +820,6 @@
       });
     }
 
-    // 検索機能
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
