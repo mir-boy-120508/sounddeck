@@ -524,7 +524,7 @@ main {
     let currentTrackIndex = 0;
     let userSession = "default_user";
   
-    // --- 🎵 楽曲データベース（バグ修正版） ---
+    // --- 🎵 楽曲データベース ---
     let songs = [
       { id: 0, title: "気まぐれロマンティック", artist: "いきものがかり", src: "song1.mp3", cover: "jacket1.png", lines: [
         { time: 0.0, text: "🎵 (イントロ)" },
@@ -565,7 +565,7 @@ main {
       { id: 11, title: "まっすぐ", artist: "大原ゆい子", src: "song12.mp3", cover: "logo.png", lines: [{ time: 0, text: "大原ゆい子 - まっすぐ" }]}
     ];
 
-    // --- DOM要素の取得（HTML側の実際のID名にすべて修正） ---
+    // --- DOM要素の取得 ---
     const btnPlay = document.getElementById('btnPlay');
     const btnPrev = document.getElementById('btnPrev');
     const btnNext = document.getElementById('btnNext');
@@ -573,12 +573,10 @@ main {
     const btnRepeat = document.getElementById('btnRepeat');
     const playIcon = btnPlay ? btnPlay.querySelector('i') : null;
     
-    // ホットバー表示用要素
+    // 表示用要素
     const barTitle = document.getElementById('barTitle');
     const barArtist = document.getElementById('barArtist');
     const barCover = document.getElementById('barCover');
-
-    // プレイリストタブ内表示用要素
     const panelTitle = document.getElementById('panelTitle');
     const panelArtist = document.getElementById('panelArtist');
     const panelCover = document.getElementById('panelCover');
@@ -586,42 +584,40 @@ main {
     const timeCurrent = document.getElementById('timeCurrent');
     const timeDuration = document.getElementById('timeDuration');
     const progressSlider = document.getElementById('progressSlider');
-    const themeToggle = document.getElementById('btnTheme'); // HTMLは「btnTheme」でした
+    const themeToggle = document.getElementById('btnTheme');
+    
+    // リスト・グリッドのコンテナ要素
+    const homeQuickGrid = document.getElementById('homeQuickGrid');
+    const homeRankGrid = document.getElementById('homeRankGrid');
+    const trackListContainer = document.getElementById('trackList');
+    const searchInput = document.getElementById('searchInput');
+    const searchResultGrid = document.getElementById('searchResultGrid');
 
     // --- 初期化処理 ---
     window.addEventListener('DOMContentLoaded', () => {
-      // Lucideアイコンの初期化
       if (window.lucide) {
         lucide.createIcons();
       }
       
-      // 最初の曲を読み込む
+      // 🌟 曲の表示ロジックを呼び出す
+      renderAllLists();
       loadTrack(currentTrackIndex);
       
-      // 認証モーダルを隠してメイン画面を出す
       const authModal = document.getElementById('authModal');
       const appWrap = document.getElementById('appWrap');
       if (authModal) authModal.style.display = 'none';
       if (appWrap) appWrap.style.display = 'block';
 
-      // 🔄【新規追加】タブ切り替え機能
+      // タブ切り替え機能
       const tabButtons = document.querySelectorAll('.nav-tab');
       const views = document.querySelectorAll('.view-tab');
 
       tabButtons.forEach(button => {
         button.addEventListener('click', () => {
-          // すべてのタブから active クラスを消す
           tabButtons.forEach(btn => btn.classList.remove('active'));
-          // クリックしたタブに active クラスを付与
           button.classList.add('active');
-
-          // 切り替え先画面のIDを取得
           const targetTabId = button.getAttribute('data-tab');
-
-          // すべての画面を非表示にする
           views.forEach(view => view.classList.remove('active'));
-
-          // 対象の画面を表示する
           const targetView = document.getElementById(`tab-${targetTabId}`);
           if (targetView) {
             targetView.classList.add('active');
@@ -630,9 +626,72 @@ main {
       });
     });
 
+    // --- 🌟 曲を各画面に描画する関数 ---
+    function renderAllLists() {
+      // 1. ホーム画面の「Quick Grid」に表示
+      if (homeQuickGrid) {
+        homeQuickGrid.innerHTML = songs.slice(0, 6).map((song, index) => `
+          <div class="card" onclick="selectTrack(${index})">
+            <img src="${song.cover}" alt="Cover" class="card-img" onerror="this.src='logo.png'">
+            <div class="card-info">
+              <div class="card-title">${song.title}</div>
+              <div class="card-desc">${song.artist}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // 2. ホーム画面の「ランキング」に表示
+      if (homeRankGrid) {
+        homeRankGrid.innerHTML = songs.slice(0, 5).map((song, index) => `
+          <div class="card" onclick="selectTrack(${index})">
+            <span class="rank-badge">${index + 1}</span>
+            <img src="${song.cover}" alt="Cover" class="card-img" onerror="this.src='logo.png'">
+            <div class="card-info">
+              <div class="card-title">${song.title}</div>
+              <div class="card-desc">${song.artist}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // 3. プレイリストタブの「TRACKS」に一覧表示
+      updateTrackListHighlight();
+    }
+
+    // プレイリスト一覧の更新とアクティブ行のハイライト
+    function updateTrackListHighlight() {
+      if (!trackListContainer) return;
+      trackListContainer.innerHTML = songs.map((song, index) => `
+        <div class="track-row ${index === currentTrackIndex ? 'active' : ''}" onclick="selectTrack(${index})">
+          <span class="t-num">${String(index + 1).padStart(2, '0')}</span>
+          <img src="${song.cover}" alt="Cover" class="t-art" onerror="this.src='logo.png'">
+          <div class="t-info">
+            <div class="t-title">${song.title}</div>
+            <div class="t-artist">${song.artist}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ユーザーが曲を選んだときの処理
+    window.selectTrack = function(index) {
+      currentTrackIndex = index;
+      loadTrack(currentTrackIndex);
+      updateTrackListHighlight(); // プレイリスト画面のハイライトを更新
+      
+      // 自動で再生状態にする（アイコンの切り替え）
+      isPlaying = true;
+      if (playIcon) {
+        playIcon.classList.remove('fa-circle-play');
+        playIcon.classList.add('fa-circle-pause');
+      }
+      console.log("曲を選択して再生:", songs[index].title);
+    };
+
     // --- トラック読み込み関数 ---
     function loadTrack(index) {
-      const track = songs[index]; // playlist から songs に修正
+      const track = songs[index];
       if (!track) return;
       
       // 下部ホットバーを更新
@@ -645,8 +704,20 @@ main {
       if (panelArtist) panelArtist.textContent = track.artist;
       if (panelCover) panelCover.src = track.cover;
 
+      // 歌詞の読み込み表示
+      const lyricsBox = document.getElementById('lyricsBox');
+      if (lyricsBox) {
+        if (track.lines && track.lines.length > 0) {
+          lyricsBox.innerHTML = track.lines.map((line, lIdx) => `
+            <div class="l-line ${lIdx === 0 ? 'active' : ''}" data-time="${line.time}">${line.text}</div>
+          `).join('');
+        } else {
+          lyricsBox.innerHTML = `<div class="l-line active">歌詞情報がありません</div>`;
+        }
+      }
+
       if (progressSlider) {
-        progressSlider.max = 180; // 仮で3分に設定
+        progressSlider.max = 180; // 仮で3分
         progressSlider.value = 0;
       }
       if (timeDuration) timeDuration.textContent = "3:00";
@@ -658,9 +729,8 @@ main {
       return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    // --- 🎵 ボタンのクリックイベント設定 🎵 ---
+    // --- 🎵 コントロールボタン類のイベント設定 🎵 ---
 
-    // 1. 再生・一時停止ボタン
     if (btnPlay) {
       btnPlay.addEventListener('click', () => {
         isPlaying = !isPlaying;
@@ -669,56 +739,47 @@ main {
             playIcon.classList.remove('fa-circle-play');
             playIcon.classList.add('fa-circle-pause');
           }
-          console.log("再生開始");
         } else {
           if (playIcon) {
             playIcon.classList.remove('fa-circle-pause');
             playIcon.classList.add('fa-circle-play');
           }
-          console.log("一時停止");
         }
       });
     }
 
-    // 2. 次の曲ボタン
     if (btnNext) {
       btnNext.addEventListener('click', () => {
         currentTrackIndex = (currentTrackIndex + 1) % songs.length;
         loadTrack(currentTrackIndex);
-        console.log("次の曲へ:", currentTrackIndex);
+        updateTrackListHighlight();
       });
     }
 
-    // 3. 前の曲ボタン
     if (btnPrev) {
       btnPrev.addEventListener('click', () => {
         currentTrackIndex = (currentTrackIndex - 1 + songs.length) % songs.length;
         loadTrack(currentTrackIndex);
-        console.log("前の曲へ:", currentTrackIndex);
+        updateTrackListHighlight();
       });
     }
 
-    // 4. シャッフルボタン
     if (btnShuffle) {
       btnShuffle.addEventListener('click', () => {
         isShuffle = !isShuffle;
         btnShuffle.style.color = isShuffle ? "var(--accent-color)" : "";
         btnShuffle.style.opacity = isShuffle ? "1" : "0.7";
-        console.log("シャッフル:", isShuffle);
       });
     }
 
-    // 5. リピートボタン
     if (btnRepeat) {
       btnRepeat.addEventListener('click', () => {
         isRepeat = !isRepeat;
         btnRepeat.style.color = isRepeat ? "var(--accent-color)" : "";
         btnRepeat.style.opacity = isRepeat ? "1" : "0.7";
-        console.log("リピート:", isRepeat);
       });
     }
 
-    // 6. テーマ切り替え（ライト / ダーク）
     if (themeToggle) {
       themeToggle.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -732,11 +793,36 @@ main {
       });
     }
 
-    // 8. シークバー（スライダー）を動かしたときの処理
     if (progressSlider) {
       progressSlider.addEventListener('input', (e) => {
         if (timeCurrent) {
           timeCurrent.textContent = formatTime(e.target.value);
+        }
+      });
+    }
+
+    // 🔍 ついでに簡易的な検索機能もつけました！
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        if (!query) {
+          if (searchResultGrid) searchResultGrid.innerHTML = '';
+          return;
+        }
+        const filtered = songs.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
+        if (searchResultGrid) {
+          searchResultGrid.innerHTML = filtered.map(song => {
+            const originalIndex = songs.findIndex(s => s.id === song.id);
+            return `
+              <div class="card" onclick="selectTrack(${originalIndex})">
+                <img src="${song.cover}" alt="Cover" class="card-img" onerror="this.src='logo.png'">
+                <div class="card-info">
+                  <div class="card-title">${song.title}</div>
+                  <div class="card-desc">${song.artist}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
         }
       });
     }
