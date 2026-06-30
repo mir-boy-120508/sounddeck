@@ -144,7 +144,7 @@
     /* =========================================
        🍏 メインアプリケーションレイアウト
        ========================================= */
-    #appWrap { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
+    #appWrap { display: none; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
 
     header {
       height: var(--header-height); padding: 0 40px; display: flex; justify-content: space-between; align-items: center;
@@ -319,6 +319,17 @@
 
   <div class="bg-animate"></div>
 
+  <div id="authModal">
+    <div class="auth-box">
+      <img src="logo.png" alt="Logo" class="logo-lg" onerror="this.src='logo.png'">
+      <h2 style="font-weight:800; margin-bottom:4px;">SoundDeck Auth</h2>
+      <p class="auth-subtitle">セッションキーまたはパスワードを入力</p>
+      <input type="password" id="authInput" class="auth-input" placeholder="••••••••">
+      <div id="authError" class="auth-error"></div>
+      <button id="btnAuthSubmit" class="btn-primary">認証する</button>
+    </div>
+  </div>
+
   <div id="appWrap">
     <header>
       <div class="header-left">
@@ -442,7 +453,6 @@
     let isRepeat = false; 
     let currentTrackIndex = 0;
     let userSession = "default_user";
-    // Auth removed
 
     // 🌟 12曲のオリジナルデータベース完全復活
     let songs = [
