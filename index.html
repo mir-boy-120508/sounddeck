@@ -942,8 +942,8 @@
     let userSession = "default_user";
     let songs = []; // 🌟 ログイン成功後にデータがここに注入されます
 
-    // =========================================================
-    // 🔒 ログイン認証処理の組み込み
+// =========================================================
+    // 🔒 ログイン認証処理の組み込み（修正版）
     // =========================================================
     document.getElementById('btnAuthSubmit').addEventListener('click', () => {
       const userField = document.getElementById('authUsername').value.trim();
@@ -952,14 +952,19 @@
 
       let matchedAccount = null;
 
+      // 1. まずどちらのアカウントと一致するかチェックする
       if (userField === accountUser1.username && passField === accountUser1.password) {
         matchedAccount = accountUser1;
       } else if (userField === accountUser2.username && passField === accountUser2.password) {
         matchedAccount = accountUser2;
       }
 
-      if (matchedAccount) {
-        // 認証成功：データを流し込む
+      // 2. 一致するアカウントがあった場合（ログイン成功）
+      if (matchedAccount !== null) {
+        // エラーメッセージをクリア
+        errorDiv.innerText = "";
+        
+        // データを流し込む
         songs = matchedAccount.songs;
         userSession = matchedAccount.username;
         
@@ -974,6 +979,7 @@
         // アプリケーション全体の初期化処理を走らせる
         initApp();
       } else {
+        // 3. どちらとも一致しなかった場合（ログイン失敗）
         errorDiv.innerText = "IDまたはパスワードが間違っています。";
       }
     });
