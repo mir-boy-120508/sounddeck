@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SoundDeck v1.0 (YouTube Powered)</title>
+  <title>SoundDeck v1.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -65,26 +65,7 @@
                   radial-gradient(circle at 20% 80%, rgba(0, 122, 255, 0.08), transparent 50%);
     }
 
-    /* 認証モーダル */
-    #authModal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.4); backdrop-filter: var(--glass-blur);
-      display: flex; justify-content: center; align-items: center; z-index: 10000;
-    }
-    .auth-box {
-      background: var(--panel-bg); border: 1px solid var(--panel-border);
-      padding: 40px; border-radius: 28px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow);
-    }
-    .auth-input {
-      width: 100%; padding: 14px; border-radius: 14px; border: 1px solid rgba(125,125,125,0.2);
-      background: rgba(125, 125, 125, 0.05); color: var(--text-main); font-size: 1rem; margin-bottom: 12px; outline: none;
-    }
-    .btn-primary {
-      width: 100%; padding: 14px; border: none; border-radius: 14px;
-      background: var(--btn-main-bg); color: var(--btn-main-text); font-size: 1.05rem; font-weight: 600; cursor: pointer;
-    }
-
-    #appWrap { display: none; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
+    #appWrap { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
 
     header {
       height: var(--header-height); padding: 0 40px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
@@ -172,16 +153,6 @@
 
   <div class="bg-animate"></div>
 
-  <div id="authModal">
-    <div class="auth-box">
-      <h2 style="margin-bottom:8px;">SoundDeck Auth</h2>
-      <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:20px;">ID: myid / Pass: mypassword</p>
-      <input type="text" id="authUsername" class="auth-input" placeholder="アカウントID">
-      <input type="password" id="authPassword" class="auth-input" placeholder="パスワード">
-      <button id="btnAuthSubmit" class="btn-primary" style="margin-top:10px;">ログイン</button>
-    </div>
-  </div>
-
   <div id="appWrap">
     <header>
       <span class="brand-title">SoundDeck</span>
@@ -195,7 +166,7 @@
       </div>
 
       <div id="tab-search" class="view-tab">
-        <h2 class="section-title">YouTubeから曲を探す</h2>
+        <h2 class="section-title">曲を探す</h2>
         <div class="search-bar-container">
           <i class="fa-solid fa-magnifying-glass search-icon"></i>
           <input type="text" id="searchInput" class="search-input" placeholder="曲名、アーティスト名、またはYouTube URL...">
@@ -230,7 +201,7 @@
 
       <div id="tab-settings" class="view-tab">
         <h2 class="section-title">Settings</h2>
-        <p>SoundDeck v1.0 (YouTube Data API)</p>
+        <p>SoundDeck v1.0 (Free YouTube Integration)</p>
       </div>
     </main>
 
@@ -268,9 +239,6 @@
   </div>
 
   <script>
-    // 🔑 取得したYouTube Data APIキーをここに設定してください（※空欄の場合はURL直接入力のみ動作）
-    const YOUTUBE_API_KEY = ""; 
-
     // 初期プレイリスト
     let songs = [
       {
@@ -447,45 +415,40 @@
       document.querySelector('.nav-tab[data-tab="playlist"]').click();
     }
 
-    // 🔍 YouTube Data API 検索ロジック
+    // 🔑 完全無料・APIキー不要のYouTube検索関数 (Invidious API)
     async function searchYouTube(query) {
       const grid = document.getElementById('searchResultGrid');
       
-      // 1. YouTube URLやIDが直接入力された場合
+      // 1. YouTubeのURLや動画IDが直接入力された場合
       let ytId = extractYouTubeId(query);
-      if(ytId) {
-        addAndPlaySong(ytId, "YouTube Music Track", "YouTube Source");
+      if (ytId) {
+        addAndPlaySong(ytId, "YouTube Track", "YouTube Source");
         grid.innerHTML = '<p style="padding:20px;">URLを検出して再生リストに追加しました！</p>';
         return;
       }
 
-      // 2. キーワード検索（APIキーがある場合）
-      if(!YOUTUBE_API_KEY) {
-        grid.innerHTML = '<p style="padding:20px; color:var(--accent-color);">キーワード検索を利用するにはAPIキーの設定が必要です。<br>YouTubeのURLを貼り付けることでも追加・再生可能です。</p>';
-        return;
-      }
-
+      // 2. キーワード検索（パブリックAPIを使用）
       grid.innerHTML = '<p style="padding:20px;">検索中...</p>';
       try {
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`);
+        const res = await fetch(`https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(query)}&type=video`);
         const data = await res.json();
         
-        if(!data.items || data.items.length === 0) {
+        if (!data || data.length === 0) {
           grid.innerHTML = '<p style="padding:20px;">曲が見つかりませんでした。</p>';
           return;
         }
 
-        grid.innerHTML = data.items.map(item => `
-          <div class="card" onclick="addAndPlaySong('${item.id.videoId}', '${escapeHtml(item.snippet.title)}', '${escapeHtml(item.snippet.channelTitle)}')">
-            <img src="${item.snippet.thumbnails.high.url}" class="card-img">
+        grid.innerHTML = data.slice(0, 12).map(item => `
+          <div class="card" onclick="addAndPlaySong('${item.videoId}', '${escapeHtml(item.title)}', '${escapeHtml(item.author)}')">
+            <img src="https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg" class="card-img">
             <div class="card-info">
-              <div class="card-title">${item.snippet.title}</div>
-              <div class="card-desc">${item.snippet.channelTitle}</div>
+              <div class="card-title">${item.title}</div>
+              <div class="card-desc">${item.author}</div>
             </div>
           </div>
         `).join('');
       } catch (err) {
-        grid.innerHTML = '<p style="padding:20px;">検索エラーが発生しました。</p>';
+        grid.innerHTML = '<p style="padding:20px;">検索エラーが発生しました。YouTubeのURLを直接貼り付けてお試しください。</p>';
       }
     }
 
@@ -533,19 +496,6 @@
       if (ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(e.target.value);
     });
 
-    // 認証
-    document.getElementById('btnAuthSubmit').addEventListener('click', () => {
-      const u = document.getElementById('authUsername').value;
-      const p = document.getElementById('authPassword').value;
-      if (u === 'myid' && p === 'mypassword') {
-        document.getElementById('authModal').style.display = 'none';
-        document.getElementById('appWrap').style.display = 'flex';
-        renderTrackList();
-        renderHomeGrid();
-        loadTrack(0);
-      }
-    });
-
     // タブ切り替え
     document.querySelectorAll('.nav-tab').forEach(b => {
       b.addEventListener('click', () => {
@@ -561,6 +511,12 @@
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       if (isDark) document.documentElement.removeAttribute('data-theme');
       else document.documentElement.setAttribute('data-theme', 'dark');
+    });
+
+    // 初期起動処理
+    window.addEventListener('DOMContentLoaded', () => {
+      renderTrackList();
+      renderHomeGrid();
     });
   </script>
 </body>
