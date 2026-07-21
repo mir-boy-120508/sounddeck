@@ -415,56 +415,72 @@
       document.querySelector('.nav-tab[data-tab="playlist"]').click();
     }
 
-    // 🔑 完全無料・APIキー不要のYouTube検索関数 (Invidious API)
+// 🔑 安定した無料YouTube検索処理（曲名検索）
     async function searchYouTube(query) {
       const grid = document.getElementById('searchResultGrid');
-      
-      // 1. YouTubeのURLや動画IDが直接入力された場合
-      let ytId = extractYouTubeId(query);
-      if (ytId) {
-        addAndPlaySong(ytId, "YouTube Track", "YouTube Source");
-        grid.innerHTML = '<p style="padding:20px;">URLを検出して再生リストに追加しました！</p>';
-        return;
-      }
+      if (!grid) return;
 
-      // 2. キーワード検索（パブリックAPIを使用）
-      grid.innerHTML = '<p style="padding:20px;">検索中...</p>';
-      try {
-        const res = await fetch(`https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(query)}&type=video`);
-        const data = await res.json();
-        
-        if (!data || data.length === 0) {
-          grid.innerHTML = '<p style="padding:20px;">曲が見つかりませんでした。</p>';
-          return;
+      grid.innerHTML = '<p style="padding:20px;">YouTubeから曲を検索中...</p>';
+
+      // 複数の検索エンドポイント（サーバー）を用意してフォールバック
+      const apiEndpoints = [
+        `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=music_songs`,
+        `https://api.piped.private.coffee/search?q=${encodeURIComponent(query)}&filter=music_songs`
+      ];
+
+      let success = false;
+
+      for (const endpoint of apiEndpoints) {
+        try {
+          const res = await fetch(endpoint);
+          if (!res.ok) continue;
+          
+          const data = await res.json();
+          const items = data.items || data;
+
+          if (!items || items.length === 0) continue;
+
+          // 動画アイテムのみを抽出
+          const videos = items.filter(item => item.type === 'stream' || item.url);
+
+          if (videos.length > 0) {
+            grid.innerHTML = videos.slice(0, 12).map(item => {
+              const videoId = item.url ? item.url.replace('/watch?v=', '') : item.id;
+              const title = escapeHtml(item.title || 'Unknown Title');
+              const uploader = escapeHtml(item.uploaderName || item.artist || 'Unknown Artist');
+              const thumbnail = item.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+              return `
+                <div class="card" onclick="addAndPlaySong('${videoId}', '${title}', '${uploader}', '${thumbnail}')">
+                  <img src="${thumbnail}" class="card-img" style="width:64px; height:64px; border-radius:12px; object-fit:cover;">
+                  <div class="card-info">
+                    <div class="card-title">${title}</div>
+                    <div class="card-desc">${uploader}</div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+            
+            success = true;
+            break; // 成功したらループを抜ける
+          }
+        } catch (err) {
+          console.warn("API Error, trying next endpoint:", err);
         }
+      }
 
-        grid.innerHTML = data.slice(0, 12).map(item => `
-          <div class="card" onclick="addAndPlaySong('${item.videoId}', '${escapeHtml(item.title)}', '${escapeHtml(item.author)}')">
-            <img src="https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg" class="card-img">
-            <div class="card-info">
-              <div class="card-title">${item.title}</div>
-              <div class="card-desc">${item.author}</div>
-            </div>
-          </div>
-        `).join('');
-      } catch (err) {
-        grid.innerHTML = '<p style="padding:20px;">検索エラーが発生しました。YouTubeのURLを直接貼り付けてお試しください。</p>';
+      if (!success) {
+        grid.innerHTML = '<p style="padding:20px;">検索結果を取得できませんでした。別のキーワード（歌手名＋曲名など）でお試しください。</p>';
       }
     }
 
-    function extractYouTubeId(url) {
-      const reg = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-      const match = url.match(reg);
-      return match ? match[1] : (url.length === 11 ? url : null);
-    }
-
-    function addAndPlaySong(youtubeId, title, artist) {
+    function addAndPlaySong(youtubeId, title, artist, cover) {
       const newSong = {
         id: songs.length,
         title: title,
         artist: artist,
         youtubeId: youtubeId,
-        cover: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+        cover: cover || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
         lines: []
       };
       songs.push(newSong);
