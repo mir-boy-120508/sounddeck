@@ -57,25 +57,39 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
     
     body {
-      background-color: var(--bg-main);
+      background-color: var(--bg-main) !important;
+      background-image: none !important;
       color: var(--text-main);
       height: 100vh; overflow: hidden; display: flex; flex-direction: column;
       transition: background-color 0.4s ease, color 0.4s ease;
     }
 
+    /* 背景アニメーション（画像ではなく元の綺麗なグラデーション） */
     .bg-animate {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
-      background: radial-gradient(circle at 80% 20%, rgba(255, 45, 85, 0.12), transparent 50%),
-                  radial-gradient(circle at 20% 80%, rgba(0, 122, 255, 0.08), transparent 50%);
+      background: radial-gradient(circle at 80% 20%, rgba(255, 45, 85, 0.15), transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(0, 122, 255, 0.12), transparent 50%) !important;
     }
 
-    #appWrap { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
+    #appWrap { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; position: relative; z-index: 1; }
 
     header {
       height: var(--header-height); padding: 0 40px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
     }
     .brand-container { display: flex; align-items: center; gap: 12px; }
-    .brand-logo { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
+    
+    /* ロゴ画像のサイズを限定し画面全体に広がらないようガード */
+    .brand-logo { 
+      width: 36px !important; 
+      height: 36px !important; 
+      max-width: 36px !important;
+      max-height: 36px !important;
+      border-radius: 8px; 
+      object-fit: contain; 
+      flex-shrink: 0;
+      display: block;
+    }
+    
     .brand-title { font-size: 1.4rem; font-weight: 800; }
     
     .btn-theme-circle {
@@ -151,7 +165,7 @@
     }
     .btn-del-track:hover { color: var(--accent-color); background: rgba(255, 45, 85, 0.1); }
 
-    /* ボトムホットバー (レスポンシブ完全対応版) */
+    /* ボトムホットバー */
     .hotbar {
       position: fixed; 
       bottom: 16px; 
@@ -190,7 +204,6 @@
     .nav-tab { background: none; border: none; color: var(--text-sub); width: 40px; height: 36px; border-radius: 100px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: all 0.2s; }
     .nav-tab.active { background: var(--panel-bg); color: var(--accent-color); width: 52px; }
 
-    /* レスポンシブ微調整 */
     @media (max-width: 900px) {
       main { padding: 0 20px 140px 20px; }
       header { padding: 0 20px; }
@@ -335,7 +348,6 @@
   </div>
 
   <script>
-    // 💾 localStorageからの自動復元
     let songs = JSON.parse(localStorage.getItem('sounddeck_playlist') || '[]');
     let ytPlayer = null;
     let currentTrackIndex = -1;
@@ -343,15 +355,12 @@
     let progressTimer = null;
     let isApiReady = false;
 
-    // 検索履歴
     let searchHistory = JSON.parse(localStorage.getItem('sounddeck_search_history') || '[]');
 
-    // 💾 プレイリスト状態を保存する関数
     function saveSongsToStorage() {
       localStorage.setItem('sounddeck_playlist', JSON.stringify(songs));
     }
 
-    // YouTube IFrame API
     function onYouTubeIframeAPIReady() {
       ytPlayer = new YT.Player('ytPlayer', {
         height: '100%',
@@ -513,7 +522,6 @@
       `).join('');
     }
 
-    // 🤖 AI歌詞自動取得
     async function fetchAiLyrics() {
       if (currentTrackIndex < 0 || !songs[currentTrackIndex]) {
         alert("先に曲を選択して再生してください。");
@@ -625,7 +633,6 @@
       document.querySelector('.nav-tab[data-tab="playlist"]').click();
     }
 
-    // 🔑 YouTube検索処理
     async function searchYouTube(query) {
       const grid = document.getElementById('searchResultGrid');
       if (!grid) return;
@@ -674,7 +681,6 @@
               `;
             }).join('');
 
-            // データ保持用グローバル変数に退避してエラーを防ぐ
             window._searchResults = videos.slice(0, 12).map(item => ({
               videoId: item.url ? item.url.replace('/watch?v=', '') : item.id,
               title: item.title || 'Unknown Title',
@@ -709,7 +715,6 @@
       }
     }
 
-    // 🤖 AIおすすめ曲ロード関数
     async function loadAiRecommendations() {
       const recTitle = document.getElementById('aiRecTitle');
       const recGrid = document.getElementById('aiRecGrid');
@@ -790,7 +795,6 @@
       selectTrack(songs.length - 1);
     }
 
-    // 安全なテキストエスケープ関数
     function escapeText(str) {
       if (!str) return '';
       const div = document.createElement('div');
@@ -798,7 +802,6 @@
       return div.innerHTML;
     }
 
-    // イベントリスナー
     document.getElementById('btnSearch').addEventListener('click', () => {
       const q = document.getElementById('searchInput').value.trim();
       if(q) searchYouTube(q);
@@ -820,7 +823,6 @@
       if (ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(e.target.value);
     });
 
-    // タブ切り替え
     document.querySelectorAll('.nav-tab').forEach(b => {
       b.addEventListener('click', () => {
         document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
@@ -830,14 +832,12 @@
       });
     });
 
-    // テーマ切り替え
     document.getElementById('btnTheme').addEventListener('click', () => {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       if (isDark) document.documentElement.removeAttribute('data-theme');
       else document.documentElement.setAttribute('data-theme', 'dark');
     });
 
-    // 初期化
     window.addEventListener('DOMContentLoaded', () => {
       renderTrackList();
       renderHomeGrid();
