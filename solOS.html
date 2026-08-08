@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SoundDeck v2.0</title>
-  <img src="logo.png" alt="Logo" class="logo-lg" onerror="this.src='logo.png'">
+
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" href="logo.png" type="image/png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -71,6 +74,8 @@
     header {
       height: var(--header-height); padding: 0 40px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
     }
+    .brand-container { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
     .brand-title { font-size: 1.4rem; font-weight: 800; }
     
     .btn-theme-circle {
@@ -227,7 +232,10 @@
 
   <div id="appWrap">
     <header>
-      <span class="brand-title">SoundDeck</span>
+      <div class="brand-container">
+        <img src="logo.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
+        <span class="brand-title">SoundDeck</span>
+      </div>
       <button id="btnTheme" class="btn-theme-circle"><i class="fa-solid fa-moon"></i></button>
     </header>
 
@@ -357,7 +365,6 @@
         events: {
           'onReady': () => { 
             isApiReady = true; 
-            // 復元された曲があれば初期表示（自動再生なし）
             if (songs.length > 0) {
               currentTrackIndex = 0;
               const track = songs[0];
@@ -501,8 +508,8 @@
         box.innerHTML = '<div class="l-line active" style="font-size:1rem; opacity:0.6;">「AIで歌詞を取得」ボタンを押すと歌詞を自動生成できます</div>';
         return;
       }
-      box.innerHTML = track.lines.map((l, i) => `
-        <div class="l-line" onclick="ytPlayer.seekTo(${l.time})">${l.text}</div>
+      box.innerHTML = track.lines.map((l) => `
+        <div class="l-line" onclick="ytPlayer.seekTo(${l.time})">${escapeText(l.text)}</div>
       `).join('');
     }
 
@@ -531,7 +538,7 @@
           { time: Math.floor(duration * 0.88), text: "Outro - AI Sync Complete" }
         ];
 
-        saveSongsToStorage(); // 歌詞情報も保存
+        saveSongsToStorage();
         buildLyrics(track);
       } catch (err) {
         box.innerHTML = '<div class="l-line active" style="font-size:1rem; color:red;">歌詞の生成に失敗しました。</div>';
@@ -548,8 +555,8 @@
         <div class="track-row ${i === currentTrackIndex ? 'active' : ''}" onclick="selectTrack(${i})">
           <img src="${s.cover}" style="width:40px; height:40px; border-radius:8px; margin-right:12px; object-fit:cover;">
           <div style="min-width:0; flex:1;">
-            <div class="t-title">${s.title}</div>
-            <div class="t-artist">${s.artist}</div>
+            <div class="t-title">${escapeText(s.title)}</div>
+            <div class="t-artist">${escapeText(s.artist)}</div>
           </div>
           <button class="btn-del-track" onclick="deleteTrack(event, ${i})" title="削除"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -566,14 +573,13 @@
         <div class="card" onclick="selectTrack(${idx})">
           <img src="${song.cover}" class="card-img">
           <div class="card-info">
-            <div class="card-title">${song.title}</div>
-            <div class="card-desc">${song.artist}</div>
+            <div class="card-title">${escapeText(song.title)}</div>
+            <div class="card-desc">${escapeText(song.artist)}</div>
           </div>
         </div>
       `).join('');
     }
 
-    // 🗑 曲の削除関数
     function deleteTrack(event, index) {
       event.stopPropagation();
       songs.splice(index, 1);
@@ -598,7 +604,6 @@
       renderHomeGrid();
     }
 
-    // 🗑 プレイリスト全削除
     function clearPlaylist() {
       if (songs.length === 0) return;
       if (confirm("マイプレイリストの全楽曲を削除しますか？")) {
@@ -652,22 +657,30 @@
           const videos = items.filter(item => item.type === 'stream' || item.url);
 
           if (videos.length > 0) {
-            grid.innerHTML = videos.slice(0, 12).map(item => {
+            grid.innerHTML = videos.slice(0, 12).map((item, idx) => {
               const videoId = item.url ? item.url.replace('/watch?v=', '') : item.id;
-              const title = escapeHtml(item.title || 'Unknown Title');
-              const uploader = escapeHtml(item.uploaderName || item.artist || 'Unknown Artist');
+              const title = item.title || 'Unknown Title';
+              const uploader = item.uploaderName || item.artist || 'Unknown Artist';
               const thumbnail = item.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
               return `
-                <div class="card" onclick="addAndPlaySong('${videoId}', '${title}', '${uploader}', '${thumbnail}')">
+                <div class="card" onclick="handleAddAndPlay('${videoId}', ${idx})">
                   <img src="${thumbnail}" class="card-img">
                   <div class="card-info">
-                    <div class="card-title">${title}</div>
-                    <div class="card-desc">${uploader}</div>
+                    <div class="card-title">${escapeText(title)}</div>
+                    <div class="card-desc">${escapeText(uploader)}</div>
                   </div>
                 </div>
               `;
             }).join('');
+
+            // データ保持用グローバル変数に退避してエラーを防ぐ
+            window._searchResults = videos.slice(0, 12).map(item => ({
+              videoId: item.url ? item.url.replace('/watch?v=', '') : item.id,
+              title: item.title || 'Unknown Title',
+              artist: item.uploaderName || item.artist || 'Unknown Artist',
+              thumbnail: item.thumbnail || `https://img.youtube.com/vi/${item.url ? item.url.replace('/watch?v=', '') : item.id}/hqdefault.jpg`
+            }));
             
             success = true;
             break;
@@ -679,6 +692,20 @@
 
       if (!success) {
         grid.innerHTML = '<p style="padding:20px;">検索結果を取得できませんでした。別のキーワードでお試しください。</p>';
+      }
+    }
+
+    function handleAddAndPlay(videoId, index) {
+      if (window._searchResults && window._searchResults[index]) {
+        const item = window._searchResults[index];
+        addAndPlaySong(item.videoId, item.title, item.artist, item.thumbnail);
+      }
+    }
+
+    function handleRecAddAndPlay(index) {
+      if (window._recResults && window._recResults[index]) {
+        const item = window._recResults[index];
+        addAndPlaySong(item.videoId, item.title, item.artist, item.thumbnail);
       }
     }
 
@@ -716,18 +743,25 @@
           const videos = items.filter(item => item.type === 'stream' || item.url).slice(0, 4);
 
           if (videos.length > 0) {
-            recGrid.innerHTML = videos.map(item => {
+            window._recResults = videos.map(item => ({
+              videoId: item.url ? item.url.replace('/watch?v=', '') : item.id,
+              title: item.title || 'Unknown Title',
+              artist: item.uploaderName || item.artist || 'Unknown Artist',
+              thumbnail: item.thumbnail || `https://img.youtube.com/vi/${item.url ? item.url.replace('/watch?v=', '') : item.id}/hqdefault.jpg`
+            }));
+
+            recGrid.innerHTML = videos.map((item, idx) => {
               const videoId = item.url ? item.url.replace('/watch?v=', '') : item.id;
-              const title = escapeHtml(item.title || 'Unknown Title');
-              const uploader = escapeHtml(item.uploaderName || item.artist || 'Unknown Artist');
+              const title = item.title || 'Unknown Title';
+              const uploader = item.uploaderName || item.artist || 'Unknown Artist';
               const thumbnail = item.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
               return `
-                <div class="card" onclick="addAndPlaySong('${videoId}', '${title}', '${uploader}', '${thumbnail}')">
+                <div class="card" onclick="handleRecAddAndPlay(${idx})">
                   <img src="${thumbnail}" class="card-img">
                   <div class="card-info">
-                    <div class="card-title">${title}</div>
-                    <div class="card-desc">${uploader}</div>
+                    <div class="card-title">${escapeText(title)}</div>
+                    <div class="card-desc">${escapeText(uploader)}</div>
                   </div>
                 </div>
               `;
@@ -752,12 +786,16 @@
         lines: []
       };
       songs.push(newSong);
-      saveSongsToStorage(); // 💾 保存
+      saveSongsToStorage();
       selectTrack(songs.length - 1);
     }
 
-    function escapeHtml(str) {
-      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    // 安全なテキストエスケープ関数
+    function escapeText(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
     }
 
     // イベントリスナー
