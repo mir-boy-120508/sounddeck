@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SoundDeck v3.0</title>
+
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" href="logo.png" type="image/png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <style>
+    :root {
+      --bg-main: #e2e8f0;
+      --panel-bg: rgba(255, 255, 255, 0.75);
+      --panel-border: rgba(255, 255, 255, 0.8);
+      --bar-glass-bg: rgba(255, 255, 255, 0.45);
+      --bar-glass-border: rgba(255, 255, 255, 0.6);
+      --accent-color: #ff2d55;
+      --text-main: #000000;
+      --text-sub: #8e8e93;
+      --btn-main-bg: #1c1c1e;
+      --btn-main-text: white;
+      --item-hover: rgba(0, 0, 0, 0.04);
+      --item-active: rgba(255, 45, 85, 0.08);
+      --lyrics-dim: rgba(0, 0, 0, 0.25);
+      --shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+      --glass-blur: blur(40px);
+      --hotbar-height: 100px;
+      --header-height: 80px;
+    }
+
+    html[data-theme="dark"] {
+      --bg-main: #030712;
+      --panel-bg: rgba(28, 28, 30, 0.65);
+      --panel-border: rgba(255, 255, 255, 0.1);
+      --bar-glass-bg: rgba(20, 20, 25, 0.4);
+      --bar-glass-border: rgba(255, 255, 255, 0.08);
+      --accent-color: #ff2d55;
+      --text-main: #ffffff;
+      --text-sub: #8e8e93;
+      --btn-main-bg: #ffffff;
+      --btn-main-text: #000000;
+      --item-hover: rgba(255, 255, 255, 0.06);
+      --item-active: rgba(255, 45, 85, 0.15);
+      --lyrics-dim: rgba(255, 255, 255, 0.3);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      background-color: var(--bg-main) !important;
+      background-image: none !important;
+      color: var(--text-main);
+      height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* 背景アニメーション（画像ではなく元の綺麗なグラデーション） */
+    .bg-animate {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
+      background: radial-gradient(circle at 80% 20%, rgba(255, 45, 85, 0.15), transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(0, 122, 255, 0.12), transparent 50%) !important;
+    }
+
+    #appWrap { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; position: relative; z-index: 1; }
+
+    header {
+      height: var(--header-height); padding: 0 40px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    }
+    .brand-container { display: flex; align-items: center; gap: 12px; }
+    
+    /* ロゴ画像のサイズを限定し画面全体に広がらないようガード */
+    .brand-logo { 
+      width: 36px !important; 
+      height: 36px !important; 
+      max-width: 36px !important;
+      max-height: 36px !important;
+      border-radius: 8px; 
+      object-fit: contain; 
+      flex-shrink: 0;
+      display: block;
+    }
+    
+    .brand-title { font-size: 1.4rem; font-weight: 800; }
+    
+    .btn-theme-circle {
+      width: 50px; height: 50px; border-radius: 50%; background: var(--panel-bg);
+      border: 1px solid var(--panel-border); color: var(--text-main); font-size: 1.35rem;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+
+    main { flex: 1; padding: 0 40px 140px 40px; display: flex; flex-direction: column; overflow: hidden; }
+    
+    .view-tab { display: none; width: 100%; height: 100%; flex-direction: column; overflow: hidden; }
+    .view-tab.active { display: flex; }
+    #tab-home, #tab-search, #tab-settings { overflow-y: auto; padding-bottom: 40px; }
+
+    .section-title { font-size: 1.8rem; font-weight: 800; margin: 10px 0 24px 0; }
+
+    .search-bar-container { position: relative; max-width: 600px; margin-bottom: 30px; display: flex; gap: 10px; }
+    .search-input { flex: 1; padding: 18px 20px 18px 50px; font-size: 1.1rem; border-radius: 20px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; }
+    .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
+    .btn-search { padding: 0 24px; border-radius: 20px; border: none; background: var(--accent-color); color: white; font-weight: 700; cursor: pointer; }
+
+    /* カードレイアウト */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+    .card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 18px; display: flex; align-items: flex-start; gap: 16px; cursor: pointer; transition: transform 0.2s; height: auto; min-height: 100px; position: relative; }
+    .card:hover { transform: translateY(-4px); }
+    .card-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    .card-info { flex: 1; min-width: 0; }
+    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 6px; white-space: normal; word-break: break-word; line-height: 1.35; }
+    .card-desc { font-size: 0.85rem; color: var(--text-sub); white-space: normal; word-break: break-word; line-height: 1.3; }
+
+    .playlist-layout-v06 { display: grid; grid-template-columns: 1.2fr 1.3fr 1fr; gap: 30px; height: 100%; width: 100%; }
+    .pl-panel {
+      background: var(--panel-bg); backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--panel-border); border-radius: 28px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; overflow: hidden; padding: 30px; position: relative;
+    }
+
+    /* YouTubeプレイヤー埋め込みコンテナ */
+    .yt-player-wrapper {
+      width: 100%; aspect-ratio: 16/9; border-radius: 20px; overflow: hidden;
+      background: #000; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 20px;
+    }
+    #ytPlayer { width: 100%; height: 100%; }
+
+    .art-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; word-break: break-word; }
+    .art-artist { font-size: 1rem; color: var(--accent-color); font-weight: 600; word-break: break-word; }
+
+    /* AI歌詞ヘッダー＆ボタン */
+    .lyrics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .btn-ai-lyrics {
+      background: linear-gradient(135deg, #ff2d55, #7000ff); color: white; border: none;
+      padding: 6px 14px; border-radius: 100px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;
+    }
+    .btn-ai-lyrics:hover { opacity: 0.9; }
+
+    .lyrics-box { flex: 1; overflow-y: auto; padding: 30% 0; }
+    .l-line { font-size: 1.25rem; font-weight: 700; color: var(--lyrics-dim); margin-bottom: 20px; cursor: pointer; transition: all 0.3s; word-break: break-word; }
+    .l-line.active { color: var(--text-main); transform: scale(1.04); }
+
+    .track-list { list-style: none; overflow-y: auto; flex: 1; margin-top: 15px; }
+    .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer; margin-bottom: 6px; position: relative; }
+    .track-row:hover { background: var(--item-hover); }
+    .track-row.active { background: var(--item-active); }
+    .t-title { font-weight: 700; word-break: break-word; }
+    .t-artist { font-size: 0.85rem; color: var(--text-sub); word-break: break-word; }
+
+    /* 削除ボタン */
+    .btn-del-track {
+      margin-left: auto; background: none; border: none; color: var(--text-sub);
+      font-size: 1rem; cursor: pointer; padding: 6px 10px; border-radius: 8px;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .btn-del-track:hover { color: var(--accent-color); background: rgba(255, 45, 85, 0.1); }
+
+    /* ボトムホットバー */
+    .hotbar {
+      position: fixed; 
+      bottom: 16px; 
+      left: 50%; 
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 1240px; 
+      border-radius: 24px;
+      border: 1px solid var(--bar-glass-border); 
+      height: var(--hotbar-height); 
+      background: var(--bar-glass-bg);
+      backdrop-filter: var(--glass-blur); 
+      display: flex; 
+      align-items: center; 
+      padding: 0 24px; 
+      justify-content: space-between; 
+      z-index: 900;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+    .hb-left { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; max-width: 260px; }
+    .hb-art { width: 52px; height: 52px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    .hb-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.95rem; }
+    .hb-artist { font-size: 0.8rem; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .hb-center { flex: 2; max-width: 560px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .hb-controls { display: flex; align-items: center; gap: 12px; }
+    .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.3rem; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .ctrl-btn.btn-play { font-size: 2.8rem; width: 50px; height: 50px; }
+    .hb-progress { width: 100%; display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+    .slider { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; border-radius: 3px; background: rgba(125,125,125,0.2); outline: none; cursor: pointer; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--text-main); }
+
+    .hb-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+    .nav-tabs { background: rgba(125,125,125,0.08); padding: 3px; border-radius: 100px; display: flex; gap: 4px; }
+    .nav-tab { background: none; border: none; color: var(--text-sub); width: 40px; height: 36px; border-radius: 100px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: all 0.2s; }
+    .nav-tab.active { background: var(--panel-bg); color: var(--accent-color); width: 52px; }
+
+    @media (max-width: 900px) {
+      main { padding: 0 20px 140px 20px; }
+      header { padding: 0 20px; }
+      .playlist-layout-v06 {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+        padding-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --hotbar-height: 84px;
+      }
+      .hotbar {
+        padding: 0 12px;
+        bottom: 12px;
+        width: calc(100% - 20px);
+      }
+      .hb-art { width: 42px; height: 42px; }
+      .hb-title { font-size: 0.85rem; }
+      .hb-artist { font-size: 0.75rem; }
+      .hb-right { display: flex; }
+      .nav-tab { width: 34px; height: 32px; font-size: 0.95rem; }
+      .nav-tab.active { width: 42px; }
+      #timeCurrent, #timeDuration { font-size: 0.7rem; }
+    }
+
+    @media (max-width: 480px) {
+      .hb-left { max-width: 120px; }
+      .hb-artist { display: none; }
+      .hb-progress span { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-animate"></div>
+
+  <div id="appWrap">
+    <header>
+      <div class="brand-container">
+        <img src="logo.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
+        <span class="brand-title">SoundDeck</span>
+      </div>
+      <button id="btnTheme" class="btn-theme-circle"><i class="fa-solid fa-moon"></i></button>
+    </header>
+
+    <main>
+      <div id="tab-home" class="view-tab active">
+        <h2 class="section-title">Home</h2>
+        
+        <div id="aiRecommendationSection" style="margin-bottom: 30px;">
+          <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-color);"></i>
+            <span id="aiRecTitle">AIのおすすめ</span>
+          </h3>
+          <div class="card-grid" id="aiRecGrid"></div>
+        </div>
+
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 12px;">マイプレイリスト</h3>
+        <div class="card-grid" id="homeQuickGrid"></div>
+      </div>
+
+      <div id="tab-search" class="view-tab">
+        <h2 class="section-title">曲を探す</h2>
+        <div class="search-bar-container">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="曲名、アーティスト名...">
+          <button id="btnSearch" class="btn-search">検索</button>
+        </div>
+        <div class="card-grid" id="searchResultGrid"></div>
+      </div>
+
+      <div id="tab-playlist" class="view-tab">
+        <div class="playlist-layout-v06">
+          <div class="pl-panel">
+            <div class="yt-player-wrapper">
+              <div id="ytPlayer"></div>
+            </div>
+            <div class="art-info">
+              <div class="art-title" id="panelTitle">曲を選択してください</div>
+              <div class="art-artist" id="panelArtist">---</div>
+            </div>
+          </div>
+
+          <div class="pl-panel" id="lyricsPanel">
+            <div class="lyrics-header">
+              <span style="font-size:0.85rem; font-weight:700; color:var(--text-sub);">LYRICS SYNC</span>
+              <button class="btn-ai-lyrics" id="btnAiLyrics"><i class="fa-solid fa-wand-magic-sparkles"></i> AIで歌詞を取得(嘘しか言いません。)</button>
+            </div>
+            <div class="lyrics-box" id="lyricsBox"></div>
+          </div>
+
+          <div class="pl-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.85rem; font-weight:700; color:var(--text-sub);">PLAYLIST TRACKS</span>
+              <button onclick="clearPlaylist()" style="background:none; border:none; color:var(--text-sub); font-size:0.75rem; cursor:pointer;"><i class="fa-solid fa-trash"></i> 全削除</button>
+            </div>
+            <div class="track-list" id="trackList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-settings" class="view-tab">
+        <h2 class="section-title">Settings</h2>
+        <p>SoundDeck v3.0</p><p style="color:var(--text-sub);font-size:.85rem;margin-top:8px;">サーバーAPI: <input id="serverApi" value="https://mumbai-towers-page-rendered.trycloudflare.com" style="padding:8px 10px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);width:min(420px,100%);"></p>
+      </div>
+    </main>
+
+    <div class="hotbar">
+      <div class="hb-left">
+        <img src="https://picsum.photos/id/145/200/200" id="barCover" class="hb-art">
+        <div style="min-width:0;">
+          <div class="hb-title" id="barTitle">---</div>
+          <div class="hb-artist" id="barArtist">---</div>
+        </div>
+      </div>
+
+      <div class="hb-center">
+        <div class="hb-controls">
+          <button class="ctrl-btn" id="btnPrev"><i class="fa-solid fa-backward-step"></i></button>
+          <button class="ctrl-btn btn-play" id="btnPlay"><i class="fa-solid fa-circle-play"></i></button>
+          <button class="ctrl-btn" id="btnNext"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
+        <div class="hb-progress">
+          <span id="timeCurrent">0:00</span>
+          <input type="range" id="progressSlider" class="slider" min="0" value="0" step="0.1">
+          <span id="timeDuration">0:00</span>
+        </div>
+      </div>
+
+      <div class="hb-right">
+        <div class="nav-tabs">
+          <button class="nav-tab active" data-tab="home"><i class="fa-solid fa-house"></i></button>
+          <button class="nav-tab" data-tab="search"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <button class="nav-tab" data-tab="playlist"><i class="fa-solid fa-music"></i></button>
+          <button class="nav-tab" data-tab="settings"><i class="fa-solid fa-gear"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /*
+      SoundDeck v3
+      - 元のUI/CSSは変更しません。
+      - 検索: SoundDeckサーバーの GET /api/search?q=...
+      - 音源: サーバーが返す serverUrl を再生
+      - オフライン: IndexedDB に音源Blobを保存
+      - Firebaseは後からAuthentication/Firestoreを接続できます。
+    */
+
+    let songs = JSON.parse(localStorage.getItem('sounddeck_playlist') || '[]');
+    let currentTrackIndex = -1;
+    let audio = new Audio();
+    let progressTimer = null;
+    let searchHistory = JSON.parse(localStorage.getItem('sounddeck_search_history') || '[]');
+
+    const LOCAL_LIMIT = 500 * 1024 * 1024;
+    const DB_NAME = 'sounddeck_local_v3';
+    const DB_VERSION = 1;
+    const STORE = 'tracks';
+
+    function apiBase() {
+      return (localStorage.getItem('sounddeck_api') || document.getElementById('serverApi')?.value || 'http://localhost:3000').replace(/\/$/, '');
+    }
+
+    function saveSongsToStorage() {
+      localStorage.setItem('sounddeck_playlist', JSON.stringify(songs));
+    }
+
+    function escapeText(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = String(str);
+      return div.innerHTML;
+    }
+
+    function formatTime(secs) {
+      if (!Number.isFinite(secs)) return '0:00';
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          if (!req.result.objectStoreNames.contains(STORE)) {
+            req.result.createObjectStore(STORE, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function getLocalTrack(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const req = db.transaction(STORE, 'readonly').objectStore(STORE).get(id);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function getAllLocalTracks() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const req = db.transaction(STORE, 'readonly').objectStore(STORE).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveLocalTrack(track, blob) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).put({
+          id: track.id,
+          title: track.title,
+          artist: track.artist,
+          cover: track.cover,
+          blob,
+          savedAt: Date.now()
+        });
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function getLocalBytes() {
+      const tracks = await getAllLocalTracks();
+      return tracks.reduce((sum, t) => sum + (t.blob?.size || 0), 0);
+    }
+
+    async function removeLocalTrack(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).delete(id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function updateLocalStorageFlag(id, value) {
+      const track = songs.find(s => String(s.id) === String(id));
+      if (track) {
+        track.local = value;
+        saveSongsToStorage();
+      }
+    }
+
+    function resetPlayerUI() {
+      document.getElementById('barTitle').innerText = '---';
+      document.getElementById('barArtist').innerText = '---';
+      document.getElementById('panelTitle').innerText = '曲を選択してください';
+      document.getElementById('panelArtist').innerText = '---';
+      document.getElementById('barCover').removeAttribute('src');
+      document.getElementById('progressSlider').value = 0;
+      document.getElementById('timeCurrent').innerText = '0:00';
+      document.getElementById('timeDuration').innerText = '0:00';
+      updatePlayButton();
+    }
+
+    function updatePlayButton() {
+      document.getElementById('btnPlay').innerHTML =
+        !audio.paused && !audio.ended
+          ? '<i class="fa-solid fa-circle-pause"></i>'
+          : '<i class="fa-solid fa-circle-play"></i>';
+    }
+
+    async function loadTrack(index, autoplay = true) {
+      if (index < 0 || index >= songs.length) return;
+
+      currentTrackIndex = index;
+      const track = songs[index];
+
+      document.getElementById('barTitle').innerText = track.title || '---';
+      document.getElementById('barArtist').innerText = track.artist || '---';
+      document.getElementById('barCover').src = track.cover || '';
+      document.getElementById('panelTitle').innerText = track.title || '---';
+      document.getElementById('panelArtist').innerText = track.artist || '---';
+
+      const local = await getLocalTrack(track.id);
+
+      if (local?.blob) {
+        audio.src = URL.createObjectURL(local.blob);
+      } else if (track.serverUrl) {
+        audio.src = track.serverUrl;
+      } else {
+        alert('この曲の再生用音源がありません。');
+        return;
+      }
+
+      renderTrackList();
+      renderHomeGrid();
+
+      if (autoplay) {
+        try { await audio.play(); }
+        catch (e) { console.warn('Playback was blocked:', e); }
+      }
+    }
+
+    function togglePlay() {
+      if (!audio.src) {
+        if (songs.length) loadTrack(currentTrackIndex >= 0 ? currentTrackIndex : 0);
+        return;
+      }
+      if (audio.paused) audio.play();
+      else audio.pause();
+    }
+
+    function nextTrack() {
+      if (!songs.length) return;
+      loadTrack((currentTrackIndex + 1) % songs.length);
+    }
+
+    function prevTrack() {
+      if (!songs.length) return;
+      loadTrack((currentTrackIndex - 1 + songs.length) % songs.length);
+    }
+
+    function renderTrackList() {
+      const list = document.getElementById('trackList');
+      if (!songs.length) {
+        list.innerHTML = '<p style="font-size:0.85rem;color:var(--text-sub);text-align:center;padding:20px;">リストは空です</p>';
+        return;
+      }
+
+      list.innerHTML = songs.map((s, i) => `
+        <div class="track-row ${i === currentTrackIndex ? 'active' : ''}" onclick="selectTrack(${i})">
+          <img src="${escapeText(s.cover || '')}" style="width:40px;height:40px;border-radius:8px;margin-right:12px;object-fit:cover;">
+          <div style="min-width:0;flex:1;">
+            <div class="t-title">${escapeText(s.title)}</div>
+            <div class="t-artist">${escapeText(s.artist)}</div>
+            <div style="font-size:.72rem;color:var(--text-sub);">${s.local ? '● オフライン保存済み' : '○ 未保存'}</div>
+          </div>
+          <button class="btn-del-track" onclick="deleteTrack(event, ${i})" title="削除"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      `).join('');
+    }
+
+    function renderHomeGrid() {
+      const grid = document.getElementById('homeQuickGrid');
+      if (!songs.length) {
+        grid.innerHTML = '<p style="color:var(--text-sub);grid-column:1/-1;">「曲を探す」タブから曲を追加してみましょう！</p>';
+        return;
+      }
+
+      grid.innerHTML = songs.map((song, idx) => `
+        <div class="card" onclick="selectTrack(${idx})">
+          <img src="${escapeText(song.cover || '')}" class="card-img">
+          <div class="card-info">
+            <div class="card-title">${escapeText(song.title)}</div>
+            <div class="card-desc">${escapeText(song.artist)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function downloadTrack(index) {
+      const track = songs[index];
+      if (!track?.serverUrl) {
+        alert('サーバーから取得できる音源URLがありません。');
+        return;
+      }
+
+      const status = document.getElementById('searchResultGrid');
+      status.innerHTML = '<p style="padding:20px;">端末に保存しています...</p>';
+
+      try {
+        const res = await fetch(track.serverUrl);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const blob = await res.blob();
+        const used = await getLocalBytes();
+
+        if (used + blob.size > LOCAL_LIMIT) {
+          alert('端末側の500MB無料保存容量を超えるため保存できません。');
+          renderSearchResults(window._searchResults || []);
+          return;
+        }
+
+        await saveLocalTrack(track, blob);
+        updateLocalStorageFlag(track.id, true);
+        renderTrackList();
+        renderHomeGrid();
+        renderSearchResults(window._searchResults || []);
+        alert('この端末に保存しました。オフライン再生できます。');
+      } catch (e) {
+        console.error(e);
+        alert('保存できませんでした。サーバーのCORS設定と音源URLを確認してください。');
+        renderSearchResults(window._searchResults || []);
+      }
+    }
+
+    function renderSearchResults(items) {
+      const grid = document.getElementById('searchResultGrid');
+
+      if (!items.length) {
+        grid.innerHTML = '<p style="padding:20px;">検索結果がありません。</p>';
+        return;
+      }
+
+      grid.innerHTML = items.map((item, idx) => {
+        const existing = songs.find(s => String(s.id) === String(item.id));
+        return `
+          <div class="card">
+            <img src="${escapeText(item.cover || '')}" class="card-img">
+            <div class="card-info">
+              <div class="card-title">${escapeText(item.title)}</div>
+              <div class="card-desc">${escapeText(item.artist || 'Unknown Artist')}</div>
+            </div>
+            <button class="btn-search" onclick="addServerTrack(${idx})">${existing ? '再生' : '追加'}</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function searchYouTube(query) {
+      const grid = document.getElementById('searchResultGrid');
+      if (!grid) return;
+
+      searchHistory = [query, ...searchHistory.filter(q => q !== query)].slice(0, 5);
+      localStorage.setItem('sounddeck_search_history', JSON.stringify(searchHistory));
+
+      loadAiRecommendations();
+
+      grid.innerHTML = '<p style="padding:20px;">YouTubeから曲を検索中...</p>';
+
+      const apiEndpoints = [
+        `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=music_songs`,
+        `https://api.piped.private.coffee/search?q=${encodeURIComponent(query)}&filter=music_songs`
+      ];
+
+      let success = false;
+
+      for (const endpoint of apiEndpoints) {
+        try {
+          const res = await fetch(endpoint);
+          if (!res.ok) continue;
+          
+          const data = await res.json();
+          const items = data.items || data;
+
+          if (!items || items.length === 0) continue;
+
+          const videos = items.filter(item => item.type === 'stream' || item.url);
+
+          if (videos.length > 0) {
+            grid.innerHTML = videos.slice(0, 12).map((item, idx) => {
+              const videoId = item.url ? item.url.replace('/watch?v=', '') : item.id;
+              const title = item.title || 'Unknown Title';
+              const uploader = item.uploaderName || item.artist || 'Unknown Artist';
+              const thumbnail = item.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+              return `
+                <div class="card" onclick="addServerTrack(${idx})">
+                  <img src="${thumbnail}" class="card-img">
+                  <div class="card-info">
+                    <div class="card-title">${escapeText(title)}</div>
+                    <div class="card-desc">${escapeText(uploader)}</div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+
+            window._searchResults = videos.slice(0, 12).map(item => ({
+              videoId: item.url ? item.url.replace('/watch?v=', '') : item.id,
+              title: item.title || 'Unknown Title',
+              artist: item.uploaderName || item.artist || 'Unknown Artist',
+              thumbnail: item.thumbnail || `https://img.youtube.com/vi/${item.url ? item.url.replace('/watch?v=', '') : item.id}/hqdefault.jpg`
+            }));
+            
+            success = true;
+            break;
+          }
+        } catch (err) {
+          console.warn("API Error:", err);
+        }
+      }
+
+      if (!success) {
+        grid.innerHTML = '<p style="padding:20px;">検索結果を取得できませんでした。別のキーワードでお試しください。</p>';
+      }
+    }
+
+    async function addServerTrack(index) {
+      const item = window._searchResults?.[index];
+      if (!item) return;
+
+      const track = {
+        id: String(item.id || item.videoId || crypto.randomUUID()),
+        title: item.title || 'Unknown Title',
+        artist: item.artist || item.uploader || 'Unknown Artist',
+        cover: item.cover || item.thumbnail || '',
+        serverUrl: item.serverUrl || '',
+        local: false
+      };
+
+      const existingIndex = songs.findIndex(s => String(s.id) === track.id);
+
+      if (existingIndex >= 0) {
+        await loadTrack(existingIndex);
+        document.querySelector('.nav-tab[data-tab="playlist"]').click();
+        return;
+      }
+
+      if (!track.serverUrl) {
+        alert('検索結果に serverUrl がありません。サーバーAPIが返す必要があります。');
+        return;
+      }
+
+      songs.push(track);
+      saveSongsToStorage();
+      renderTrackList();
+      renderHomeGrid();
+
+      await loadTrack(songs.length - 1);
+      document.querySelector('.nav-tab[data-tab="playlist"]').click();
+    }
+
+    function deleteTrack(event, index) {
+      event.stopPropagation();
+      const id = songs[index]?.id;
+      songs.splice(index, 1);
+      saveSongsToStorage();
+
+      if (currentTrackIndex === index) {
+        audio.pause();
+        audio.removeAttribute('src');
+        currentTrackIndex = -1;
+        resetPlayerUI();
+      } else if (currentTrackIndex > index) {
+        currentTrackIndex--;
+      }
+
+      if (id) removeLocalTrack(id).catch(() => {});
+      renderTrackList();
+      renderHomeGrid();
+    }
+
+    function clearPlaylist() {
+      if (!songs.length) return;
+      if (!confirm('マイプレイリストの全楽曲を削除しますか？')) return;
+
+      songs.forEach(s => removeLocalTrack(s.id).catch(() => {}));
+      songs = [];
+      currentTrackIndex = -1;
+      audio.pause();
+      audio.removeAttribute('src');
+      saveSongsToStorage();
+      resetPlayerUI();
+      renderTrackList();
+      renderHomeGrid();
+    }
+
+    function selectTrack(i) {
+      loadTrack(i);
+      document.querySelector('.nav-tab[data-tab="playlist"]').click();
+    }
+
+    async function renderOfflinePanel() {
+      const local = await getAllLocalTracks();
+      const grid = document.getElementById('searchResultGrid');
+
+      if (!local.length) {
+        grid.innerHTML = '<p style="padding:20px;">この端末に保存された曲はありません。</p>';
+        return;
+      }
+
+      grid.innerHTML = local.map((s, i) => `
+        <div class="card" onclick="playLocalById('${encodeURIComponent(s.id)}')">
+          <img src="${escapeText(s.cover || '')}" class="card-img">
+          <div class="card-info">
+            <div class="card-title">${escapeText(s.title)}</div>
+            <div class="card-desc">${escapeText(s.artist)}</div>
+          </div>
+          <button class="btn-del-track" onclick="event.stopPropagation();deleteOffline('${encodeURIComponent(s.id)}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function playLocalById(encoded) {
+      const id = decodeURIComponent(encoded);
+      const local = await getLocalTrack(id);
+      if (!local) return;
+
+      audio.src = URL.createObjectURL(local.blob);
+      audio.play();
+      document.getElementById('barTitle').innerText = local.title;
+      document.getElementById('barArtist').innerText = local.artist;
+      document.getElementById('barCover').src = local.cover || '';
+    }
+
+    async function deleteOffline(encoded) {
+      const id = decodeURIComponent(encoded);
+      await removeLocalTrack(id);
+      updateLocalStorageFlag(id, false);
+      renderTrackList();
+      renderHomeGrid();
+      renderOfflinePanel();
+    }
+
+    audio.addEventListener('play', updatePlayButton);
+    audio.addEventListener('pause', updatePlayButton);
+    audio.addEventListener('ended', nextTrack);
+    audio.addEventListener('loadedmetadata', () => {
+      document.getElementById('timeDuration').innerText = formatTime(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      const current = audio.currentTime || 0;
+      const duration = audio.duration || 0;
+      document.getElementById('timeCurrent').innerText = formatTime(current);
+      document.getElementById('timeDuration').innerText = formatTime(duration);
+      document.getElementById('progressSlider').value = duration ? (current / duration) * 100 : 0;
+    });
+
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', nextTrack);
+    document.getElementById('btnPrev').addEventListener('click', prevTrack);
+
+    document.getElementById('progressSlider').addEventListener('input', e => {
+      if (audio.duration) audio.currentTime = (Number(e.target.value) / 100) * audio.duration;
+    });
+
+    document.getElementById('btnSearch').addEventListener('click', () => {
+      const q = document.getElementById('searchInput').value.trim();
+      if (!q) return;
+      searchHistory = [q, ...searchHistory.filter(x => x !== q)].slice(0, 10);
+      localStorage.setItem('sounddeck_search_history', JSON.stringify(searchHistory));
+      searchYouTube(q);
+    });
+
+    document.getElementById('searchInput').addEventListener('keypress', e => {
+      if (e.key === 'Enter') document.getElementById('btnSearch').click();
+    });
+
+    document.getElementById('serverApi')?.addEventListener('change', e => {
+      localStorage.setItem('sounddeck_api', e.target.value.trim());
+    });
+
+    document.querySelectorAll('.nav-tab').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.view-tab').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        document.getElementById(`tab-${b.dataset.tab}`).classList.add('active');
+
+        if (b.dataset.tab === 'playlist') renderTrackList();
+        if (b.dataset.tab === 'home') renderHomeGrid();
+        if (b.dataset.tab === 'search') {}
+      });
+    });
+
+    document.getElementById('btnTheme').addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (dark) document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', 'dark');
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedApi = localStorage.getItem('sounddeck_api');
+      if (savedApi) document.getElementById('serverApi').value = savedApi;
+      renderTrackList();
+      renderHomeGrid();
+    });
+  </script>
+</body>
+</html>
