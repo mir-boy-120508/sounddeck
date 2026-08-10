@@ -107,7 +107,8 @@
     
     .view-tab { display: none; width: 100%; height: 100%; flex-direction: column; overflow: hidden; }
     .view-tab.active { display: flex; }
-    #tab-home, #tab-search, #tab-settings { overflow-y: auto; padding-bottom: 40px; }
+    #tab-home, #tab-search, #tab-account { overflow-y: auto; padding-bottom: 40px; }
+    #tab-playlist { overflow: hidden; }
 
     .section-title { font-size: 1.8rem; font-weight: 800; margin: 10px 0 24px 0; }
 
@@ -322,6 +323,22 @@
     .section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:24px 0 12px; }
     .section-heading h3 { font-size:1.15rem; font-weight:700; }
     .account-avatar { width:64px; height:64px; border-radius:50%; background:var(--item-active); color:var(--accent-color); display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin-bottom:14px; }
+    .account-playlists { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-top:14px; }
+    .account-playlist-card { background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:18px; padding:16px; box-shadow:var(--shadow); }
+    .account-playlist-head { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .account-playlist-icon { width:46px; height:46px; border-radius:13px; background:var(--item-active); color:var(--accent-color); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .account-playlist-name { font-weight:800; word-break:break-word; }
+    .account-playlist-count { color:var(--text-sub); font-size:.78rem; margin-top:3px; }
+    .account-playlist-actions { display:flex; gap:7px; flex-wrap:wrap; }
+    .account-playlist-tracklist { display:flex; flex-direction:column; gap:6px; margin-top:12px; max-height:260px; overflow-y:auto; }
+    .account-playlist-track { display:flex; align-items:center; gap:9px; padding:7px; border-radius:10px; }
+    .account-playlist-track:hover { background:var(--item-hover); }
+    .account-playlist-track img { width:34px; height:34px; border-radius:7px; object-fit:cover; flex-shrink:0; }
+    .account-playlist-track-info { min-width:0; flex:1; }
+    .account-playlist-track-title { font-size:.8rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .account-playlist-track-artist { font-size:.7rem; color:var(--text-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .account-playlist-create { display:flex; gap:8px; flex-wrap:wrap; }
+    .account-playlist-create input { flex:1; min-width:180px; padding:11px 13px; border-radius:12px; border:1px solid var(--panel-border); background:var(--panel-bg); color:var(--text-main); outline:none; }
   </style>
 </head>
 <body>
@@ -410,14 +427,6 @@
         </div>
       </div>
 
-      <div id="tab-queue" class="view-tab">
-        <h2 class="section-title">再生キュー</h2>
-        <div class="settings-card" style="max-width:none;">
-          <div class="section-heading" style="margin-top:0;"><h3>次に再生</h3><button class="inline-btn" onclick="clearQueue()">キューを消去</button></div>
-          <div id="queueList"></div>
-        </div>
-      </div>
-
       <div id="tab-account" class="view-tab">
         <h2 class="section-title">アカウント</h2>
         <div class="settings-card">
@@ -442,6 +451,16 @@
           <p class="settings-description">SoundDeckの基本設定です。</p>
           <label style="font-size:.8rem;display:block;margin-bottom:6px;">サーバーAPI</label>
           <input id="serverApi" value="http://localhost:3000" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);">
+        </div>
+        <div class="settings-card">
+          <div class="section-heading" style="margin-top:0;">
+            <div><h3>プレイリスト管理</h3><p class="settings-description" style="margin:5px 0 0;">自分で作成したプレイリストを保存・名前変更・削除できます。</p></div>
+          </div>
+          <div class="account-playlist-create">
+            <input id="accountPlaylistName" type="text" maxlength="80" placeholder="新しいプレイリスト名">
+            <button class="btn-search" id="btnAccountCreatePlaylist"><i class="fa-solid fa-plus"></i> 作成</button>
+          </div>
+          <div id="accountPlaylistList" class="account-playlists"></div>
         </div>
         <div class="settings-card">
           <h3>SoundDeck v3.1</h3>
@@ -482,7 +501,6 @@
           <button class="nav-tab active" data-tab="home" title="ホーム"><i class="fa-solid fa-house"></i></button>
           <button class="nav-tab" data-tab="search" title="検索"><i class="fa-solid fa-magnifying-glass"></i></button>
           <button class="nav-tab" data-tab="playlist" title="ライブラリ"><i class="fa-solid fa-music"></i></button>
-          <button class="nav-tab" data-tab="queue" title="再生キュー"><i class="fa-solid fa-list"></i></button>
           <button class="nav-tab" data-tab="account" title="アカウント"><i class="fa-solid fa-user"></i></button>
         </div>
       </div>
@@ -925,7 +943,7 @@
       const el=document.getElementById('searchHistoryList'); if(!el)return;
       el.innerHTML=searchHistory.length?searchHistory.map(q=>`<button class="history-item" onclick="searchFromHistory('${escapeText(q).replace(/'/g,"\\'")}')">${escapeText(q)}</button>`).join(''):'<span style="color:var(--text-sub);font-size:.85rem;">検索履歴はありません。</span>';
     }
-    function renderAllLibraryUI(){renderPlaylistChips();renderTrackList();renderHomeGrid();renderHomeExtras();renderSearchHistory();}
+    function renderAllLibraryUI(){renderPlaylistChips();renderTrackList();renderHomeGrid();renderHomeExtras();renderSearchHistory();renderAccountPlaylists();}
     function selectLibrary(id){activePlaylistId=id;libraryFilterMode=id;localStorage.setItem('sounddeck_active_playlist',id);renderAllLibraryUI();}
     function openLibraryView(id){document.querySelector('.nav-tab[data-tab="playlist"]')?.click();selectLibrary(id);}
 
@@ -939,8 +957,13 @@
     function removeFromQueue(i){playbackQueue.splice(i,1);persistAll();renderQueue();}
     function playQueueItem(i){const t=getTrackById(playbackQueue[i]);if(!t)return;const idx=songs.indexOf(t);if(idx>=0)loadTrack(idx);}
     function clearQueue(){if(!playbackQueue.length)return;playbackQueue=[];persistAll();renderQueue();}
-    function createPlaylistFromModal(){const input=document.getElementById('newPlaylistName');const name=input.value.trim();if(!name)return;const id='pl_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);playlists.push({id,name,trackIds:[],createdAt:Date.now()});activePlaylistId=id;input.value='';closeModal('createPlaylistModal');persistAll();renderAllLibraryUI();}
-    function openCreatePlaylistModal(){document.getElementById('createPlaylistModal').classList.add('show');setTimeout(()=>document.getElementById('newPlaylistName')?.focus(),50);}
+    function createPlaylistFromModal(){const input=document.getElementById('newPlaylistName');const name=input.value.trim();if(!name)return;const id='pl_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);playlists.push({id,name,trackIds:[],createdAt:Date.now()});activePlaylistId=id;input.value='';closeModal('createPlaylistModal');persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function openCreatePlaylistModal(){const name=prompt('プレイリスト名を入力してください');if(name&&name.trim())createPlaylist(name.trim());}
+    function createPlaylist(name){const clean=String(name||'').trim();if(!clean)return;const id='pl_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);playlists.push({id,name:clean,trackIds:[],createdAt:Date.now()});activePlaylistId=id;persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function renamePlaylist(id){const p=playlists.find(x=>x.id===id);if(!p)return;const name=prompt('新しいプレイリスト名を入力してください',p.name);if(!name||!name.trim())return;p.name=name.trim();persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function deletePlaylist(id){const p=playlists.find(x=>x.id===id);if(!p)return;if(!confirm(`「${p.name}」を削除しますか？曲そのものはライブラリから削除されません。`))return;playlists=playlists.filter(x=>x.id!==id);if(activePlaylistId===id)activePlaylistId='all';persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function removeTrackFromPlaylist(pid,trackId){const p=playlists.find(x=>x.id===pid);if(!p)return;p.trackIds=p.trackIds.filter(x=>String(x)!==String(trackId));persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function renderAccountPlaylists(){const el=document.getElementById('accountPlaylistList');if(!el)return;if(!playlists.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1;">まだプレイリストがありません。上の欄から作成してください。</div>';return;}el.innerHTML=playlists.map(p=>{const tracks=p.trackIds.map(getTrackById).filter(Boolean);return `<div class="account-playlist-card"><div class="account-playlist-head"><div class="account-playlist-icon"><i class="fa-solid fa-music"></i></div><div style="min-width:0;flex:1;"><div class="account-playlist-name">${escapeText(p.name)}</div><div class="account-playlist-count">${tracks.length}曲</div></div></div><div class="account-playlist-actions"><button class="inline-btn" onclick="selectLibrary('${escapeText(p.id)}');document.querySelector('.nav-tab[data-tab=\'playlist\']')?.click()"><i class="fa-solid fa-play"></i> 開く</button><button class="inline-btn" onclick="renamePlaylist('${escapeText(p.id)}')"><i class="fa-solid fa-pen"></i> 名前変更</button><button class="inline-btn" onclick="deletePlaylist('${escapeText(p.id)}')"><i class="fa-solid fa-trash"></i> 削除</button></div><div class="account-playlist-tracklist">${tracks.length?tracks.map(t=>`<div class="account-playlist-track"><img src="${escapeText(t.cover||'')}" onerror="this.style.display='none'"><div class="account-playlist-track-info"><div class="account-playlist-track-title">${escapeText(t.title)}</div><div class="account-playlist-track-artist">${escapeText(t.artist)}</div></div><button class="btn-del-track" onclick="removeTrackFromPlaylist('${escapeText(p.id)}','${escapeText(t.id)}')" title="プレイリストから削除"><i class="fa-solid fa-xmark"></i></button></div>`).join(''):'<div style="color:var(--text-sub);font-size:.8rem;padding:8px 2px;">曲はまだありません。</div>'}</div></div>`;}).join('');}
     function closeModal(id){document.getElementById(id)?.classList.remove('show');}
     function addCurrentToPlaylist(){if(currentTrackIndex<0||!songs[currentTrackIndex])return;openPlaylistPicker(currentTrackIndex);}
     function openPlaylistPicker(index){const c=document.getElementById('playlistModalContent');const t=songs[index];if(!c||!t)return;c.innerHTML=(playlists.length?playlists.map(p=>`<button class="playlist-chip" style="display:block;width:100%;text-align:left;margin-bottom:8px;" onclick="addTrackToPlaylist('${p.id}',${index})"><i class="fa-solid fa-music"></i> ${escapeText(p.name)}</button>`).join(''):'<div class="empty-state">先にプレイリストを作成してください。</div>')+'<button class="inline-btn" onclick="closeModal(\'playlistModal\');openCreatePlaylistModal()">＋ 新規プレイリストを作成</button>';document.getElementById('playlistModal').classList.add('show');}
@@ -1544,12 +1567,14 @@
 
         if (b.dataset.tab === 'playlist') renderAllLibraryUI();
         if (b.dataset.tab === 'home') { renderHomeGrid(); renderHomeExtras(); loadAiRecommendations(); }
-        if (b.dataset.tab === 'queue') renderQueue();
         if (b.dataset.tab === 'search') renderSearchHistory();
+        if (b.dataset.tab === 'account') renderAccountPlaylists();
       });
     });
 
     document.getElementById('clearSearchHistory')?.addEventListener('click',()=>{searchHistory=[];localStorage.removeItem('sounddeck_search_history');renderSearchHistory();loadAiRecommendations();});
+    document.getElementById('btnAccountCreatePlaylist')?.addEventListener('click',()=>{const input=document.getElementById('accountPlaylistName');createPlaylist(input.value);input.value='';});
+    document.getElementById('accountPlaylistName')?.addEventListener('keypress',e=>{if(e.key==='Enter')document.getElementById('btnAccountCreatePlaylist')?.click();});
     document.getElementById('libraryFilter')?.addEventListener('input',e=>{libraryFilterText=e.target.value.trim();renderTrackList();});
     document.getElementById('librarySort')?.addEventListener('change',e=>{librarySortMode=e.target.value;renderTrackList();});
     document.getElementById('btnVolume')?.addEventListener('click',()=>document.getElementById('volumePopover')?.classList.toggle('show'));
@@ -1576,7 +1601,6 @@
       const savedApi = localStorage.getItem('sounddeck_api');
       if (savedApi) document.getElementById('serverApi').value = savedApi;
       renderAllLibraryUI();
-      renderQueue();
       loadAiRecommendations();
       updatePlaybackModeUI();
       updateCurrentTrackActions();
