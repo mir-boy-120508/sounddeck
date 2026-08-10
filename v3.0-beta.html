@@ -293,7 +293,7 @@
           <div class="pl-panel" id="lyricsPanel">
             <div class="lyrics-header">
               <span style="font-size:0.85rem; font-weight:700; color:var(--text-sub);">LYRICS SYNC</span>
-              <button class="btn-ai-lyrics" id="btnAiLyrics"><i class="fa-solid fa-wand-magic-sparkles"></i> AIで歌詞を取得(嘘しか言いません。)</button>
+              <button class="btn-ai-lyrics" id="btnAiLyrics"><i class="fa-solid fa-wand-magic-sparkles"></i> AIで歌詞を取得</button>
             </div>
             <div class="lyrics-box" id="lyricsBox"></div>
           </div>
@@ -492,6 +492,11 @@
       document.getElementById('barCover').src = track.cover || '';
       document.getElementById('panelTitle').innerText = track.title || '---';
       document.getElementById('panelArtist').innerText = track.artist || '---';
+
+      const lyricsBox = document.getElementById('lyricsBox');
+      if (lyricsBox) {
+        lyricsBox.innerHTML = '<p style="padding:20px;color:var(--text-sub);">「AIで歌詞を取得」を押すと、この曲の歌詞をAIが聞き取って表示します。</p>';
+      }
 
       const local = await getLocalTrack(track.id);
 
@@ -806,6 +811,84 @@
       document.querySelector('.nav-tab[data-tab="playlist"]').click();
     }
 
+    /**
+     * 再生中の曲の音源を、SoundDeckサーバー(/api/lyrics/:id)経由でGemini AIに聞き取らせ、
+     * 歌詞として書き起こす。既存の歌詞をコピーしているわけではなく、AIによる音声認識。
+     * サーバー側でキャッシュされるので、同じ曲を2回目以降取得してもAIは呼ばれない。
+     */
+    async function loadAiLyrics() {
+      const box = document.getElementById('lyricsBox');
+      if (!box) return;
+
+      const track = songs[currentTrackIndex];
+      if (!track) {
+        box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">曲を再生してから試してください。</p>';
+        return;
+      }
+
+      box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">✨ AIが歌詞を聞き取り中...(初回は数十秒かかることがあります)</p>';
+
+      try {
+        const res = await fetch(`${apiBase()}/api/lyrics/${encodeURIComponent(track.id)}`);
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        const lines = Array.isArray(data.lyrics) ? data.lyrics : [];
+
+        if (!lines.length) {
+          box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">歌詞を聞き取れませんでした(インストゥルメンタル曲の可能性があります)。</p>';
+          return;
+        }
+
+        box.innerHTML = lines.map(line => `
+          <div class="l-line" data-time="${line.time}">${escapeText(line.text)}</div>
+        `).join('');
+
+        box.querySelectorAll('.l-line').forEach(el => {
+          el.addEventListener('click', () => {
+            const t = Number(el.dataset.time) || 0;
+            audio.currentTime = t;
+            if (audio.paused) audio.play();
+          });
+        });
+
+        updateLyricsHighlight();
+      } catch (err) {
+        console.warn('AI lyrics error:', err);
+        box.innerHTML = `<p style="padding:20px;color:var(--text-sub);">歌詞を取得できませんでした。(${escapeText(err.message || '')})</p>`;
+      }
+    }
+
+    // 再生位置に合わせて、今のフレーズの歌詞行をハイライトし、自動スクロールする
+    function updateLyricsHighlight() {
+      const box = document.getElementById('lyricsBox');
+      if (!box) return;
+
+      const lines = box.querySelectorAll('.l-line');
+      if (!lines.length) return;
+
+      const current = audio.currentTime || 0;
+      let activeIndex = -1;
+
+      lines.forEach((el, i) => {
+        const t = Number(el.dataset.time) || 0;
+        if (t <= current) activeIndex = i;
+      });
+
+      lines.forEach((el, i) => {
+        el.classList.toggle('active', i === activeIndex);
+      });
+
+      if (activeIndex >= 0) {
+        lines[activeIndex].scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+    }
+
+    document.getElementById('btnAiLyrics')?.addEventListener('click', loadAiLyrics);
+
     async function addServerTrack(index) {
       const item = window._searchResults?.[index];
       if (!item) return;
@@ -938,6 +1021,7 @@
       document.getElementById('timeCurrent').innerText = formatTime(current);
       document.getElementById('timeDuration').innerText = formatTime(duration);
       document.getElementById('progressSlider').value = duration ? (current / duration) * 100 : 0;
+      updateLyricsHighlight();
     });
 
     document.getElementById('btnPlay').addEventListener('click', togglePlay);
