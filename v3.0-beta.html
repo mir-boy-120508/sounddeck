@@ -310,7 +310,7 @@
 
       <div id="tab-settings" class="view-tab">
         <h2 class="section-title">Settings</h2>
-        <p>SoundDeck v3.0</p><p style="color:var(--text-sub);font-size:.85rem;margin-top:8px;">サーバーAPI: <input id="serverApi" value="https://his-lemon-configure-jokes.trycloudflare.com" style="padding:8px 10px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);width:min(420px,100%);"></p>
+        <p>SoundDeck v3.0</p><p style="color:var(--text-sub);font-size:.85rem;margin-top:8px;">サーバーAPI: <input id="serverApi" value="http://localhost:3000" style="padding:8px 10px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);width:min(420px,100%);"></p>
       </div>
     </main>
 
@@ -680,6 +680,132 @@
       }
     }
 
+    /**
+     * 検索履歴をもとに、SoundDeckサーバー(apiBase())の /api/recommend にAIおすすめをリクエストする。
+     * AIが返してきた「曲名・アーティスト名」は、そのままでは再生できないので、
+     * solOS方式のPiped検索に1件ずつかけて、実際に再生可能な動画IDに変換してからカード表示する。
+     */
+    async function loadAiRecommendations() {
+      const grid = document.getElementById('aiRecGrid');
+      const titleEl = document.getElementById('aiRecTitle');
+      if (!grid) return;
+
+      if (!searchHistory.length) {
+        titleEl.innerText = 'AIのおすすめ';
+        grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">曲を1回以上検索すると、AIが検索履歴からおすすめ曲を提案します。</p>';
+        return;
+      }
+
+      titleEl.innerText = 'AIのおすすめ';
+      grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">✨ AIがおすすめを考え中...</p>';
+
+      try {
+        const res = await fetch(`${apiBase()}/api/recommend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history: searchHistory.slice(0, 10) })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        const picks = Array.isArray(data.recommendations) ? data.recommendations : [];
+
+        if (!picks.length) {
+          grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">おすすめを取得できませんでした。</p>';
+          return;
+        }
+
+        const found = await Promise.all(
+          picks.map(pick => findOneTrack(`${pick.title} ${pick.artist || ''}`.trim()))
+        );
+        window._aiRecResults = found.filter(Boolean);
+
+        if (!window._aiRecResults.length) {
+          grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">おすすめ曲の音源が見つかりませんでした。</p>';
+          return;
+        }
+
+        grid.innerHTML = window._aiRecResults.map((item, idx) => `
+          <div class="card">
+            <img src="${escapeText(item.cover || '')}" class="card-img">
+            <div class="card-info">
+              <div class="card-title">${escapeText(item.title)}</div>
+              <div class="card-desc">${escapeText(item.artist || 'Unknown Artist')}</div>
+            </div>
+            <button class="btn-search" onclick="addAiRecTrack(${idx})">追加</button>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.warn('AI recommend error:', err);
+        grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">AIのおすすめを取得できませんでした（サーバーへの接続かAPIキーをご確認ください）。</p>';
+      }
+    }
+
+    // AIが提案した「曲名 アーティスト名」を、solOS方式のPiped検索で1件だけ実際の動画に変換する
+    async function findOneTrack(query) {
+      const apiEndpoints = [
+        `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=music_songs`,
+        `https://api.piped.private.coffee/search?q=${encodeURIComponent(query)}&filter=music_songs`
+      ];
+
+      for (const endpoint of apiEndpoints) {
+        try {
+          const res = await fetch(endpoint);
+          if (!res.ok) continue;
+          const data = await res.json();
+          const items = data.items || data;
+          if (!items || !items.length) continue;
+
+          const item = items.find(it => it.type === 'stream' || it.url);
+          if (!item) continue;
+
+          const videoId = item.url ? item.url.replace('/watch?v=', '') : item.id;
+          if (!videoId) continue;
+
+          return {
+            id: videoId,
+            title: item.title || query,
+            artist: item.uploaderName || item.artist || 'Unknown Artist',
+            cover: item.thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+            serverUrl: `${apiBase()}/api/stream/${videoId}`
+          };
+        } catch (err) {
+          console.warn('findOneTrack error:', err);
+        }
+      }
+      return null;
+    }
+
+    // AIおすすめカードの「追加」ボタン用。addServerTrackと同じ流れで再生キューに入れる。
+    async function addAiRecTrack(index) {
+      const item = window._aiRecResults?.[index];
+      if (!item) return;
+
+      const track = {
+        id: String(item.id),
+        title: item.title,
+        artist: item.artist,
+        cover: item.cover,
+        serverUrl: item.serverUrl,
+        local: false
+      };
+
+      const existingIndex = songs.findIndex(s => String(s.id) === track.id);
+      if (existingIndex >= 0) {
+        await loadTrack(existingIndex);
+        document.querySelector('.nav-tab[data-tab="playlist"]').click();
+        return;
+      }
+
+      songs.push(track);
+      saveSongsToStorage();
+      renderTrackList();
+      renderHomeGrid();
+
+      await loadTrack(songs.length - 1);
+      document.querySelector('.nav-tab[data-tab="playlist"]').click();
+    }
+
     async function addServerTrack(index) {
       const item = window._searchResults?.[index];
       if (!item) return;
@@ -828,6 +954,7 @@
       searchHistory = [q, ...searchHistory.filter(x => x !== q)].slice(0, 10);
       localStorage.setItem('sounddeck_search_history', JSON.stringify(searchHistory));
       searchServer(q);
+      loadAiRecommendations();
     });
 
     document.getElementById('searchInput').addEventListener('keypress', e => {
@@ -862,6 +989,7 @@
       if (savedApi) document.getElementById('serverApi').value = savedApi;
       renderTrackList();
       renderHomeGrid();
+      loadAiRecommendations();
     });
   </script>
 </body>
