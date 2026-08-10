@@ -13,6 +13,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Firebase (Authentication + Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
   
   <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -297,6 +302,13 @@
           <button id="btnSearch" class="btn-search">検索</button>
         </div>
         <div class="card-grid" id="searchResultGrid"></div>
+
+        <div id="searchRecSection" style="margin-top:20px;">
+          <button id="btnSearchRec" class="btn-search" style="background:transparent;border:1px solid var(--accent-color);color:var(--accent-color);">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> この検索に関連するAIおすすめを見る
+          </button>
+          <div class="card-grid" id="searchRecGrid" style="margin-top:16px;"></div>
+        </div>
       </div>
 
       <div id="tab-playlist" class="view-tab">
@@ -331,7 +343,48 @@
 
       <div id="tab-settings" class="view-tab">
         <h2 class="section-title">Settings</h2>
-        <p>SoundDeck v3.0</p><p style="color:var(--text-sub);font-size:.85rem;margin-top:8px;">サーバーAPI: <input id="serverApi" value="https://clear-storage-lopez-capture.trycloudflare.com" style="padding:8px 10px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);width:min(420px,100%);"></p>
+        <p>SoundDeck v3.0</p><p style="color:var(--text-sub);font-size:.85rem;margin-top:8px;">サーバーAPI: <input id="serverApi" value="http://localhost:3000" style="padding:8px 10px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);width:min(420px,100%);"></p>
+
+        <div style="margin-top:28px;padding:20px;border:1px solid var(--panel-border);border-radius:16px;max-width:420px;">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:6px;">アカウント</h3>
+          <p style="color:var(--text-sub);font-size:.8rem;margin-bottom:16px;">
+            ログインすると、プレイリスト・お気に入り・オフライン保存・イコライザーなどの機能が使え、
+            どの曲をライブラリに入れたかが端末間で同期されます。ログインしなくても検索・再生は可能です。
+          </p>
+
+          <div id="authLoggedOut">
+            <input id="authEmail" type="email" placeholder="メールアドレス" style="width:100%;padding:10px 12px;margin-bottom:8px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);">
+            <input id="authPassword" type="password" placeholder="パスワード(6文字以上)" style="width:100%;padding:10px 12px;margin-bottom:12px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button id="btnLogin" class="btn-search" style="flex:1;">ログイン</button>
+              <button id="btnSignup" class="btn-search" style="flex:1;background:transparent;border:1px solid var(--accent-color);color:var(--accent-color);">新規登録</button>
+            </div>
+            <p id="authError" style="color:var(--accent-color);font-size:.78rem;margin-top:10px;"></p>
+          </div>
+
+          <div id="authLoggedIn" style="display:none;">
+            <p style="font-size:.9rem;margin-bottom:12px;">ログイン中: <b id="authUserEmail">-</b></p>
+            <button id="btnLogout" class="btn-search" style="background:transparent;border:1px solid var(--panel-border);color:var(--text-main);">ログアウト</button>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding:20px;border:1px solid var(--panel-border);border-radius:16px;max-width:420px;">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:6px;">イコライザー</h3>
+          <p style="color:var(--text-sub);font-size:.8rem;margin-bottom:16px;">ログイン中のみ調整できます。</p>
+
+          <div style="margin-bottom:14px;">
+            <label style="font-size:.8rem;display:flex;justify-content:space-between;">低音(Bass) <span id="eqBassVal">0dB</span></label>
+            <input type="range" id="eqBass" min="-15" max="15" value="0" step="1" style="width:100%;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:.8rem;display:flex;justify-content:space-between;">中音(Mid) <span id="eqMidVal">0dB</span></label>
+            <input type="range" id="eqMid" min="-15" max="15" value="0" step="1" style="width:100%;">
+          </div>
+          <div>
+            <label style="font-size:.8rem;display:flex;justify-content:space-between;">高音(Treble) <span id="eqTrebleVal">0dB</span></label>
+            <input type="range" id="eqTreble" min="-15" max="15" value="0" step="1" style="width:100%;">
+          </div>
+        </div>
       </div>
     </main>
 
@@ -346,9 +399,11 @@
 
       <div class="hb-center">
         <div class="hb-controls">
+          <button class="ctrl-btn" id="btnShuffle" title="シャッフル"><i class="fa-solid fa-shuffle"></i></button>
           <button class="ctrl-btn" id="btnPrev"><i class="fa-solid fa-backward-step"></i></button>
           <button class="ctrl-btn btn-play" id="btnPlay"><i class="fa-solid fa-circle-play"></i></button>
           <button class="ctrl-btn" id="btnNext"><i class="fa-solid fa-forward-step"></i></button>
+          <button class="ctrl-btn" id="btnRepeat" title="リピート"><i class="fa-solid fa-repeat"></i></button>
         </div>
         <div class="hb-progress">
           <span id="timeCurrent">0:00</span>
@@ -382,6 +437,41 @@
     let songs = JSON.parse(localStorage.getItem('sounddeck_playlist') || '[]');
     let currentTrackIndex = -1;
     let audio = new Audio();
+
+    // ---- イコライザー(Web Audio API) ----
+    let audioCtx = null;
+    let eqBassFilter, eqMidFilter, eqTrebleFilter;
+
+    function setupAudioGraph() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioCtx.createMediaElementSource(audio);
+
+      eqBassFilter = audioCtx.createBiquadFilter();
+      eqBassFilter.type = 'lowshelf';
+      eqBassFilter.frequency.value = 200;
+
+      eqMidFilter = audioCtx.createBiquadFilter();
+      eqMidFilter.type = 'peaking';
+      eqMidFilter.frequency.value = 1000;
+      eqMidFilter.Q.value = 1;
+
+      eqTrebleFilter = audioCtx.createBiquadFilter();
+      eqTrebleFilter.type = 'highshelf';
+      eqTrebleFilter.frequency.value = 3000;
+
+      source.connect(eqBassFilter);
+      eqBassFilter.connect(eqMidFilter);
+      eqMidFilter.connect(eqTrebleFilter);
+      eqTrebleFilter.connect(audioCtx.destination);
+    }
+
+    function applyEqFromSliders() {
+      if (!eqBassFilter) return;
+      eqBassFilter.gain.value = Number(document.getElementById('eqBass').value);
+      eqMidFilter.gain.value = Number(document.getElementById('eqMid').value);
+      eqTrebleFilter.gain.value = Number(document.getElementById('eqTreble').value);
+    }
     let progressTimer = null;
     let searchHistory = JSON.parse(localStorage.getItem('sounddeck_search_history') || '[]');
 
@@ -396,7 +486,137 @@
 
     function saveSongsToStorage() {
       localStorage.setItem('sounddeck_playlist', JSON.stringify(songs));
+      syncLibraryToFirestore();
     }
+
+    // ---- Firebase (Authentication + Firestore) ----
+    const firebaseConfig = {
+      apiKey: "AIzaSyD6lDezY0ffdJFbT48gaeJuHBFuka9YuLw",
+      authDomain: "sounddeck-96423.firebaseapp.com",
+      projectId: "sounddeck-96423",
+      storageBucket: "sounddeck-96423.firebasestorage.app",
+      messagingSenderId: "264505394150",
+      appId: "1:264505394150:web:c275ebe62e7fb02b96cc27",
+      measurementId: "G-RTR5DEKHBZ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const dbFirestore = firebase.firestore();
+
+    let currentUser = null;
+
+    // ログインが必要な機能から呼ぶための共通ガード。
+    // 未ログインならメッセージを出してfalseを返す(呼び出し側は処理を中断する)。
+    function requireLogin(featureName) {
+      if (currentUser) return true;
+      alert(`「${featureName}」はログインすると使えます。設定タブからログインしてください。`);
+      return false;
+    }
+
+    // 今のプレイリスト(songs)を、ログイン中のユーザーのFirestoreドキュメントに保存する。
+    // 音源ファイル自体は同期しない。「どの曲を追加したか」という情報だけ。
+    async function syncLibraryToFirestore() {
+      if (!currentUser) return;
+      try {
+        await dbFirestore.collection('users').doc(currentUser.uid).set({
+          library: songs,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      } catch (err) {
+        console.warn('Firestore sync error:', err);
+      }
+    }
+
+    // ログイン時に、Firestoreに保存されているプレイリストを読み込んで反映する(他端末との同期)
+    async function loadLibraryFromFirestore() {
+      if (!currentUser) return;
+      try {
+        const doc = await dbFirestore.collection('users').doc(currentUser.uid).get();
+        if (doc.exists) {
+          const data = doc.data();
+          if (Array.isArray(data.library)) {
+            songs = data.library;
+            localStorage.setItem('sounddeck_playlist', JSON.stringify(songs));
+            renderTrackList();
+            renderHomeGrid();
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore load error:', err);
+      }
+    }
+
+    function updateAuthUI(user) {
+      const loggedOutEl = document.getElementById('authLoggedOut');
+      const loggedInEl = document.getElementById('authLoggedIn');
+      const emailEl = document.getElementById('authUserEmail');
+      if (!loggedOutEl || !loggedInEl) return;
+
+      if (user) {
+        loggedOutEl.style.display = 'none';
+        loggedInEl.style.display = 'block';
+        if (emailEl) emailEl.innerText = user.email || '(不明)';
+      } else {
+        loggedOutEl.style.display = 'block';
+        loggedInEl.style.display = 'none';
+      }
+
+      // イコライザーはログイン時のみ操作可能
+      ['eqBass', 'eqMid', 'eqTreble'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = !user;
+      });
+    }
+
+    function translateAuthError(err) {
+      const code = err?.code || '';
+      const map = {
+        'auth/invalid-email': 'メールアドレスの形式が正しくありません。',
+        'auth/user-not-found': 'そのメールアドレスは登録されていません。',
+        'auth/wrong-password': 'パスワードが間違っています。',
+        'auth/email-already-in-use': 'そのメールアドレスは既に登録されています。',
+        'auth/weak-password': 'パスワードは6文字以上にしてください。',
+        'auth/invalid-credential': 'メールアドレスまたはパスワードが間違っています。',
+        'auth/missing-password': 'パスワードを入力してください。'
+      };
+      return map[code] || (err?.message || 'エラーが発生しました。');
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      currentUser = user;
+      updateAuthUI(user);
+      if (user) {
+        await loadLibraryFromFirestore();
+      }
+    });
+
+    document.getElementById('btnLogin')?.addEventListener('click', async () => {
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const errEl = document.getElementById('authError');
+      errEl.innerText = '';
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (err) {
+        errEl.innerText = translateAuthError(err);
+      }
+    });
+
+    document.getElementById('btnSignup')?.addEventListener('click', async () => {
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const errEl = document.getElementById('authError');
+      errEl.innerText = '';
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+      } catch (err) {
+        errEl.innerText = translateAuthError(err);
+      }
+    });
+
+    document.getElementById('btnLogout')?.addEventListener('click', async () => {
+      await auth.signOut();
+    });
 
     function escapeText(str) {
       if (!str) return '';
@@ -548,14 +768,45 @@
       else audio.pause();
     }
 
+    // ---- シャッフル・リピート ----
+    let shuffleOn = false;
+    let repeatMode = 'off'; // 'off' | 'all' | 'one'
+
+    function updatePlaybackModeUI() {
+      const shuffleBtn = document.getElementById('btnShuffle');
+      const repeatBtn = document.getElementById('btnRepeat');
+      if (shuffleBtn) shuffleBtn.style.color = shuffleOn ? 'var(--accent-color)' : '';
+      if (repeatBtn) {
+        if (repeatMode === 'one') {
+          repeatBtn.style.color = 'var(--accent-color)';
+          repeatBtn.innerHTML = '<i class="fa-solid fa-repeat"></i><span style="font-size:.55rem;vertical-align:top;">1</span>';
+        } else {
+          repeatBtn.style.color = repeatMode === 'all' ? 'var(--accent-color)' : '';
+          repeatBtn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
+        }
+      }
+    }
+
     function nextTrack() {
       if (!songs.length) return;
-      loadTrack((currentTrackIndex + 1) % songs.length);
+      if (shuffleOn && songs.length > 1) {
+        let idx;
+        do { idx = Math.floor(Math.random() * songs.length); } while (idx === currentTrackIndex);
+        loadTrack(idx);
+      } else {
+        loadTrack((currentTrackIndex + 1) % songs.length);
+      }
     }
 
     function prevTrack() {
       if (!songs.length) return;
-      loadTrack((currentTrackIndex - 1 + songs.length) % songs.length);
+      if (shuffleOn && songs.length > 1) {
+        let idx;
+        do { idx = Math.floor(Math.random() * songs.length); } while (idx === currentTrackIndex);
+        loadTrack(idx);
+      } else {
+        loadTrack((currentTrackIndex - 1 + songs.length) % songs.length);
+      }
     }
 
     function renderTrackList() {
@@ -573,9 +824,25 @@
             <div class="t-artist">${escapeText(s.artist)}</div>
             <div style="font-size:.72rem;color:var(--text-sub);">${s.local ? '● オフライン保存済み' : '○ 未保存'}</div>
           </div>
+          <button class="btn-del-track" onclick="toggleFavorite(event, ${i})" title="お気に入り" style="color:${s.favorite ? 'var(--accent-color)' : ''};">
+            <i class="fa-solid fa-star"></i>
+          </button>
           <button class="btn-del-track" onclick="deleteTrack(event, ${i})" title="削除"><i class="fa-solid fa-xmark"></i></button>
         </div>
       `).join('');
+    }
+
+    // お気に入りの切り替え(ログイン必須)。songs配列内のフラグを更新し、保存・Firestore同期する。
+    function toggleFavorite(event, index) {
+      event.stopPropagation();
+      if (!requireLogin('お気に入り登録')) return;
+
+      const track = songs[index];
+      if (!track) return;
+
+      track.favorite = !track.favorite;
+      saveSongsToStorage();
+      renderTrackList();
     }
 
     function renderHomeGrid() {
@@ -597,6 +864,8 @@
     }
 
     async function downloadTrack(index) {
+      if (!requireLogin('オフライン保存')) return;
+
       const track = songs[index];
       if (!track?.serverUrl) {
         alert('サーバーから取得できる音源URLがありません。');
@@ -833,10 +1102,95 @@
     }
 
     /**
-     * 再生中の曲の音源を、SoundDeckサーバー(/api/lyrics/:id)経由でGemini AIに聞き取らせ、
-     * 歌詞として書き起こす。既存の歌詞をコピーしているわけではなく、AIによる音声認識。
-     * サーバー側でキャッシュされるので、同じ曲を2回目以降取得してもAIは呼ばれない。
+     * 検索タブの「関連するAIおすすめを見る」ボタン用。
+     * 1日あたりのAI呼び出し回数が少ないため、検索するたびに自動では呼ばず、
+     * ボタンを押した時だけ問い合わせる。
      */
+    async function loadSearchRecommendations() {
+      const query = document.getElementById('searchInput').value.trim();
+      const grid = document.getElementById('searchRecGrid');
+      if (!query || !grid) return;
+
+      grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">✨ AIが関連曲を考え中...</p>';
+
+      try {
+        const res = await fetch(`${apiBase()}/api/recommend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history: [query] })
+        });
+
+        if (res.status === 429) {
+          const errData = await res.json().catch(() => ({}));
+          grid.innerHTML = `<p style="color:var(--text-sub); grid-column: 1/-1;">${escapeText(errData.error || '本日のAI利用回数の上限に達しました。')}</p>`;
+          return;
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        const picks = Array.isArray(data.recommendations) ? data.recommendations : [];
+
+        if (!picks.length) {
+          grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">おすすめを取得できませんでした。</p>';
+          return;
+        }
+
+        const found = await Promise.all(
+          picks.map(pick => findOneTrack(`${pick.title} ${pick.artist || ''}`.trim()))
+        );
+        window._searchRecResults = found.filter(Boolean);
+
+        if (!window._searchRecResults.length) {
+          grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">関連曲の音源が見つかりませんでした。</p>';
+          return;
+        }
+
+        grid.innerHTML = window._searchRecResults.map((item, idx) => `
+          <div class="card">
+            <img src="${escapeText(item.cover || '')}" class="card-img">
+            <div class="card-info">
+              <div class="card-title">${escapeText(item.title)}</div>
+              <div class="card-desc">${escapeText(item.artist || 'Unknown Artist')}</div>
+            </div>
+            <button class="btn-search" onclick="addSearchRecTrack(${idx})">追加</button>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.warn('search recommend error:', err);
+        grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">AIのおすすめを取得できませんでした。</p>';
+      }
+    }
+
+    async function addSearchRecTrack(index) {
+      const item = window._searchRecResults?.[index];
+      if (!item) return;
+
+      const track = {
+        id: String(item.id),
+        title: item.title,
+        artist: item.artist,
+        cover: item.cover,
+        serverUrl: item.serverUrl,
+        local: false
+      };
+
+      const existingIndex = songs.findIndex(s => String(s.id) === track.id);
+      if (existingIndex >= 0) {
+        await loadTrack(existingIndex);
+        document.querySelector('.nav-tab[data-tab="playlist"]').click();
+        return;
+      }
+
+      songs.push(track);
+      saveSongsToStorage();
+      renderTrackList();
+      renderHomeGrid();
+
+      await loadTrack(songs.length - 1);
+      document.querySelector('.nav-tab[data-tab="playlist"]').click();
+    }
+
+    document.getElementById('btnSearchRec')?.addEventListener('click', loadSearchRecommendations);
     async function loadAiLyrics() {
       const box = document.getElementById('lyricsBox');
       if (!box) return;
@@ -1031,7 +1385,19 @@
 
     audio.addEventListener('play', updatePlayButton);
     audio.addEventListener('pause', updatePlayButton);
-    audio.addEventListener('ended', nextTrack);
+    audio.addEventListener('ended', () => {
+      if (repeatMode === 'one') {
+        audio.currentTime = 0;
+        audio.play();
+        return;
+      }
+      if (repeatMode === 'off' && !shuffleOn && currentTrackIndex === songs.length - 1) {
+        // リピートoffで最後の曲まで再生し終えたら、そこで止まる
+        updatePlayButton();
+        return;
+      }
+      nextTrack();
+    });
     audio.addEventListener('loadedmetadata', () => {
       document.getElementById('timeDuration').innerText = formatTime(audio.duration);
     });
@@ -1048,6 +1414,27 @@
     document.getElementById('btnPlay').addEventListener('click', togglePlay);
     document.getElementById('btnNext').addEventListener('click', nextTrack);
     document.getElementById('btnPrev').addEventListener('click', prevTrack);
+
+    document.getElementById('btnShuffle')?.addEventListener('click', () => {
+      shuffleOn = !shuffleOn;
+      updatePlaybackModeUI();
+    });
+
+    document.getElementById('btnRepeat')?.addEventListener('click', () => {
+      repeatMode = repeatMode === 'off' ? 'all' : (repeatMode === 'all' ? 'one' : 'off');
+      updatePlaybackModeUI();
+    });
+
+    ['eqBass', 'eqMid', 'eqTreble'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', (e) => {
+        if (!currentUser) return; // disabled属性で基本弾かれるが念のため
+        setupAudioGraph();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        applyEqFromSliders();
+        const label = document.getElementById(id + 'Val');
+        if (label) label.innerText = `${e.target.value}dB`;
+      });
+    });
 
     document.getElementById('progressSlider').addEventListener('input', e => {
       if (audio.duration) audio.currentTime = (Number(e.target.value) / 100) * audio.duration;
@@ -1095,6 +1482,7 @@
       renderTrackList();
       renderHomeGrid();
       loadAiRecommendations();
+      updatePlaybackModeUI();
     });
   </script>
 </body>
