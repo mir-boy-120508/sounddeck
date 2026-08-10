@@ -339,7 +339,33 @@
     .account-playlist-track-artist { font-size:.7rem; color:var(--text-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .account-playlist-create { display:flex; gap:8px; flex-wrap:wrap; }
     .account-playlist-create input { flex:1; min-width:180px; padding:11px 13px; border-radius:12px; border:1px solid var(--panel-border); background:var(--panel-bg); color:var(--text-main); outline:none; }
-  </style>
+  
+    .track-actions-vertical{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;flex:0 0 auto;}
+    .track-actions-vertical .track-action{width:34px;height:34px;min-width:34px;padding:0;display:flex;align-items:center;justify-content:center;}
+    @media (max-width:768px){
+      html,body{width:100%;min-width:0;overflow-x:hidden;}
+      .app-shell,.app-container,.main-container{width:100%;max-width:none;}
+      .topbar,.header,.app-header{padding-left:14px!important;padding-right:14px!important;}
+      .content,.main-content,.page-content{padding:14px!important;}
+      .track-row{grid-template-columns:52px minmax(0,1fr) 40px!important;gap:10px!important;padding:10px!important;}
+      .track-row .track-cover,.track-row img{width:52px!important;height:52px!important;}
+      .track-info,.card-info{min-width:0;overflow:hidden;}
+      .track-title,.card-title,.track-artist,.card-desc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .track-actions-vertical{gap:4px;}
+      .track-actions-vertical .track-action{width:34px;height:34px;min-width:34px;}
+      .search-box,.search-bar{width:100%!important;max-width:none!important;}
+      .search-box input,.search-bar input{min-width:0;width:100%;}
+      .grid,.track-grid,.card-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}
+      #tab-account{overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:120px!important;}
+      .dock,.bottom-nav,.nav-dock{width:calc(100% - 16px)!important;left:8px!important;right:8px!important;bottom:8px!important;}
+      .nav-tab{min-width:0;padding-left:8px!important;padding-right:8px!important;}
+    }
+    @media (max-width:480px){
+      .grid,.track-grid,.card-grid{grid-template-columns:1fr!important;}
+      .track-row{grid-template-columns:48px minmax(0,1fr) 40px!important;}
+      .track-row .track-cover,.track-row img{width:48px!important;height:48px!important;}
+    }
+</style>
 </head>
 <body>
 
@@ -892,8 +918,6 @@
           <img src="${escapeText(s.cover||'')}" style="width:40px;height:40px;border-radius:8px;margin-right:12px;object-fit:cover;">
           <div style="min-width:0;flex:1;"><div class="t-title">${escapeText(s.title)}</div><div class="t-artist">${escapeText(s.artist)}</div><div style="font-size:.72rem;color:var(--text-sub);">${s.local?'● オフライン保存済み':'○ 未保存'}</div></div>
           <button class="btn-del-track" onclick="event.stopPropagation();toggleFavorite(event,${i})" title="お気に入り" style="color:${s.favorite?'var(--accent-color)':''};"><i class="fa-solid fa-star"></i></button>
-          <button class="btn-del-track" onclick="event.stopPropagation();addToQueue(${i})" title="次に再生"><i class="fa-solid fa-list"></i></button>
-          <button class="btn-del-track" onclick="event.stopPropagation();showTrackDetails(${i})" title="詳細"><i class="fa-solid fa-circle-info"></i></button>
           <button class="btn-del-track" onclick="event.stopPropagation();deleteTrack(event,${i})" title="削除"><i class="fa-solid fa-xmark"></i></button>
         </div>`;
       }).join('');
