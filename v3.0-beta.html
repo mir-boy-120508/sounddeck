@@ -725,6 +725,13 @@
     async function loadTrack(index, autoplay = true) {
       if (index < 0 || index >= songs.length) return;
 
+      // 「追加」ボタンなど、再生ボタン以外から再生が始まるケースでも、
+      // クリック操作のタイミングでAudioContextを起動・再開しておく。
+      setupAudioGraph();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
       currentTrackIndex = index;
       const track = songs[index];
 
@@ -760,6 +767,13 @@
     }
 
     function togglePlay() {
+      // ユーザーの明確なクリック操作のタイミングで、AudioContextを起動・再開する。
+      // (スライダー操作だと「ちゃんとした操作」と認識されず、無音になったまま固まることがあるため)
+      setupAudioGraph();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
       if (!audio.src) {
         if (songs.length) loadTrack(currentTrackIndex >= 0 ? currentTrackIndex : 0);
         return;
@@ -1428,8 +1442,7 @@
     ['eqBass', 'eqMid', 'eqTreble'].forEach(id => {
       document.getElementById(id)?.addEventListener('input', (e) => {
         if (!currentUser) return; // disabled属性で基本弾かれるが念のため
-        setupAudioGraph();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         applyEqFromSliders();
         const label = document.getElementById(id + 'Val');
         if (label) label.innerText = `${e.target.value}dB`;
