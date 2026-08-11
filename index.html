@@ -18,8 +18,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-  
-  <script src="https://www.youtube.com/iframe_api"></script>
 
   <style>
     :root {
@@ -158,12 +156,12 @@
       display: flex; flex-direction: column; overflow: hidden; padding: 30px; position: relative;
     }
 
-    /* YouTubeプレイヤー埋め込みコンテナ */
-    .yt-player-wrapper {
-      width: 100%; aspect-ratio: 16/9; border-radius: 20px; overflow: hidden;
-      background: #000; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 20px;
+    /* 曲のジャケット画像(YouTubeサムネイルを表示) */
+    .now-playing-cover {
+      width: 100%; aspect-ratio: 1/1; border-radius: 20px; overflow: hidden;
+      background: var(--item-hover); box-shadow: 0 10px 25px rgba(0,0,0,0.15); margin-bottom: 20px;
+      object-fit: cover; display: block;
     }
-    #ytPlayer { width: 100%; height: 100%; }
 
     .art-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; word-break: break-word; }
     .art-artist { font-size: 1rem; color: var(--accent-color); font-weight: 600; word-break: break-word; }
@@ -201,6 +199,23 @@
       color: var(--accent-color);
       transform: scale(1.08);
     }
+
+    /* 歌詞編集モード */
+    .lyrics-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .lyrics-shift-box { display: flex; align-items: center; gap: 6px; background: var(--item-hover); border-radius: 100px; padding: 4px 6px; }
+    .lyrics-shift-box input { width: 56px; text-align: center; border: none; background: transparent; color: var(--text-main); outline: none; font-size: .85rem; }
+    .lyrics-shift-btn { width: 26px; height: 26px; border-radius: 50%; border: none; background: var(--panel-bg); color: var(--text-main); cursor: pointer; font-size: .8rem; }
+    .lyrics-edit-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; text-align: left; }
+    .lyrics-edit-row input[type="text"] { flex: 1; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); outline: none; font-size: .9rem; }
+    .lyrics-edit-row input[type="number"] { width: 64px; padding: 8px 6px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); outline: none; font-size: .85rem; text-align: center; }
+    .lyrics-edit-row button { border: none; background: none; color: var(--text-sub); cursor: pointer; font-size: .95rem; padding: 6px; }
+    .lyrics-edit-row button:hover { color: var(--accent-color); }
+    .lyrics-edit-box { text-align: left; padding: 4% 4%; }
+
+    /* モバイル用: プレイリスト画面のサブタブ切り替え */
+    .pl-subtabs { display: none; gap: 6px; margin-bottom: 14px; background: rgba(125,125,125,0.08); padding: 4px; border-radius: 100px; }
+    .pl-subtab-btn { flex: 1; border: none; background: none; color: var(--text-sub); padding: 9px 4px; border-radius: 100px; font-weight: 700; font-size: .82rem; cursor: pointer; }
+    .pl-subtab-btn.active { background: var(--panel-bg); color: var(--accent-color); box-shadow: var(--shadow); }
 
     .track-list { list-style: none; overflow-y: auto; flex: 1; margin-top: 15px; }
     .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer; margin-bottom: 6px; position: relative; }
@@ -261,9 +276,20 @@
       header { padding: 0 20px; }
       .playlist-layout-v06 {
         grid-template-columns: 1fr;
-        overflow-y: auto;
-        padding-bottom: 20px;
+        overflow-y: hidden;
+        padding-bottom: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
       }
+      .pl-subtabs { display: flex; }
+      .playlist-layout-v06 .pl-panel { display: none; flex: 1; min-height: 0; margin-bottom: 0; }
+      .playlist-layout-v06[data-plview="player"] .pl-panel:nth-child(1),
+      .playlist-layout-v06[data-plview="lyrics"] .pl-panel:nth-child(2),
+      .playlist-layout-v06[data-plview="library"] .pl-panel:nth-child(3) {
+        display: flex;
+      }
+      .playlist-layout-v06 .pl-panel:nth-child(1) { overflow-y: auto; }
     }
 
     @media (max-width: 768px) {
@@ -404,9 +430,14 @@
       </div>
 
       <div id="tab-playlist" class="view-tab">
-        <div class="playlist-layout-v06">
+        <div class="pl-subtabs">
+          <button class="pl-subtab-btn active" data-plview="player">プレイヤー</button>
+          <button class="pl-subtab-btn" data-plview="lyrics">歌詞</button>
+          <button class="pl-subtab-btn" data-plview="library">ライブラリ</button>
+        </div>
+        <div class="playlist-layout-v06" data-plview="player">
           <div class="pl-panel">
-            <div class="yt-player-wrapper"><div id="ytPlayer"></div></div>
+            <img id="nowPlayingCover" class="now-playing-cover" src="" alt="" onerror="this.style.visibility='hidden'">
             <div class="art-info">
               <div class="art-title" id="panelTitle">曲を選択してください</div>
               <div class="art-artist" id="panelArtist">---</div>
@@ -420,7 +451,20 @@
           <div class="pl-panel" id="lyricsPanel">
             <div class="lyrics-header">
               <span style="font-size:0.85rem;font-weight:700;color:var(--text-sub);">LYRICS SYNC</span>
-              <button class="btn-ai-lyrics" id="btnAiLyrics"><i class="fa-solid fa-wand-magic-sparkles"></i> AIで歌詞を取得</button>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-ai-lyrics" id="btnAiLyrics"><i class="fa-solid fa-wand-magic-sparkles"></i> AIで歌詞を取得</button>
+                <button class="btn-ai-lyrics" id="btnEditLyrics" style="background:var(--item-hover);color:var(--text-main);display:none;"><i class="fa-solid fa-pen"></i> 編集</button>
+              </div>
+            </div>
+            <div class="lyrics-toolbar" id="lyricsToolbar" style="display:none;">
+              <div class="lyrics-shift-box" title="全体のタイミングをまとめてずらす">
+                <button class="lyrics-shift-btn" id="btnShiftMinus">−0.5s</button>
+                <input type="number" id="lyricsShiftAmount" value="0.5" step="0.1" min="0">
+                <button class="lyrics-shift-btn" id="btnShiftPlus">+0.5s</button>
+              </div>
+              <button class="inline-btn" id="btnAddLyricsLine"><i class="fa-solid fa-plus"></i> 行を追加</button>
+              <button class="inline-btn" id="btnResetLyrics"><i class="fa-solid fa-rotate-left"></i> AIの結果に戻す</button>
+              <button class="inline-btn" id="btnSaveLyrics" style="border-color:var(--accent-color);color:var(--accent-color);"><i class="fa-solid fa-check"></i> 保存して閉じる</button>
             </div>
             <div class="lyrics-box" id="lyricsBox"></div>
           </div>
@@ -471,6 +515,26 @@
         <div class="settings-card">
           <h3>SoundDeck v3.0</h3>
           <p class="settings-description">検索・再生・AIおすすめ・歌詞・オフライン保存・プレイリスト管理に対応しています。</p>
+        </div>
+      </div>
+
+      <div class="modal-backdrop" id="playlistModal">
+        <div class="modal">
+          <div class="modal-head">
+            <h3>プレイリストに追加</h3>
+            <button class="modal-close" onclick="closeModal('playlistModal')"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div id="playlistModalContent"></div>
+        </div>
+      </div>
+
+      <div class="modal-backdrop" id="detailsModal">
+        <div class="modal">
+          <div class="modal-head">
+            <h3>曲の詳細</h3>
+            <button class="modal-close" onclick="closeModal('detailsModal')"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div id="detailsContent"></div>
         </div>
       </div>
 
@@ -809,12 +873,19 @@
       document.getElementById('barCover').src = track.cover || '';
       document.getElementById('panelTitle').innerText = track.title || '---';
       document.getElementById('panelArtist').innerText = track.artist || '---';
+      const coverEl = document.getElementById('nowPlayingCover');
+      if (coverEl) { coverEl.style.visibility = 'visible'; coverEl.src = track.cover || ''; }
       updateCurrentTrackActions();
 
       const lyricsBox = document.getElementById('lyricsBox');
       if (lyricsBox) {
+        lyricsBox.className = 'lyrics-box';
         lyricsBox.innerHTML = '<p style="padding:20px;color:var(--text-sub);">「AIで歌詞を取得」を押すと、この曲の歌詞をAIが聞き取って表示します。</p>';
       }
+      const editBtn = document.getElementById('btnEditLyrics');
+      if (editBtn) editBtn.style.display = 'none';
+      exitLyricsEditMode();
+      currentLyricsLines = [];
 
       const local = await getLocalTrack(track.id);
 
@@ -908,6 +979,7 @@
         return `<div class="track-row ${i===currentTrackIndex?'active':''}" onclick="selectTrack(${i})">
           <img src="${escapeText(s.cover||'')}" style="width:40px;height:40px;border-radius:8px;margin-right:12px;object-fit:cover;">
           <div style="min-width:0;flex:1;"><div class="t-title">${escapeText(s.title)}</div><div class="t-artist">${escapeText(s.artist)}</div><div style="font-size:.72rem;color:var(--text-sub);">${s.local?'● オフライン保存済み':'○ 未保存'}</div></div>
+          <button class="btn-del-track" onclick="event.stopPropagation();openPlaylistPicker(${i})" title="プレイリストに追加"><i class="fa-solid fa-plus"></i></button>
           <button class="btn-del-track" onclick="event.stopPropagation();toggleFavorite(event,${i})" title="お気に入り" style="color:${s.favorite?'var(--accent-color)':''};"><i class="fa-solid fa-star"></i></button>
           <button class="btn-del-track" onclick="event.stopPropagation();deleteTrack(event,${i})" title="削除"><i class="fa-solid fa-xmark"></i></button>
         </div>`;
@@ -952,7 +1024,7 @@
     function renamePlaylist(id){const p=playlists.find(x=>x.id===id);if(!p)return;const name=prompt('新しいプレイリスト名を入力してください',p.name);if(!name||!name.trim())return;p.name=name.trim();persistAll();renderAllLibraryUI();renderAccountPlaylists();}
     function deletePlaylist(id){const p=playlists.find(x=>x.id===id);if(!p)return;if(!confirm(`「${p.name}」を削除しますか？曲そのものはライブラリから削除されません。`))return;playlists=playlists.filter(x=>x.id!==id);if(activePlaylistId===id)activePlaylistId='all';persistAll();renderAllLibraryUI();renderAccountPlaylists();}
     function removeTrackFromPlaylist(pid,trackId){const p=playlists.find(x=>x.id===pid);if(!p)return;p.trackIds=p.trackIds.filter(x=>String(x)!==String(trackId));persistAll();renderAllLibraryUI();renderAccountPlaylists();}
-    function renderAccountPlaylists(){const el=document.getElementById('accountPlaylistList');if(!el)return;if(!playlists.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1;">まだプレイリストがありません。上の欄から作成してください。</div>';return;}el.innerHTML=playlists.map(p=>{const tracks=p.trackIds.map(getTrackById).filter(Boolean);return `<div class="account-playlist-card"><div class="account-playlist-head"><div class="account-playlist-icon"><i class="fa-solid fa-music"></i></div><div style="min-width:0;flex:1;"><div class="account-playlist-name">${escapeText(p.name)}</div><div class="account-playlist-count">${tracks.length}曲</div></div></div><div class="account-playlist-actions"><button class="inline-btn" onclick="renamePlaylist('${escapeText(p.id)}')"><i class="fa-solid fa-pen"></i> 名前変更</button><button class="inline-btn" onclick="deletePlaylist('${escapeText(p.id)}')"><i class="fa-solid fa-trash"></i> 削除</button></div><div class="account-playlist-tracklist">${tracks.length?tracks.map(t=>`<div class="account-playlist-track"><img src="${escapeText(t.cover||'')}" onerror="this.style.display='none'"><div class="account-playlist-track-info"><div class="account-playlist-track-title">${escapeText(t.title)}</div><div class="account-playlist-track-artist">${escapeText(t.artist)}</div></div><button class="btn-del-track" onclick="removeTrackFromPlaylist('${escapeText(p.id)}','${escapeText(t.id)}')" title="プレイリストから削除"><i class="fa-solid fa-xmark"></i></button></div>`).join(''):'<div style="color:var(--text-sub);font-size:.8rem;padding:8px 2px;">曲はまだありません。</div>'}</div></div>`;}).join('');}
+    function renderAccountPlaylists(){const el=document.getElementById('accountPlaylistList');if(!el)return;if(!playlists.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1;">まだプレイリストがありません。上の欄から作成してください。</div>';return;}el.innerHTML=playlists.map(p=>{const tracks=p.trackIds.map(getTrackById).filter(Boolean);return `<div class="account-playlist-card"><div class="account-playlist-head"><div class="account-playlist-icon"><i class="fa-solid fa-music"></i></div><div style="min-width:0;flex:1;"><div class="account-playlist-name">${escapeText(p.name)}</div><div class="account-playlist-count">${tracks.length}曲</div></div></div><div class="account-playlist-actions"><button class="inline-btn" onclick="renamePlaylist('${escapeText(p.id)}')"><i class="fa-solid fa-pen"></i> 名前変更</button><button class="inline-btn" onclick="deletePlaylist('${escapeText(p.id)}')"><i class="fa-solid fa-trash"></i> 削除</button></div><div class="account-playlist-tracklist">${tracks.length?tracks.map(t=>`<div class="account-playlist-track" onclick="selectTrack(songs.findIndex(x=>String(x.id)==='${escapeText(String(t.id))}'))" style="cursor:pointer;"><img src="${escapeText(t.cover||'')}" onerror="this.style.display='none'"><div class="account-playlist-track-info"><div class="account-playlist-track-title">${escapeText(t.title)}</div><div class="account-playlist-track-artist">${escapeText(t.artist)}</div></div><button class="btn-del-track" onclick="event.stopPropagation();removeTrackFromPlaylist('${escapeText(p.id)}','${escapeText(t.id)}')" title="プレイリストから削除"><i class="fa-solid fa-xmark"></i></button></div>`).join(''):'<div style="color:var(--text-sub);font-size:.8rem;padding:8px 2px;">曲はまだありません。</div>'}</div></div>`;}).join('');}
     function closeModal(id){document.getElementById(id)?.classList.remove('show');}
     function addCurrentToPlaylist(){if(currentTrackIndex<0||!songs[currentTrackIndex])return;openPlaylistPicker(currentTrackIndex);}
     function openPlaylistPicker(index){const c=document.getElementById('playlistModalContent');const t=songs[index];if(!c||!t)return;c.innerHTML=(playlists.length?playlists.map(p=>`<button class="playlist-chip" style="display:block;width:100%;text-align:left;margin-bottom:8px;" onclick="addTrackToPlaylist('${p.id}',${index})"><i class="fa-solid fa-music"></i> ${escapeText(p.name)}</button>`).join(''):'<div class="empty-state">先にプレイリストを作成してください。</div>')+'<button class="inline-btn" onclick="closeModal(\'playlistModal\');openCreatePlaylistModal()">＋ 新規プレイリストを作成</button>';document.getElementById('playlistModal').classList.add('show');}
@@ -1071,6 +1143,16 @@
       }
     }
 
+    // ---- 歌詞: AI取得 / 手動編集 / 一括タイミング調整 ----
+    let currentLyricsLines = [];
+    let lyricsEditMode = false;
+    let lyricsOverrides = JSON.parse(localStorage.getItem('sounddeck_lyrics_overrides') || '{}');
+    if (typeof lyricsOverrides !== 'object' || lyricsOverrides === null) lyricsOverrides = {};
+
+    function saveLyricsOverridesToStorage() {
+      localStorage.setItem('sounddeck_lyrics_overrides', JSON.stringify(lyricsOverrides));
+    }
+
     async function loadAiLyrics() {
       const box = document.getElementById('lyricsBox');
       if (!box) return;
@@ -1081,7 +1163,17 @@
         return;
       }
 
+      // 自分で編集して保存した歌詞があれば、それを優先する(AIを呼び直さない)
+      const override = lyricsOverrides[String(track.id)];
+      if (override && override.length) {
+        currentLyricsLines = override.map(l => ({ ...l }));
+        renderLyricsReadView();
+        document.getElementById('btnEditLyrics').style.display = 'inline-flex';
+        return;
+      }
+
       box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">✨ AIが歌詞を聞き取り中...(初回は数十秒かかることがあります)</p>';
+      document.getElementById('btnEditLyrics').style.display = 'none';
 
       try {
         const res = await fetch(`${apiBase()}/api/lyrics/${encodeURIComponent(track.id)}`);
@@ -1095,30 +1187,47 @@
 
         if (!lines.length) {
           box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">歌詞を聞き取れませんでした(インストゥルメンタル曲の可能性があります)。</p>';
+          currentLyricsLines = [];
           return;
         }
 
-        box.innerHTML = lines.map(line => `
-          <div class="l-line" data-time="${line.time}">${escapeText(line.text)}</div>
-        `).join('');
-
-        box.querySelectorAll('.l-line').forEach(el => {
-          el.addEventListener('click', () => {
-            const t = Number(el.dataset.time) || 0;
-            audio.currentTime = t;
-            if (audio.paused) audio.play();
-          });
-        });
-
-        updateLyricsHighlight();
+        currentLyricsLines = lines.map(l => ({ time: Number(l.time) || 0, text: String(l.text || '') }));
+        renderLyricsReadView();
+        document.getElementById('btnEditLyrics').style.display = 'inline-flex';
       } catch (err) {
         console.warn('AI lyrics error:', err);
         box.innerHTML = `<p style="padding:20px;color:var(--text-sub);">歌詞を取得できませんでした。(${escapeText(err.message || '')})</p>`;
       }
     }
 
-    // 再生位置に合わせて、今のフレーズの歌詞行をハイライトし、自動スクロールする
+    function renderLyricsReadView() {
+      const box = document.getElementById('lyricsBox');
+      if (!box) return;
+      box.className = 'lyrics-box';
+
+      if (!currentLyricsLines.length) {
+        box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">歌詞がありません。</p>';
+        return;
+      }
+
+      box.innerHTML = currentLyricsLines.map(line => `
+        <div class="l-line" data-time="${line.time}">${escapeText(line.text)}</div>
+      `).join('');
+
+      box.querySelectorAll('.l-line').forEach(el => {
+        el.addEventListener('click', () => {
+          const t = Number(el.dataset.time) || 0;
+          audio.currentTime = t;
+          if (audio.paused) audio.play();
+        });
+      });
+
+      updateLyricsHighlight();
+    }
+
+    // 再生位置に合わせて、今のフレーズの歌詞行をハイライトし、自動スクロールする(編集中は行わない)
     function updateLyricsHighlight() {
+      if (lyricsEditMode) return;
       const box = document.getElementById('lyricsBox');
       if (!box) return;
 
@@ -1142,7 +1251,133 @@
       }
     }
 
+    function enterLyricsEditMode() {
+      if (!currentLyricsLines.length) {
+        alert('先に「AIで歌詞を取得」を押してください。');
+        return;
+      }
+      lyricsEditMode = true;
+      const toolbar = document.getElementById('lyricsToolbar');
+      if (toolbar) toolbar.style.display = 'flex';
+      document.getElementById('btnEditLyrics').innerHTML = '<i class="fa-solid fa-check"></i> 完了';
+      renderLyricsEditView();
+    }
+
+    function exitLyricsEditMode() {
+      lyricsEditMode = false;
+      const toolbar = document.getElementById('lyricsToolbar');
+      if (toolbar) toolbar.style.display = 'none';
+      const btn = document.getElementById('btnEditLyrics');
+      if (btn) btn.innerHTML = '<i class="fa-solid fa-pen"></i> 編集';
+    }
+
+    function toggleLyricsEditMode() {
+      if (lyricsEditMode) {
+        saveLyricsEdits();
+      } else {
+        enterLyricsEditMode();
+      }
+    }
+
+    function renderLyricsEditView() {
+      const box = document.getElementById('lyricsBox');
+      if (!box) return;
+      box.className = 'lyrics-box lyrics-edit-box';
+
+      if (!currentLyricsLines.length) {
+        box.innerHTML = '<p style="color:var(--text-sub);">行がありません。「行を追加」から作成してください。</p>';
+        return;
+      }
+
+      box.innerHTML = currentLyricsLines.map((line, i) => `
+        <div class="lyrics-edit-row">
+          <input type="number" step="0.1" min="0" value="${line.time}" onchange="updateLyricsLineTime(${i}, this.value)" title="秒数">
+          <input type="text" value="${escapeText(line.text)}" onchange="updateLyricsLineText(${i}, this.value)" placeholder="歌詞の内容">
+          <button onclick="removeLyricsLine(${i})" title="この行を削除"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `).join('');
+    }
+
+    function updateLyricsLineTime(i, value) {
+      if (!currentLyricsLines[i]) return;
+      currentLyricsLines[i].time = Math.max(0, Number(value) || 0);
+    }
+
+    function updateLyricsLineText(i, value) {
+      if (!currentLyricsLines[i]) return;
+      currentLyricsLines[i].text = value;
+    }
+
+    function removeLyricsLine(i) {
+      currentLyricsLines.splice(i, 1);
+      renderLyricsEditView();
+    }
+
+    function addLyricsLine() {
+      const t = Math.round((audio.currentTime || 0) * 10) / 10;
+      currentLyricsLines.push({ time: t, text: '' });
+      currentLyricsLines.sort((a, b) => a.time - b.time);
+      renderLyricsEditView();
+    }
+
+    // 歌詞全体のタイミングを、まとめて前後にずらす(曲の後半でズレてきた時などに使う)
+    function shiftAllLyrics(deltaSeconds) {
+      if (!currentLyricsLines.length) return;
+      currentLyricsLines = currentLyricsLines.map(l => ({
+        ...l,
+        time: Math.max(0, Math.round((l.time + deltaSeconds) * 10) / 10)
+      }));
+      if (lyricsEditMode) renderLyricsEditView();
+      else renderLyricsReadView();
+    }
+
+    function saveLyricsEdits() {
+      const track = songs[currentTrackIndex];
+      if (!track) return;
+
+      currentLyricsLines = currentLyricsLines
+        .filter(l => l.text && l.text.trim())
+        .sort((a, b) => a.time - b.time);
+
+      lyricsOverrides[String(track.id)] = currentLyricsLines.map(l => ({ ...l }));
+      saveLyricsOverridesToStorage();
+
+      exitLyricsEditMode();
+      renderLyricsReadView();
+    }
+
+    function resetLyricsToAI() {
+      const track = songs[currentTrackIndex];
+      if (!track) return;
+      if (!confirm('自分で編集した歌詞を消して、AIの結果に戻しますか？')) return;
+
+      delete lyricsOverrides[String(track.id)];
+      saveLyricsOverridesToStorage();
+      exitLyricsEditMode();
+      loadAiLyrics();
+    }
+
     document.getElementById('btnAiLyrics')?.addEventListener('click', loadAiLyrics);
+    document.getElementById('btnEditLyrics')?.addEventListener('click', toggleLyricsEditMode);
+    document.getElementById('btnAddLyricsLine')?.addEventListener('click', addLyricsLine);
+    document.getElementById('btnResetLyrics')?.addEventListener('click', resetLyricsToAI);
+    document.getElementById('btnSaveLyrics')?.addEventListener('click', saveLyricsEdits);
+    document.getElementById('btnShiftPlus')?.addEventListener('click', () => {
+      const amt = Number(document.getElementById('lyricsShiftAmount').value) || 0.5;
+      shiftAllLyrics(amt);
+    });
+    document.getElementById('btnShiftMinus')?.addEventListener('click', () => {
+      const amt = Number(document.getElementById('lyricsShiftAmount').value) || 0.5;
+      shiftAllLyrics(-amt);
+    });
+
+    document.querySelectorAll('.pl-subtab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pl-subtab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelector('.playlist-layout-v06')?.setAttribute('data-plview', btn.dataset.plview);
+      });
+    });
 
     async function addServerTrack(index) {
       const item = window._searchResults?.[index];
