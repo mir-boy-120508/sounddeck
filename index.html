@@ -833,6 +833,10 @@
 
       if (local?.blob) {
         audio.src = URL.createObjectURL(local.blob);
+      } else if (track.id) {
+        // 保存済みのserverUrlは古いトンネルURLが焼き付いている可能性があるため、
+        // 常に「今設定されているサーバーURL」+ 曲IDで組み立て直す。
+        audio.src = `${apiBase()}/api/stream/${track.id}`;
       } else if (track.serverUrl) {
         audio.src = track.serverUrl;
       } else {
