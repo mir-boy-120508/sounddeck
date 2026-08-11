@@ -513,6 +513,9 @@
     </div>
   </div>
 
+  <!-- Beta4以前と同じDOM上のaudio要素を使用。iPad/Safariでの再生互換性を優先。 -->
+  <audio id="audio" preload="metadata" style="display:none;"></audio>
+
   <script>
     /*
       SoundDeck v3
@@ -526,7 +529,10 @@
 
     let songs = JSON.parse(localStorage.getItem('sounddeck_playlist') || '[]');
     let currentTrackIndex = -1;
-    let audio = new Audio();
+    // Beta4以前と同じく、DOM上の<audio>要素を使用する。
+    // iPad/Safariでの再生互換性を優先し、new Audio()には戻さない。
+    const audio = document.getElementById('audio');
+    audio.preload = 'metadata';
 
     let progressTimer = null;
     let searchHistory = JSON.parse(localStorage.getItem('sounddeck_search_history') || '[]');
@@ -818,14 +824,16 @@
 
       const local = await getLocalTrack(track.id);
 
+      // 再生元の優先順位はBeta4以前に合わせる。
+      // 検索時にサーバーが返したserverUrlをそのまま使うことで、
+      // iPad/Safariでの再生経路を以前動作していたものへ戻す。
       if (local?.blob) {
         audio.src = URL.createObjectURL(local.blob);
-      } else if (track.id) {
-        // 保存済みのserverUrlは古いトンネルURLが焼き付いている可能性があるため、
-        // 常に「今設定されているサーバーURL」+ 曲IDで組み立て直す。
-        audio.src = `${apiBase()}/api/stream/${track.id}`;
       } else if (track.serverUrl) {
         audio.src = track.serverUrl;
+      } else if (track.id) {
+        // serverUrlがない古い/手動登録データだけ現在のAPIから組み立てる。
+        audio.src = `${apiBase()}/api/stream/${track.id}`;
       } else {
         alert('この曲の再生用音源がありません。');
         return;
@@ -835,8 +843,13 @@
       renderHomeGrid();
 
       if (autoplay) {
-        try { await audio.play(); }
-        catch (e) { console.warn('Playback was blocked:', e); }
+        try {
+          // src変更後に明示的に読み込みを開始してから再生する。
+          audio.load();
+          await audio.play();
+        } catch (e) {
+          console.warn('Playback failed:', e);
+        }
       }
     }
 
@@ -1269,6 +1282,15 @@
 
     audio.addEventListener('play', updatePlayButton);
     audio.addEventListener('pause', updatePlayButton);
+    audio.addEventListener('error', () => {
+      const err = audio.error;
+      console.error('SoundDeck audio error:', {
+        code: err?.code,
+        message: err?.message,
+        src: audio.currentSrc || audio.src
+      });
+      updatePlayButton();
+    });
     audio.addEventListener('ended', () => {
       if (repeatMode === 'one') {
         audio.currentTime = 0;
