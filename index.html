@@ -383,13 +383,6 @@
     <main>
       <div id="tab-home" class="view-tab active">
         <h2 class="section-title">Home</h2>
-        <div id="aiRecommendationSection" style="margin-bottom:30px;">
-          <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent-color);"></i>
-            <span id="aiRecTitle">AIのおすすめ</span>
-          </h3>
-          <div class="card-grid" id="aiRecGrid"></div>
-        </div>
         <div class="section-heading"><h3>最近再生した曲</h3></div>
         <div class="card-grid" id="recentGrid"></div>
         <div class="section-heading"><h3>お気に入り</h3><button class="inline-btn" onclick="openLibraryView('favorites')">すべて見る</button></div>
@@ -408,12 +401,6 @@
         <div class="section-heading"><h3>最近の検索</h3><button class="inline-btn" id="clearSearchHistory">履歴を消去</button></div>
         <div id="searchHistoryList" class="history-list"></div>
         <div class="card-grid" id="searchResultGrid"></div>
-        <div id="searchRecSection" style="margin-top:20px;">
-          <button id="btnSearchRec" class="btn-search" style="background:transparent;border:1px solid var(--accent-color);color:var(--accent-color);">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> この検索に関連するAIおすすめを見る
-          </button>
-          <div class="card-grid" id="searchRecGrid" style="margin-top:16px;"></div>
-        </div>
       </div>
 
       <div id="tab-playlist" class="view-tab">
@@ -1084,222 +1071,6 @@
       }
     }
 
-    /**
-     * 検索履歴をもとに、SoundDeckサーバー(apiBase())の /api/recommend にAIおすすめをリクエストする。
-     * AIが返してきた「曲名・アーティスト名」は、そのままでは再生できないので、
-     * solOS方式のPiped検索に1件ずつかけて、実際に再生可能な動画IDに変換してからカード表示する。
-     */
-    async function loadAiRecommendations() {
-      const grid = document.getElementById('aiRecGrid');
-      const titleEl = document.getElementById('aiRecTitle');
-      if (!grid) return;
-
-      if (!searchHistory.length) {
-        titleEl.innerText = 'AIのおすすめ';
-        grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">曲を1回以上検索すると、AIが検索履歴からおすすめ曲を提案します。</p>';
-        return;
-      }
-
-      titleEl.innerText = 'AIのおすすめ';
-      grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">✨ AIがおすすめを考え中...</p>';
-
-      try {
-        const res = await fetch(`${apiBase()}/api/recommend`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history: searchHistory.slice(0, 10) })
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const data = await res.json();
-        const picks = Array.isArray(data.recommendations) ? data.recommendations : [];
-
-        if (!picks.length) {
-          grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">おすすめを取得できませんでした。</p>';
-          return;
-        }
-
-        const found = await Promise.all(
-          picks.map(pick => findOneTrack(`${pick.title} ${pick.artist || ''}`.trim()))
-        );
-        window._aiRecResults = found.filter(Boolean);
-
-        if (!window._aiRecResults.length) {
-          grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">おすすめ曲の音源が見つかりませんでした。</p>';
-          return;
-        }
-
-        grid.innerHTML = window._aiRecResults.map((item, idx) => `
-          <div class="card">
-            <img src="${escapeText(item.cover || '')}" class="card-img">
-            <div class="card-info">
-              <div class="card-title">${escapeText(item.title)}</div>
-              <div class="card-desc">${escapeText(item.artist || 'Unknown Artist')}</div>
-            </div>
-            <button class="btn-search" onclick="addAiRecTrack(${idx})">追加</button>
-          </div>
-        `).join('');
-      } catch (err) {
-        console.warn('AI recommend error:', err);
-        grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">AIのおすすめを取得できませんでした（サーバーへの接続かAPIキーをご確認ください）。</p>';
-      }
-    }
-
-    // AIが提案した「曲名 アーティスト名」を、solOS方式のPiped検索で1件だけ実際の動画に変換する
-    async function findOneTrack(query) {
-      const apiEndpoints = [
-        `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=music_songs`,
-        `https://api.piped.private.coffee/search?q=${encodeURIComponent(query)}&filter=music_songs`
-      ];
-
-      for (const endpoint of apiEndpoints) {
-        try {
-          const res = await fetch(endpoint);
-          if (!res.ok) continue;
-          const data = await res.json();
-          const items = data.items || data;
-          if (!items || !items.length) continue;
-
-          const item = items.find(it => it.type === 'stream' || it.url);
-          if (!item) continue;
-
-          const videoId = item.url ? item.url.replace('/watch?v=', '') : item.id;
-          if (!videoId) continue;
-
-          return {
-            id: videoId,
-            title: item.title || query,
-            artist: item.uploaderName || item.artist || 'Unknown Artist',
-            cover: item.thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-            serverUrl: `${apiBase()}/api/stream/${videoId}`
-          };
-        } catch (err) {
-          console.warn('findOneTrack error:', err);
-        }
-      }
-      return null;
-    }
-
-    // AIおすすめカードの「追加」ボタン用。addServerTrackと同じ流れで再生キューに入れる。
-    async function addAiRecTrack(index) {
-      const item = window._aiRecResults?.[index];
-      if (!item) return;
-
-      const track = {
-        id: String(item.id),
-        title: item.title,
-        artist: item.artist,
-        cover: item.cover,
-        serverUrl: item.serverUrl,
-        local: false
-      };
-
-      const existingIndex = songs.findIndex(s => String(s.id) === track.id);
-      if (existingIndex >= 0) {
-        await loadTrack(existingIndex);
-        document.querySelector('.nav-tab[data-tab="playlist"]').click();
-        return;
-      }
-
-      songs.push(track);
-      saveSongsToStorage();
-      renderTrackList();
-      renderHomeGrid();
-
-      await loadTrack(songs.length - 1);
-      document.querySelector('.nav-tab[data-tab="playlist"]').click();
-    }
-
-    /**
-     * 検索タブの「関連するAIおすすめを見る」ボタン用。
-     * 1日あたりのAI呼び出し回数が少ないため、検索するたびに自動では呼ばず、
-     * ボタンを押した時だけ問い合わせる。
-     */
-    async function loadSearchRecommendations() {
-      const query = document.getElementById('searchInput').value.trim();
-      const grid = document.getElementById('searchRecGrid');
-      if (!query || !grid) return;
-
-      grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">✨ AIが関連曲を考え中...</p>';
-
-      try {
-        const res = await fetch(`${apiBase()}/api/recommend`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history: [query] })
-        });
-
-        if (res.status === 429) {
-          const errData = await res.json().catch(() => ({}));
-          grid.innerHTML = `<p style="color:var(--text-sub); grid-column: 1/-1;">${escapeText(errData.error || '本日のAI利用回数の上限に達しました。')}</p>`;
-          return;
-        }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const data = await res.json();
-        const picks = Array.isArray(data.recommendations) ? data.recommendations : [];
-
-        if (!picks.length) {
-          grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">おすすめを取得できませんでした。</p>';
-          return;
-        }
-
-        const found = await Promise.all(
-          picks.map(pick => findOneTrack(`${pick.title} ${pick.artist || ''}`.trim()))
-        );
-        window._searchRecResults = found.filter(Boolean);
-
-        if (!window._searchRecResults.length) {
-          grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">関連曲の音源が見つかりませんでした。</p>';
-          return;
-        }
-
-        grid.innerHTML = window._searchRecResults.map((item, idx) => `
-          <div class="card">
-            <img src="${escapeText(item.cover || '')}" class="card-img">
-            <div class="card-info">
-              <div class="card-title">${escapeText(item.title)}</div>
-              <div class="card-desc">${escapeText(item.artist || 'Unknown Artist')}</div>
-            </div>
-            <button class="btn-search" onclick="addSearchRecTrack(${idx})">追加</button>
-          </div>
-        `).join('');
-      } catch (err) {
-        console.warn('search recommend error:', err);
-        grid.innerHTML = '<p style="color:var(--text-sub); grid-column: 1/-1;">AIのおすすめを取得できませんでした。</p>';
-      }
-    }
-
-    async function addSearchRecTrack(index) {
-      const item = window._searchRecResults?.[index];
-      if (!item) return;
-
-      const track = {
-        id: String(item.id),
-        title: item.title,
-        artist: item.artist,
-        cover: item.cover,
-        serverUrl: item.serverUrl,
-        local: false
-      };
-
-      const existingIndex = songs.findIndex(s => String(s.id) === track.id);
-      if (existingIndex >= 0) {
-        await loadTrack(existingIndex);
-        document.querySelector('.nav-tab[data-tab="playlist"]').click();
-        return;
-      }
-
-      songs.push(track);
-      saveSongsToStorage();
-      renderTrackList();
-      renderHomeGrid();
-
-      await loadTrack(songs.length - 1);
-      document.querySelector('.nav-tab[data-tab="playlist"]').click();
-    }
-
-    document.getElementById('btnSearchRec')?.addEventListener('click', loadSearchRecommendations);
     async function loadAiLyrics() {
       const box = document.getElementById('lyricsBox');
       if (!box) return;
@@ -1549,7 +1320,6 @@
       localStorage.setItem('sounddeck_search_history', JSON.stringify(searchHistory));
       renderSearchHistory();
       searchServer(q);
-      loadAiRecommendations();
     });
 
     document.getElementById('searchInput').addEventListener('keypress', e => {
@@ -1568,13 +1338,13 @@
         document.getElementById(`tab-${b.dataset.tab}`).classList.add('active');
 
         if (b.dataset.tab === 'playlist') renderAllLibraryUI();
-        if (b.dataset.tab === 'home') { renderHomeGrid(); renderHomeExtras(); loadAiRecommendations(); }
+        if (b.dataset.tab === 'home') { renderHomeGrid(); renderHomeExtras(); }
         if (b.dataset.tab === 'search') renderSearchHistory();
         if (b.dataset.tab === 'account') renderAccountPlaylists();
       });
     });
 
-    document.getElementById('clearSearchHistory')?.addEventListener('click',()=>{searchHistory=[];localStorage.removeItem('sounddeck_search_history');renderSearchHistory();loadAiRecommendations();});
+    document.getElementById('clearSearchHistory')?.addEventListener('click',()=>{searchHistory=[];localStorage.removeItem('sounddeck_search_history');renderSearchHistory();});
     document.getElementById('btnAccountCreatePlaylist')?.addEventListener('click',()=>{const input=document.getElementById('accountPlaylistName');createPlaylist(input.value);input.value='';});
     document.getElementById('accountPlaylistName')?.addEventListener('keypress',e=>{if(e.key==='Enter')document.getElementById('btnAccountCreatePlaylist')?.click();});
     document.getElementById('btnVolume')?.addEventListener('click',()=>document.getElementById('volumePopover')?.classList.toggle('show'));
@@ -1601,7 +1371,6 @@
       const savedApi = localStorage.getItem('sounddeck_api');
       if (savedApi) document.getElementById('serverApi').value = savedApi;
       renderAllLibraryUI();
-      loadAiRecommendations();
       updatePlaybackModeUI();
       updateCurrentTrackActions();
     });
