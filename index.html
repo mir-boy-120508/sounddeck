@@ -1153,6 +1153,36 @@
       localStorage.setItem('sounddeck_lyrics_overrides', JSON.stringify(lyricsOverrides));
     }
 
+    // Geminiの歌詞タイムスタンプを必ず秒数へ変換する
+    // 例: 15 → 15秒 / 0:15 → 15秒 / 2:40 → 160秒 / 15:00 → 900秒
+    function lyricsTimeToSeconds(value) {
+      if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0, value);
+
+      const raw = String(value ?? '').trim();
+      if (!raw) return 0;
+
+      // コロンなしの数値は、そのまま「秒」として扱う
+      if (!raw.includes(':')) {
+        const seconds = Number(raw);
+        return Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
+      }
+
+      const parts = raw.split(':').map(part => Number(part.trim()));
+      if (parts.some(part => !Number.isFinite(part))) return 0;
+
+      if (parts.length === 2) {
+        // 分:秒
+        return Math.max(0, parts[0] * 60 + parts[1]);
+      }
+
+      if (parts.length === 3) {
+        // 時:分:秒
+        return Math.max(0, parts[0] * 3600 + parts[1] * 60 + parts[2]);
+      }
+
+      return 0;
+    }
+
     async function loadAiLyrics() {
       const box = document.getElementById('lyricsBox');
       if (!box) return;
@@ -1166,7 +1196,7 @@
       // 自分で編集して保存した歌詞があれば、それを優先する(AIを呼び直さない)
       const override = lyricsOverrides[String(track.id)];
       if (override && override.length) {
-        currentLyricsLines = override.map(l => ({ ...l }));
+        currentLyricsLines = override.map(l => ({ ...l, time: lyricsTimeToSeconds(l.time) }));
         renderLyricsReadView();
         document.getElementById('btnEditLyrics').style.display = 'inline-flex';
         return;
@@ -1191,7 +1221,7 @@
           return;
         }
 
-        currentLyricsLines = lines.map(l => ({ time: Number(l.time) || 0, text: String(l.text || '') }));
+        currentLyricsLines = lines.map(l => ({ time: lyricsTimeToSeconds(l.time), text: String(l.text || '') }));
         renderLyricsReadView();
         document.getElementById('btnEditLyrics').style.display = 'inline-flex';
       } catch (err) {
