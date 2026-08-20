@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SoundDeck v3.0</title>
+
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" href="logo.png" type="image/png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Firebase (Authentication + Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-main: #e2e8f0;
+      --panel-bg: rgba(255, 255, 255, 0.75);
+      --panel-border: rgba(255, 255, 255, 0.8);
+      --bar-glass-bg: rgba(255, 255, 255, 0.45);
+      --bar-glass-border: rgba(255, 255, 255, 0.6);
+      --accent-color: #ff2d55;
+      --text-main: #000000;
+      --text-sub: #8e8e93;
+      --btn-main-bg: #1c1c1e;
+      --btn-main-text: white;
+      --item-hover: rgba(0, 0, 0, 0.04);
+      --item-active: rgba(255, 45, 85, 0.08);
+      --lyrics-dim: rgba(0, 0, 0, 0.25);
+      --shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+      --glass-blur: blur(40px);
+      --hotbar-height: 100px;
+      --header-height: 80px;
+    }
+
+    html[data-theme="dark"] {
+      --bg-main: #030712;
+      --panel-bg: rgba(28, 28, 30, 0.65);
+      --panel-border: rgba(255, 255, 255, 0.1);
+      --bar-glass-bg: rgba(20, 20, 25, 0.4);
+      --bar-glass-border: rgba(255, 255, 255, 0.08);
+      --accent-color: #ff2d55;
+      --text-main: #ffffff;
+      --text-sub: #8e8e93;
+      --btn-main-bg: #ffffff;
+      --btn-main-text: #000000;
+      --item-hover: rgba(255, 255, 255, 0.06);
+      --item-active: rgba(255, 45, 85, 0.15);
+      --lyrics-dim: rgba(255, 255, 255, 0.3);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      background-color: var(--bg-main) !important;
+      background-image: none !important;
+      color: var(--text-main);
+      height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* 背景アニメーション（画像ではなく元の綺麗なグラデーション） */
+    .bg-animate {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
+      background: radial-gradient(circle at 80% 20%, rgba(255, 45, 85, 0.15), transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(0, 122, 255, 0.12), transparent 50%) !important;
+    }
+
+    #appWrap { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; position: relative; z-index: 1; }
+
+    header {
+      height: var(--header-height); padding: 0 40px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    }
+    .brand-container { display: flex; align-items: center; gap: 12px; }
+    
+    /* ロゴ画像のサイズを限定し画面全体に広がらないようガード */
+    .brand-logo { 
+      width: 36px !important; 
+      height: 36px !important; 
+      max-width: 36px !important;
+      max-height: 36px !important;
+      border-radius: 8px; 
+      object-fit: contain; 
+      flex-shrink: 0;
+      display: block;
+    }
+    
+    .brand-title { font-size: 1.4rem; font-weight: 800; }
+    
+    .btn-theme-circle {
+      width: 50px; height: 50px; border-radius: 50%; background: var(--panel-bg);
+      border: 1px solid var(--panel-border); color: var(--text-main); font-size: 1.35rem;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+
+    main { flex: 1; padding: 0 40px 140px 40px; display: flex; flex-direction: column; overflow: hidden; }
+    
+    .view-tab { display: none; width: 100%; height: 100%; flex-direction: column; overflow: hidden; }
+    .view-tab.active { display: flex; }
+    #tab-home, #tab-search, #tab-account { overflow-y: auto; padding-bottom: 40px; }
+    #tab-playlist { overflow: hidden; }
+
+    .section-title { font-size: 1.8rem; font-weight: 800; margin: 10px 0 24px 0; }
+
+    .search-bar-container { position: relative; max-width: 600px; margin-bottom: 30px; display: flex; gap: 10px; }
+    .search-input { flex: 1; padding: 18px 20px 18px 50px; font-size: 1.1rem; border-radius: 20px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); outline: none; }
+    .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 1.2rem; }
+    .btn-search { padding: 0 24px; border-radius: 20px; border: none; background: var(--accent-color); color: white; font-weight: 700; cursor: pointer; }
+
+    /* カードレイアウト */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+    .card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 18px; display: flex; align-items: flex-start; gap: 16px; cursor: pointer; transition: transform 0.2s; height: auto; min-height: 100px; position: relative; }
+    .card:hover { transform: translateY(-4px); }
+
+    .settings-card {
+      margin-top: 28px;
+      padding: 20px;
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      max-width: 520px;
+      background: var(--panel-bg);
+      backdrop-filter: var(--glass-blur);
+      box-shadow: var(--shadow);
+    }
+
+    .settings-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .settings-card .settings-description {
+      color: var(--text-sub);
+      font-size: .8rem;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .card-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    .card-info { flex: 1; min-width: 0; }
+    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 6px; white-space: normal; word-break: break-word; line-height: 1.35; }
+    .card-desc { font-size: 0.85rem; color: var(--text-sub); white-space: normal; word-break: break-word; line-height: 1.3; }
+
+    .playlist-layout-v06 { display: grid; grid-template-columns: 1.2fr 1.3fr 1fr; gap: 30px; height: 100%; width: 100%; }
+    .pl-panel {
+      background: var(--panel-bg); backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--panel-border); border-radius: 28px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; overflow: hidden; padding: 30px; position: relative;
+    }
+
+    /* 曲のジャケット画像(YouTubeサムネイルを表示) */
+    .now-playing-cover {
+      width: 100%; aspect-ratio: 1/1; border-radius: 20px; overflow: hidden;
+      background: var(--item-hover); box-shadow: 0 10px 25px rgba(0,0,0,0.15); margin-bottom: 20px;
+      object-fit: cover; display: block;
+    }
+
+    .art-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; word-break: break-word; }
+    .art-artist { font-size: 1rem; color: var(--accent-color); font-weight: 600; word-break: break-word; }
+
+    /* AI歌詞ヘッダー＆ボタン */
+    .lyrics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .btn-ai-lyrics {
+      background: linear-gradient(135deg, #ff2d55, #7000ff); color: white; border: none;
+      padding: 6px 14px; border-radius: 100px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;
+    }
+    .btn-ai-lyrics:hover { opacity: 0.9; }
+
+    .lyrics-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 35% 8%;
+      text-align: center;
+      scroll-behavior: smooth;
+      mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+    }
+    .l-line {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.6;
+      color: var(--lyrics-dim);
+      margin-bottom: 22px;
+      cursor: pointer;
+      transition: color 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+      word-break: break-word;
+    }
+    .l-line:hover { color: var(--text-main); }
+    .l-line.active {
+      color: var(--accent-color);
+      transform: scale(1.08);
+    }
+
+    /* 歌詞編集モード */
+    .lyrics-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .lyrics-shift-box { display: flex; align-items: center; gap: 6px; background: var(--item-hover); border-radius: 100px; padding: 4px 6px; }
+    .lyrics-shift-box input { width: 56px; text-align: center; border: none; background: transparent; color: var(--text-main); outline: none; font-size: .85rem; }
+    .lyrics-shift-btn { width: 26px; height: 26px; border-radius: 50%; border: none; background: var(--panel-bg); color: var(--text-main); cursor: pointer; font-size: .8rem; }
+    .lyrics-edit-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; text-align: left; }
+    .lyrics-edit-row input[type="text"] { flex: 1; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); outline: none; font-size: .9rem; }
+    .lyrics-edit-row input[type="number"] { width: 64px; padding: 8px 6px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--panel-bg); color: var(--text-main); outline: none; font-size: .85rem; text-align: center; }
+    .lyrics-edit-row button { border: none; background: none; color: var(--text-sub); cursor: pointer; font-size: .95rem; padding: 6px; }
+    .lyrics-edit-row button:hover { color: var(--accent-color); }
+    .lyrics-edit-box { text-align: left; padding: 4% 4%; }
+
+    /* モバイル用: プレイリスト画面のサブタブ切り替え */
+    .pl-subtabs { display: none; gap: 6px; margin-bottom: 14px; background: rgba(125,125,125,0.08); padding: 4px; border-radius: 100px; }
+    .pl-subtab-btn { flex: 1; border: none; background: none; color: var(--text-sub); padding: 9px 4px; border-radius: 100px; font-weight: 700; font-size: .82rem; cursor: pointer; }
+    .pl-subtab-btn.active { background: var(--panel-bg); color: var(--accent-color); box-shadow: var(--shadow); }
+
+    .track-list { list-style: none; overflow-y: auto; flex: 1; margin-top: 15px; }
+    .track-row { display: flex; align-items: center; padding: 12px 16px; border-radius: 16px; cursor: pointer; margin-bottom: 6px; position: relative; }
+    .track-row:hover { background: var(--item-hover); }
+    .track-row.active { background: var(--item-active); }
+    .t-title { font-weight: 700; word-break: break-word; }
+    .t-artist { font-size: 0.85rem; color: var(--text-sub); word-break: break-word; }
+
+    /* 削除ボタン */
+    .btn-del-track {
+      margin-left: auto; background: none; border: none; color: var(--text-sub);
+      font-size: 1rem; cursor: pointer; padding: 6px 10px; border-radius: 8px;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .btn-del-track:hover { color: var(--accent-color); background: rgba(255, 45, 85, 0.1); }
+
+    /* ボトムホットバー */
+    .hotbar {
+      position: fixed; 
+      bottom: 16px; 
+      left: 50%; 
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 1240px; 
+      border-radius: 24px;
+      border: 1px solid var(--bar-glass-border); 
+      height: var(--hotbar-height); 
+      background: var(--bar-glass-bg);
+      backdrop-filter: var(--glass-blur); 
+      display: flex; 
+      align-items: center; 
+      padding: 0 24px; 
+      justify-content: space-between; 
+      z-index: 900;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+    .hb-left { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; max-width: 260px; }
+    .hb-art { width: 52px; height: 52px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    .hb-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.95rem; }
+    .hb-artist { font-size: 0.8rem; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .hb-center { flex: 2; max-width: 560px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .hb-controls { display: flex; align-items: center; gap: 12px; }
+    .ctrl-btn { background: none; border: none; color: var(--text-main); font-size: 1.3rem; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .ctrl-btn.btn-play { font-size: 2.8rem; width: 50px; height: 50px; }
+    .hb-progress { width: 100%; display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+    .slider { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; border-radius: 3px; background: rgba(125,125,125,0.2); outline: none; cursor: pointer; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--text-main); }
+
+    .hb-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+    .nav-tabs { background: rgba(125,125,125,0.08); padding: 3px; border-radius: 100px; display: flex; gap: 4px; }
+    .nav-tab { background: none; border: none; color: var(--text-sub); width: 40px; height: 36px; border-radius: 100px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: all 0.2s; }
+    .nav-tab.active { background: var(--panel-bg); color: var(--accent-color); width: 52px; }
+
+    @media (max-width: 900px) {
+      main { padding: 0 20px 140px 20px; }
+      header { padding: 0 20px; }
+      .playlist-layout-v06 {
+        grid-template-columns: 1fr;
+        overflow-y: hidden;
+        padding-bottom: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .pl-subtabs { display: flex; }
+      .playlist-layout-v06 .pl-panel { display: none; flex: 1; min-height: 0; margin-bottom: 0; }
+      .playlist-layout-v06[data-plview="player"] .pl-panel:nth-child(1),
+      .playlist-layout-v06[data-plview="lyrics"] .pl-panel:nth-child(2),
+      .playlist-layout-v06[data-plview="library"] .pl-panel:nth-child(3) {
+        display: flex;
+      }
+      .playlist-layout-v06 .pl-panel:nth-child(1) { overflow-y: auto; }
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --hotbar-height: 84px;
+      }
+      .hotbar {
+        padding: 0 12px;
+        bottom: 12px;
+        width: calc(100% - 20px);
+      }
+      .hb-art { width: 42px; height: 42px; }
+      .hb-title { font-size: 0.85rem; }
+      .hb-artist { font-size: 0.75rem; }
+      .hb-right { display: flex; }
+      .nav-tab { width: 34px; height: 32px; font-size: 0.95rem; }
+      .nav-tab.active { width: 42px; }
+      #timeCurrent, #timeDuration { font-size: 0.7rem; }
+    }
+
+    @media (max-width: 480px) {
+      .hb-left { max-width: 120px; }
+      .hb-artist { display: none; }
+      .hb-progress span { font-size: 0.7rem; }
+    }
+
+    .settings-card { margin-top: 20px; padding: 20px; border: 1px solid var(--panel-border); border-radius: 20px; max-width: 620px; background: var(--panel-bg); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); }
+    .settings-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .settings-description { color: var(--text-sub); font-size: .8rem; margin-bottom: 16px; line-height: 1.5; }
+    .subnav { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+    .subnav-btn { border:1px solid var(--panel-border); background:var(--panel-bg); color:var(--text-main); border-radius:12px; padding:9px 13px; cursor:pointer; font-weight:600; }
+    .subnav-btn.active { background:var(--item-active); color:var(--accent-color); border-color:var(--accent-color); }
+    .library-toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+    .library-toolbar select, .library-toolbar input { padding:10px 12px; border-radius:12px; border:1px solid var(--panel-border); background:var(--panel-bg); color:var(--text-main); outline:none; }
+    .library-toolbar input { min-width:180px; flex:1; }
+    .inline-btn { border:1px solid var(--panel-border); background:var(--panel-bg); color:var(--text-main); border-radius:12px; padding:9px 13px; cursor:pointer; font-weight:600; }
+    .playlist-chip-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+    .playlist-chip { border:1px solid var(--panel-border); background:var(--panel-bg); color:var(--text-main); border-radius:14px; padding:10px 14px; cursor:pointer; }
+    .playlist-chip.active { border-color:var(--accent-color); color:var(--accent-color); background:var(--item-active); }
+    .empty-state { color:var(--text-sub); padding:24px; text-align:center; border:1px dashed var(--panel-border); border-radius:16px; }
+    .queue-row { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:14px; margin-bottom:6px; }
+    .queue-row:hover { background:var(--item-hover); }
+    .queue-number { width:24px; color:var(--text-sub); text-align:center; font-size:.8rem; }
+    .queue-actions { margin-left:auto; display:flex; gap:4px; }
+    .volume-wrap { position:relative; }
+    .volume-popover { position:absolute; right:0; bottom:48px; width:180px; padding:14px; border-radius:16px; border:1px solid var(--panel-border); background:var(--panel-bg); backdrop-filter:var(--glass-blur); box-shadow:var(--shadow); display:none; z-index:1000; }
+    .volume-popover.show { display:block; }
+    .volume-popover input { width:100%; }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.35); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; z-index:2000; padding:20px; }
+    .modal-backdrop.show { display:flex; }
+    .modal { width:min(520px,100%); max-height:85vh; overflow:auto; background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:24px; padding:24px; box-shadow:var(--shadow); backdrop-filter:var(--glass-blur); }
+    .modal-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+    .modal-close { width:36px; height:36px; border:0; border-radius:50%; background:var(--item-hover); color:var(--text-main); cursor:pointer; font-size:1.1rem; }
+    .modal-cover { width:120px; height:120px; border-radius:18px; object-fit:cover; float:left; margin:0 18px 12px 0; }
+    .history-list { display:flex; flex-wrap:wrap; gap:8px; }
+    .history-item { border:1px solid var(--panel-border); background:var(--panel-bg); color:var(--text-main); padding:8px 12px; border-radius:12px; cursor:pointer; }
+    .section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:24px 0 12px; }
+    .section-heading h3 { font-size:1.15rem; font-weight:700; }
+    .account-avatar { width:64px; height:64px; border-radius:50%; background:var(--item-active); color:var(--accent-color); display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin-bottom:14px; }
+    .account-playlists { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-top:14px; }
+    .account-playlist-card { background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:18px; padding:16px; box-shadow:var(--shadow); }
+    .account-playlist-head { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .account-playlist-icon { width:46px; height:46px; border-radius:13px; background:var(--item-active); color:var(--accent-color); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .account-playlist-name { font-weight:800; word-break:break-word; }
+    .account-playlist-count { color:var(--text-sub); font-size:.78rem; margin-top:3px; }
+    .account-playlist-actions { display:flex; gap:7px; flex-wrap:wrap; }
+    .account-playlist-tracklist { display:flex; flex-direction:column; gap:6px; margin-top:12px; max-height:260px; overflow-y:auto; }
+    .account-playlist-track { display:flex; align-items:center; gap:9px; padding:7px; border-radius:10px; }
+    .account-playlist-track:hover { background:var(--item-hover); }
+    .account-playlist-track img { width:34px; height:34px; border-radius:7px; object-fit:cover; flex-shrink:0; }
+    .account-playlist-track-info { min-width:0; flex:1; }
+    .account-playlist-track-title { font-size:.8rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .account-playlist-track-artist { font-size:.7rem; color:var(--text-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .account-playlist-create { display:flex; gap:8px; flex-wrap:wrap; }
+    .account-playlist-create input { flex:1; min-width:180px; padding:11px 13px; border-radius:12px; border:1px solid var(--panel-border); background:var(--panel-bg); color:var(--text-main); outline:none; }
+  
+    .track-actions-vertical{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;flex:0 0 auto;}
+    .track-actions-vertical .track-action{width:34px;height:34px;min-width:34px;padding:0;display:flex;align-items:center;justify-content:center;}
+    @media (max-width:768px){
+      html,body{width:100%;min-width:0;overflow-x:hidden;}
+      .app-shell,.app-container,.main-container{width:100%;max-width:none;}
+      .topbar,.header,.app-header{padding-left:14px!important;padding-right:14px!important;}
+      .content,.main-content,.page-content{padding:14px!important;}
+      .track-row{grid-template-columns:52px minmax(0,1fr) 40px!important;gap:10px!important;padding:10px!important;}
+      .track-row .track-cover,.track-row img{width:52px!important;height:52px!important;}
+      .track-info,.card-info{min-width:0;overflow:hidden;}
+      .track-title,.card-title,.track-artist,.card-desc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .track-actions-vertical{gap:4px;}
+      .track-actions-vertical .track-action{width:34px;height:34px;min-width:34px;}
+      .search-box,.search-bar{width:100%!important;max-width:none!important;}
+      .search-box input,.search-bar input{min-width:0;width:100%;}
+      .grid,.track-grid,.card-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}
+      #tab-account{overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:120px!important;}
+      .dock,.bottom-nav,.nav-dock{width:calc(100% - 16px)!important;left:8px!important;right:8px!important;bottom:8px!important;}
+      .nav-tab{min-width:0;padding-left:8px!important;padding-right:8px!important;}
+    }
+    @media (max-width:480px){
+      .grid,.track-grid,.card-grid{grid-template-columns:1fr!important;}
+      .track-row{grid-template-columns:48px minmax(0,1fr) 40px!important;}
+      .track-row .track-cover,.track-row img{width:48px!important;height:48px!important;}
+    }
+</style>
+</head>
+<body>
+
+  <div class="bg-animate"></div>
+
+  <div id="appWrap">
+    <header>
+      <div class="brand-container">
+        <img src="logo.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
+        <span class="brand-title">SoundDeck</span>
+      </div>
+      <button id="btnTheme" class="btn-theme-circle"><i class="fa-solid fa-moon"></i></button>
+    </header>
+
+    <main>
+      <div id="tab-home" class="view-tab active">
+        <h2 class="section-title">Home</h2>
+        <div class="section-heading"><h3>最近再生した曲</h3></div>
+        <div class="card-grid" id="recentGrid"></div>
+        <div class="section-heading"><h3>お気に入り</h3><button class="inline-btn" onclick="openLibraryView('favorites')">すべて見る</button></div>
+        <div class="card-grid" id="favoriteGrid"></div>
+        <div class="section-heading"><h3>マイライブラリ</h3><button class="inline-btn" onclick="openLibraryView('all')">ライブラリを開く</button></div>
+        <div class="card-grid" id="homeQuickGrid"></div>
+      </div>
+
+      <div id="tab-search" class="view-tab">
+        <h2 class="section-title">曲を探す</h2>
+        <div class="search-bar-container">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="曲名、アーティスト名...">
+          <button id="btnSearch" class="btn-search">検索</button>
+        </div>
+        <div class="section-heading"><h3>最近の検索</h3><button class="inline-btn" id="clearSearchHistory">履歴を消去</button></div>
+        <div id="searchHistoryList" class="history-list"></div>
+        <div class="card-grid" id="searchResultGrid"></div>
+      </div>
+
+      <div id="tab-playlist" class="view-tab">
+        <div class="pl-subtabs">
+          <button class="pl-subtab-btn active" data-plview="player">プレイヤー</button>
+          <button class="pl-subtab-btn" data-plview="lyrics">歌詞</button>
+          <button class="pl-subtab-btn" data-plview="library">ライブラリ</button>
+        </div>
+        <div class="playlist-layout-v06" data-plview="player">
+          <div class="pl-panel">
+            <img id="nowPlayingCover" class="now-playing-cover" src="" alt="" onerror="this.style.visibility='hidden'">
+            <div class="art-info">
+              <div class="art-title" id="panelTitle">曲を選択してください</div>
+              <div class="art-artist" id="panelArtist">---</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+                <button class="inline-btn" id="btnTrackFavorite"><i class="fa-solid fa-star"></i> お気に入り</button>
+                <button class="inline-btn" id="btnTrackDetails"><i class="fa-solid fa-circle-info"></i> 詳細</button>
+                <button class="inline-btn" id="btnAddToPlaylist"><i class="fa-solid fa-plus"></i> プレイリストに追加</button>
+              </div>
+            </div>
+          </div>
+          <div class="pl-panel" id="lyricsPanel">
+            <div class="lyrics-header">
+              <span style="font-size:0.85rem;font-weight:700;color:var(--text-sub);">LYRICS SYNC</span>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-ai-lyrics" id="btnAiLyrics"><i class="fa-solid fa-wand-magic-sparkles"></i> AIで歌詞を取得</button>
+                <button class="btn-ai-lyrics" id="btnEditLyrics" style="background:var(--item-hover);color:var(--text-main);display:none;"><i class="fa-solid fa-pen"></i> 編集</button>
+              </div>
+            </div>
+            <div class="lyrics-toolbar" id="lyricsToolbar" style="display:none;">
+              <div class="lyrics-shift-box" title="全体のタイミングをまとめてずらす">
+                <button class="lyrics-shift-btn" id="btnShiftMinus">−0.5s</button>
+                <input type="number" id="lyricsShiftAmount" value="0.5" step="0.1" min="0">
+                <button class="lyrics-shift-btn" id="btnShiftPlus">+0.5s</button>
+              </div>
+              <button class="inline-btn" id="btnAddLyricsLine"><i class="fa-solid fa-plus"></i> 行を追加</button>
+              <button class="inline-btn" id="btnResetLyrics"><i class="fa-solid fa-rotate-left"></i> AIの結果に戻す</button>
+              <button class="inline-btn" id="btnSaveLyrics" style="border-color:var(--accent-color);color:var(--accent-color);"><i class="fa-solid fa-check"></i> 保存して閉じる</button>
+            </div>
+            <div class="lyrics-box" id="lyricsBox"></div>
+          </div>
+          <div class="pl-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <span style="font-size:0.85rem;font-weight:700;color:var(--text-sub);">LIBRARY</span>
+            </div>
+            <div class="track-list" id="trackList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-account" class="view-tab">
+        <h2 class="section-title">アカウント</h2>
+        <div class="settings-card">
+          <div id="accountLoggedOut">
+            <div class="account-avatar"><i class="fa-solid fa-user"></i></div>
+            <h3>SoundDeckアカウント</h3>
+            <p class="settings-description">ログインすると、ライブラリ・お気に入り・プレイリスト・再生履歴などを端末間で同期できます。</p>
+            <input id="authEmail" type="email" placeholder="メールアドレス" style="width:100%;padding:10px 12px;margin-bottom:8px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);">
+            <input id="authPassword" type="password" placeholder="パスワード(6文字以上)" style="width:100%;padding:10px 12px;margin-bottom:12px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;"><button id="btnLogin" class="btn-search" style="flex:1;">ログイン</button><button id="btnSignup" class="btn-search" style="flex:1;background:transparent;border:1px solid var(--accent-color);color:var(--accent-color);">新規登録</button></div>
+            <p id="authError" style="color:var(--accent-color);font-size:.78rem;margin-top:10px;"></p>
+          </div>
+          <div id="accountLoggedIn" style="display:none;">
+            <div class="account-avatar"><i class="fa-solid fa-user-check"></i></div>
+            <h3 id="authUserEmail">-</h3>
+            <p class="settings-description">ログイン中です。ライブラリとプレイリストは自動的に同期されます。</p>
+            <button id="btnLogout" class="btn-search" style="background:transparent;border:1px solid var(--panel-border);color:var(--text-main);">ログアウト</button>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h3>再生設定</h3>
+          <p class="settings-description">検索・再生・オフライン保存はブラウザから直接行われるため、自宅サーバーは不要です。歌詞のAI書き起こし機能だけ、下のAPIを使います。</p>
+          <label style="font-size:.8rem;display:block;margin-bottom:6px;">歌詞AI API (Render等のURL)</label>
+          <input id="serverApi" value="" placeholder="https://sounddeck-lyrics-api-xxxx.onrender.com" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--panel-border);background:var(--panel-bg);color:var(--text-main);">
+        </div>
+        <div class="settings-card">
+          <div class="section-heading" style="margin-top:0;">
+            <div><h3>プレイリスト管理</h3><p class="settings-description" style="margin:5px 0 0;">自分で作成したプレイリストを保存・名前変更・削除できます。</p></div>
+          </div>
+          <div class="account-playlist-create">
+            <input id="accountPlaylistName" type="text" maxlength="80" placeholder="新しいプレイリスト名">
+            <button class="btn-search" id="btnAccountCreatePlaylist"><i class="fa-solid fa-plus"></i> 作成</button>
+          </div>
+          <div id="accountPlaylistList" class="account-playlists"></div>
+        </div>
+        <div class="settings-card">
+          <h3>SoundDeck v3.0</h3>
+          <p class="settings-description">検索・再生・AIおすすめ・歌詞・オフライン保存・プレイリスト管理に対応しています。</p>
+        </div>
+      </div>
+
+      <div class="modal-backdrop" id="playlistModal">
+        <div class="modal">
+          <div class="modal-head">
+            <h3>プレイリストに追加</h3>
+            <button class="modal-close" onclick="closeModal('playlistModal')"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div id="playlistModalContent"></div>
+        </div>
+      </div>
+
+      <div class="modal-backdrop" id="detailsModal">
+        <div class="modal">
+          <div class="modal-head">
+            <h3>曲の詳細</h3>
+            <button class="modal-close" onclick="closeModal('detailsModal')"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div id="detailsContent"></div>
+        </div>
+      </div>
+
+    <div class="hotbar">
+      <div class="hb-left">
+        <img src="https://picsum.photos/id/145/200/200" id="barCover" class="hb-art">
+        <div style="min-width:0;">
+          <div class="hb-title" id="barTitle">---</div>
+          <div class="hb-artist" id="barArtist">---</div>
+        </div>
+      </div>
+
+      <div class="hb-center">
+        <div class="hb-controls">
+          <button class="ctrl-btn" id="btnShuffle" title="シャッフル"><i class="fa-solid fa-shuffle"></i></button>
+          <button class="ctrl-btn" id="btnPrev"><i class="fa-solid fa-backward-step"></i></button>
+          <button class="ctrl-btn btn-play" id="btnPlay"><i class="fa-solid fa-circle-play"></i></button>
+          <button class="ctrl-btn" id="btnNext"><i class="fa-solid fa-forward-step"></i></button>
+          <button class="ctrl-btn" id="btnRepeat" title="リピート"><i class="fa-solid fa-repeat"></i></button>
+        </div>
+        <div class="hb-progress">
+          <span id="timeCurrent">0:00</span>
+          <input type="range" id="progressSlider" class="slider" min="0" value="0" step="0.1">
+          <span id="timeDuration">0:00</span>
+        </div>
+      </div>
+
+      <div class="hb-right">
+        <div class="volume-wrap">
+          <button class="ctrl-btn" id="btnVolume" title="音量"><i class="fa-solid fa-volume-high"></i></button>
+          <div class="volume-popover" id="volumePopover"><input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="1"><div style="text-align:center;font-size:.75rem;color:var(--text-sub);margin-top:5px;" id="volumeValue">100%</div></div>
+        </div>
+        <div class="nav-tabs">
+          <button class="nav-tab active" data-tab="home" title="ホーム"><i class="fa-solid fa-house"></i></button>
+          <button class="nav-tab" data-tab="search" title="検索"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <button class="nav-tab" data-tab="playlist" title="ライブラリ"><i class="fa-solid fa-music"></i></button>
+          <button class="nav-tab" data-tab="account" title="アカウント"><i class="fa-solid fa-user"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /*
+      SoundDeck v4.0
+      - 元のUI/CSSは変更しません。
+      - 検索: 公開されているPiped API系ミラーへ直接問い合わせる方式
+      - 再生/オフライン保存: Pipedから直接取得した音源URLを使う(自宅サーバー不要)
+      - 歌詞のAI書き起こしだけ、Render等にデプロイした軽量サーバー(Gemini AI)を使う
+      - オフライン: IndexedDB に音源Blobを保存
+      - Firebaseで Authentication/Firestore(プレイリスト同期)を利用
+    */
+
+    let songs = JSON.parse(localStorage.getItem('sounddeck_playlist') || '[]');
+    let currentTrackIndex = -1;
+    let audio = new Audio();
+
+    let progressTimer = null;
+    let searchHistory = JSON.parse(localStorage.getItem('sounddeck_search_history') || '[]');
+    let recentTracks = JSON.parse(localStorage.getItem('sounddeck_recent_tracks') || '[]');
+    let playbackQueue = JSON.parse(localStorage.getItem('sounddeck_queue') || '[]');
+    let playlists = JSON.parse(localStorage.getItem('sounddeck_playlists') || '[]');
+    let activePlaylistId = localStorage.getItem('sounddeck_active_playlist') || 'all';
+    let lastPlayedId = null;
+    const DEFAULT_PLAYLIST_ID = 'all';
+    if (!Array.isArray(playlists)) playlists = [];
+    if (!Array.isArray(playbackQueue)) playbackQueue = [];
+    if (!Array.isArray(recentTracks)) recentTracks = [];
+
+    const LOCAL_LIMIT = 500 * 1024 * 1024;
+    const DB_NAME = 'sounddeck_local_v3';
+    const DB_VERSION = 1;
+    const STORE = 'tracks';
+
+    function apiBase() {
+      return (localStorage.getItem('sounddeck_api') || document.getElementById('serverApi')?.value || '').replace(/\/$/, '');
+    }
+
+    // ---- v4.0: Pipedから直接、再生可能な音源URLを取得する ----
+    // 検索と同じPipedミラーを使う。複数のミラーを順番に試す。
+    const PIPED_INSTANCES = [
+      'https://pipedapi.kavin.rocks',
+      'https://api.piped.private.coffee'
+    ];
+
+    // 同じ曲を何度も問い合わせないための簡易キャッシュ(URLに時間制限があるため短めに保持)
+    const _streamUrlCache = new Map();
+
+    async function getAudioStreamUrl(videoId) {
+      const cached = _streamUrlCache.get(videoId);
+      if (cached && cached.expiresAt > Date.now()) return cached.url;
+
+      for (const base of PIPED_INSTANCES) {
+        try {
+          const res = await fetch(`${base}/streams/${videoId}`);
+          if (!res.ok) continue;
+
+          const data = await res.json();
+          const audioStreams = Array.isArray(data.audioStreams) ? data.audioStreams : [];
+          if (!audioStreams.length) continue;
+
+          // 一番ビットレートが高い(=音質が良い)音声ストリームを選ぶ
+          const best = audioStreams.slice().sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))[0];
+          if (!best?.url) continue;
+
+          _streamUrlCache.set(videoId, { url: best.url, expiresAt: Date.now() + 5 * 60 * 1000 });
+          return best.url;
+        } catch (err) {
+          console.warn('getAudioStreamUrl error:', err);
+        }
+      }
+      return null;
+    }
+
+    function persistAll() {
+      localStorage.setItem('sounddeck_playlist', JSON.stringify(songs));
+      localStorage.setItem('sounddeck_recent_tracks', JSON.stringify(recentTracks));
+      localStorage.setItem('sounddeck_queue', JSON.stringify(playbackQueue));
+      localStorage.setItem('sounddeck_playlists', JSON.stringify(playlists));
+      localStorage.setItem('sounddeck_active_playlist', activePlaylistId);
+      syncLibraryToFirestore();
+    }
+    function saveSongsToStorage() { persistAll(); }
+
+
+    // ---- Firebase (Authentication + Firestore) ----
+    const firebaseConfig = {
+      apiKey: "AIzaSyD6lDezY0ffdJFbT48gaeJuHBFuka9YuLw",
+      authDomain: "sounddeck-96423.firebaseapp.com",
+      projectId: "sounddeck-96423",
+      storageBucket: "sounddeck-96423.firebasestorage.app",
+      messagingSenderId: "264505394150",
+      appId: "1:264505394150:web:c275ebe62e7fb02b96cc27",
+      measurementId: "G-RTR5DEKHBZ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const dbFirestore = firebase.firestore();
+
+    let currentUser = null;
+
+    // ログインが必要な機能から呼ぶための共通ガード。
+    // 未ログインならメッセージを出してfalseを返す(呼び出し側は処理を中断する)。
+    function requireLogin(featureName) {
+      if (currentUser) return true;
+      alert(`「${featureName}」はログインすると使えます。アカウントページからログインしてください。`);
+      return false;
+    }
+
+    // 今のプレイリスト(songs)を、ログイン中のユーザーのFirestoreドキュメントに保存する。
+    // 音源ファイル自体は同期しない。「どの曲を追加したか」という情報だけ。
+    async function syncLibraryToFirestore() {
+      if (!currentUser) return;
+      try {
+        await dbFirestore.collection('users').doc(currentUser.uid).set({
+          library: songs,
+          recentTracks,
+          playbackQueue,
+          playlists,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      } catch (err) {
+        console.warn('Firestore sync error:', err);
+      }
+    }
+
+    // ログイン時に、Firestoreに保存されているプレイリストを読み込んで反映する(他端末との同期)
+    async function loadLibraryFromFirestore() {
+      if (!currentUser) return;
+      try {
+        const doc = await dbFirestore.collection('users').doc(currentUser.uid).get();
+        if (doc.exists) {
+          const data = doc.data();
+          if (Array.isArray(data.library)) {
+            songs = data.library;
+            if (Array.isArray(data.recentTracks)) recentTracks = data.recentTracks;
+            if (Array.isArray(data.playbackQueue)) playbackQueue = data.playbackQueue;
+            if (Array.isArray(data.playlists)) playlists = data.playlists;
+            persistAll();
+            renderAllLibraryUI();
+            renderQueue();
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore load error:', err);
+      }
+    }
+
+    function updateAuthUI(user) {
+      const loggedOutEl = document.getElementById('accountLoggedOut');
+      const loggedInEl = document.getElementById('accountLoggedIn');
+      const emailEl = document.getElementById('authUserEmail');
+      if (!loggedOutEl || !loggedInEl) return;
+
+      if (user) {
+        loggedOutEl.style.display = 'none';
+        loggedInEl.style.display = 'block';
+        if (emailEl) emailEl.innerText = user.email || '(不明)';
+      } else {
+        loggedOutEl.style.display = 'block';
+        loggedInEl.style.display = 'none';
+      }
+
+    }
+
+    function translateAuthError(err) {
+      const code = err?.code || '';
+      const map = {
+        'auth/invalid-email': 'メールアドレスの形式が正しくありません。',
+        'auth/user-not-found': 'そのメールアドレスは登録されていません。',
+        'auth/wrong-password': 'パスワードが間違っています。',
+        'auth/email-already-in-use': 'そのメールアドレスは既に登録されています。',
+        'auth/weak-password': 'パスワードは6文字以上にしてください。',
+        'auth/invalid-credential': 'メールアドレスまたはパスワードが間違っています。',
+        'auth/missing-password': 'パスワードを入力してください。'
+      };
+      return map[code] || (err?.message || 'エラーが発生しました。');
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      currentUser = user;
+      updateAuthUI(user);
+      if (user) {
+        await loadLibraryFromFirestore();
+      }
+    });
+
+    document.getElementById('btnLogin')?.addEventListener('click', async () => {
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const errEl = document.getElementById('authError');
+      errEl.innerText = '';
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (err) {
+        errEl.innerText = translateAuthError(err);
+      }
+    });
+
+    document.getElementById('btnSignup')?.addEventListener('click', async () => {
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const errEl = document.getElementById('authError');
+      errEl.innerText = '';
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+      } catch (err) {
+        errEl.innerText = translateAuthError(err);
+      }
+    });
+
+    document.getElementById('btnLogout')?.addEventListener('click', async () => {
+      await auth.signOut();
+    });
+
+    function escapeText(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = String(str);
+      return div.innerHTML;
+    }
+
+    function formatTime(secs) {
+      if (!Number.isFinite(secs)) return '0:00';
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = () => {
+          if (!req.result.objectStoreNames.contains(STORE)) {
+            req.result.createObjectStore(STORE, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function getLocalTrack(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const req = db.transaction(STORE, 'readonly').objectStore(STORE).get(id);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function getAllLocalTracks() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const req = db.transaction(STORE, 'readonly').objectStore(STORE).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveLocalTrack(track, blob) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).put({
+          id: track.id,
+          title: track.title,
+          artist: track.artist,
+          cover: track.cover,
+          blob,
+          savedAt: Date.now()
+        });
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function getLocalBytes() {
+      const tracks = await getAllLocalTracks();
+      return tracks.reduce((sum, t) => sum + (t.blob?.size || 0), 0);
+    }
+
+    async function removeLocalTrack(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).delete(id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function updateLocalStorageFlag(id, value) {
+      const track = songs.find(s => String(s.id) === String(id));
+      if (track) {
+        track.local = value;
+        saveSongsToStorage();
+      }
+    }
+
+    function resetPlayerUI() {
+      document.getElementById('barTitle').innerText = '---';
+      document.getElementById('barArtist').innerText = '---';
+      document.getElementById('panelTitle').innerText = '曲を選択してください';
+      document.getElementById('panelArtist').innerText = '---';
+      document.getElementById('barCover').removeAttribute('src');
+      document.getElementById('progressSlider').value = 0;
+      document.getElementById('timeCurrent').innerText = '0:00';
+      document.getElementById('timeDuration').innerText = '0:00';
+      updatePlayButton();
+    }
+
+    function updatePlayButton() {
+      document.getElementById('btnPlay').innerHTML =
+        !audio.paused && !audio.ended
+          ? '<i class="fa-solid fa-circle-pause"></i>'
+          : '<i class="fa-solid fa-circle-play"></i>';
+    }
+
+    async function loadTrack(index, autoplay = true) {
+      if (index < 0 || index >= songs.length) return;
+
+      currentTrackIndex = index;
+      const track = songs[index];
+      lastPlayedId = String(track.id);
+      recentTracks = [String(track.id), ...recentTracks.filter(id => String(id) !== String(track.id))].slice(0, 20);
+      if (playbackQueue.length && String(playbackQueue[0]) === String(track.id)) playbackQueue.shift();
+      persistAll();
+
+      document.getElementById('barTitle').innerText = track.title || '---';
+      document.getElementById('barArtist').innerText = track.artist || '---';
+      document.getElementById('barCover').src = track.cover || '';
+      document.getElementById('panelTitle').innerText = track.title || '---';
+      document.getElementById('panelArtist').innerText = track.artist || '---';
+      const coverEl = document.getElementById('nowPlayingCover');
+      if (coverEl) { coverEl.style.visibility = 'visible'; coverEl.src = track.cover || ''; }
+      updateCurrentTrackActions();
+
+      const lyricsBox = document.getElementById('lyricsBox');
+      if (lyricsBox) {
+        lyricsBox.className = 'lyrics-box';
+        lyricsBox.innerHTML = '<p style="padding:20px;color:var(--text-sub);">「AIで歌詞を取得」を押すと、この曲の歌詞をAIが聞き取って表示します。</p>';
+      }
+      const editBtn = document.getElementById('btnEditLyrics');
+      if (editBtn) editBtn.style.display = 'none';
+      exitLyricsEditMode();
+      currentLyricsLines = [];
+
+      const local = await getLocalTrack(track.id);
+
+      if (local?.blob) {
+        audio.src = URL.createObjectURL(local.blob);
+      } else if (track.id) {
+        // v4.0: ①のパソコンを経由せず、Pipedから直接、再生可能な音源URLを取得する
+        const streamUrl = await getAudioStreamUrl(track.id);
+        if (!streamUrl) {
+          alert('この曲の音源を取得できませんでした。時間をおくか、別の曲でお試しください。');
+          return;
+        }
+        audio.src = streamUrl;
+      } else {
+        alert('この曲の再生用音源がありません。');
+        return;
+      }
+
+      renderTrackList();
+      renderHomeGrid();
+
+      if (autoplay) {
+        try { await audio.play(); }
+        catch (e) { console.warn('Playback was blocked:', e); }
+      }
+    }
+
+    function togglePlay() {
+      if (!audio.src) {
+        if (songs.length) loadTrack(currentTrackIndex >= 0 ? currentTrackIndex : 0);
+        return;
+      }
+      if (audio.paused) audio.play();
+      else audio.pause();
+    }
+
+    // ---- シャッフル・リピート ----
+    let shuffleOn = false;
+    let repeatMode = 'off'; // 'off' | 'all' | 'one'
+
+    function updatePlaybackModeUI() {
+      const shuffleBtn = document.getElementById('btnShuffle');
+      const repeatBtn = document.getElementById('btnRepeat');
+      if (shuffleBtn) shuffleBtn.style.color = shuffleOn ? 'var(--accent-color)' : '';
+      if (repeatBtn) {
+        if (repeatMode === 'one') {
+          repeatBtn.style.color = 'var(--accent-color)';
+          repeatBtn.innerHTML = '<i class="fa-solid fa-repeat"></i><span style="font-size:.55rem;vertical-align:top;">1</span>';
+        } else {
+          repeatBtn.style.color = repeatMode === 'all' ? 'var(--accent-color)' : '';
+          repeatBtn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
+        }
+      }
+    }
+
+    function nextTrack() {
+      if (playbackQueue.length) {
+        const next = getTrackById(playbackQueue[0]);
+        if (next) { const idx=songs.indexOf(next); playbackQueue.shift(); persistAll(); renderQueue(); loadTrack(idx); return; }
+        playbackQueue.shift(); persistAll();
+      }
+      if (!songs.length) return;
+      if (shuffleOn && songs.length > 1) {
+        let idx;
+        do { idx = Math.floor(Math.random() * songs.length); } while (idx === currentTrackIndex);
+        loadTrack(idx);
+      } else {
+        loadTrack((currentTrackIndex + 1) % songs.length);
+      }
+    }
+
+    function prevTrack() {
+      if (!songs.length) return;
+      if (shuffleOn && songs.length > 1) {
+        let idx;
+        do { idx = Math.floor(Math.random() * songs.length); } while (idx === currentTrackIndex);
+        loadTrack(idx);
+      } else {
+        loadTrack((currentTrackIndex - 1 + songs.length) % songs.length);
+      }
+    }
+
+    function getTrackById(id) { return songs.find(s => String(s.id) === String(id)); }
+    function visibleLibrarySongs() {
+      return songs.slice();
+    }
+    function renderTrackList() {
+      const list = document.getElementById('trackList'); if (!list) return;
+      const tracks = visibleLibrarySongs();
+      if (!tracks.length) { list.innerHTML = '<div class="empty-state">ライブラリに曲がありません。</div>'; return; }
+      list.innerHTML = tracks.map(s => {
+        const i = songs.indexOf(s);
+        return `<div class="track-row ${i===currentTrackIndex?'active':''}" onclick="selectTrack(${i})">
+          <img src="${escapeText(s.cover||'')}" style="width:40px;height:40px;border-radius:8px;margin-right:12px;object-fit:cover;">
+          <div style="min-width:0;flex:1;"><div class="t-title">${escapeText(s.title)}</div><div class="t-artist">${escapeText(s.artist)}</div><div style="font-size:.72rem;color:var(--text-sub);">${s.local?'● オフライン保存済み':'○ 未保存'}</div></div>
+          <button class="btn-del-track" onclick="event.stopPropagation();openPlaylistPicker(${i})" title="プレイリストに追加"><i class="fa-solid fa-plus"></i></button>
+          <button class="btn-del-track" onclick="event.stopPropagation();toggleFavorite(event,${i})" title="お気に入り" style="color:${s.favorite?'var(--accent-color)':''};"><i class="fa-solid fa-star"></i></button>
+          <button class="btn-del-track" onclick="event.stopPropagation();deleteTrack(event,${i})" title="削除"><i class="fa-solid fa-xmark"></i></button>
+        </div>`;
+      }).join('');
+    }
+    function renderAllLibraryUI(){renderTrackList();renderHomeGrid();renderHomeExtras();renderSearchHistory();renderAccountPlaylists();}
+    function selectLibrary(id){
+      // プレイリストの選択・編集はアカウントページでのみ行う。
+      renderAccountPlaylists();
+    }
+    function openLibraryView(id){
+      document.querySelector('.nav-tab[data-tab="playlist"]')?.click();
+    }
+
+    function renderHomeCards(targetId, list, emptyText) {
+      const grid=document.getElementById(targetId); if(!grid)return;
+      if(!list.length){grid.innerHTML=`<p style="color:var(--text-sub);grid-column:1/-1;">${emptyText}</p>`;return;}
+      grid.innerHTML=list.slice(0,8).map(s=>{const i=songs.indexOf(s);return `<div class="card" onclick="selectTrack(${i})"><img src="${escapeText(s.cover||'')}" class="card-img"><div class="card-info"><div class="card-title">${escapeText(s.title)}</div><div class="card-desc">${escapeText(s.artist)}</div></div></div>`;}).join('');
+    }
+    function renderHomeGrid() { renderHomeCards('homeQuickGrid', songs, '「曲を探す」タブから曲を追加してみましょう！'); }
+    function renderHomeExtras() {
+      renderHomeCards('recentGrid', recentTracks.map(getTrackById).filter(Boolean), 'まだ再生履歴がありません。');
+      renderHomeCards('favoriteGrid', songs.filter(s=>s.favorite), 'お気に入りはまだありません。');
+    }
+    function renderSearchHistory() {
+      const el=document.getElementById('searchHistoryList'); if(!el)return;
+      el.innerHTML=searchHistory.length?searchHistory.map(q=>`<button class="history-item" onclick="searchFromHistory('${escapeText(q).replace(/'/g,"\\'")}')">${escapeText(q)}</button>`).join(''):'<span style="color:var(--text-sub);font-size:.85rem;">検索履歴はありません。</span>';
+    }
+    function renderQueue(){
+      const el=document.getElementById('queueList');if(!el)return;
+      const tracks=playbackQueue.map(getTrackById).filter(Boolean);
+      if(!tracks.length){el.innerHTML='<div class="empty-state">再生キューは空です。ライブラリから「次に再生」を追加してください。</div>';return;}
+      el.innerHTML=tracks.map((s,i)=>`<div class="queue-row"><div class="queue-number">${i+1}</div><img src="${escapeText(s.cover||'')}" style="width:42px;height:42px;border-radius:9px;object-fit:cover;"><div style="min-width:0;flex:1;"><div class="t-title">${escapeText(s.title)}</div><div class="t-artist">${escapeText(s.artist)}</div></div><div class="queue-actions"><button class="btn-del-track" onclick="playQueueItem(${i})"><i class="fa-solid fa-play"></i></button><button class="btn-del-track" onclick="removeFromQueue(${i})"><i class="fa-solid fa-xmark"></i></button></div></div>`).join('');
+    }
+    function addToQueue(index){if(!songs[index])return;const id=String(songs[index].id);if(!playbackQueue.some(x=>String(x)===id)&&id!==lastPlayedId)playbackQueue.push(id);persistAll();renderQueue();}
+    function removeFromQueue(i){playbackQueue.splice(i,1);persistAll();renderQueue();}
+    function playQueueItem(i){const t=getTrackById(playbackQueue[i]);if(!t)return;const idx=songs.indexOf(t);if(idx>=0)loadTrack(idx);}
+    function clearQueue(){if(!playbackQueue.length)return;playbackQueue=[];persistAll();renderQueue();}
+    function createPlaylistFromModal(){const input=document.getElementById('newPlaylistName');const name=input.value.trim();if(!name)return;const id='pl_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);playlists.push({id,name,trackIds:[],createdAt:Date.now()});activePlaylistId=id;input.value='';closeModal('createPlaylistModal');persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function openCreatePlaylistModal(){const name=prompt('プレイリスト名を入力してください');if(name&&name.trim())createPlaylist(name.trim());}
+    function createPlaylist(name){const clean=String(name||'').trim();if(!clean)return;const id='pl_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);playlists.push({id,name:clean,trackIds:[],createdAt:Date.now()});activePlaylistId=id;persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function renamePlaylist(id){const p=playlists.find(x=>x.id===id);if(!p)return;const name=prompt('新しいプレイリスト名を入力してください',p.name);if(!name||!name.trim())return;p.name=name.trim();persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function deletePlaylist(id){const p=playlists.find(x=>x.id===id);if(!p)return;if(!confirm(`「${p.name}」を削除しますか？曲そのものはライブラリから削除されません。`))return;playlists=playlists.filter(x=>x.id!==id);if(activePlaylistId===id)activePlaylistId='all';persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function removeTrackFromPlaylist(pid,trackId){const p=playlists.find(x=>x.id===pid);if(!p)return;p.trackIds=p.trackIds.filter(x=>String(x)!==String(trackId));persistAll();renderAllLibraryUI();renderAccountPlaylists();}
+    function renderAccountPlaylists(){const el=document.getElementById('accountPlaylistList');if(!el)return;if(!playlists.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1;">まだプレイリストがありません。上の欄から作成してください。</div>';return;}el.innerHTML=playlists.map(p=>{const tracks=p.trackIds.map(getTrackById).filter(Boolean);return `<div class="account-playlist-card"><div class="account-playlist-head"><div class="account-playlist-icon"><i class="fa-solid fa-music"></i></div><div style="min-width:0;flex:1;"><div class="account-playlist-name">${escapeText(p.name)}</div><div class="account-playlist-count">${tracks.length}曲</div></div></div><div class="account-playlist-actions"><button class="inline-btn" onclick="renamePlaylist('${escapeText(p.id)}')"><i class="fa-solid fa-pen"></i> 名前変更</button><button class="inline-btn" onclick="deletePlaylist('${escapeText(p.id)}')"><i class="fa-solid fa-trash"></i> 削除</button></div><div class="account-playlist-tracklist">${tracks.length?tracks.map(t=>`<div class="account-playlist-track" onclick="selectTrack(songs.findIndex(x=>String(x.id)==='${escapeText(String(t.id))}'))" style="cursor:pointer;"><img src="${escapeText(t.cover||'')}" onerror="this.style.display='none'"><div class="account-playlist-track-info"><div class="account-playlist-track-title">${escapeText(t.title)}</div><div class="account-playlist-track-artist">${escapeText(t.artist)}</div></div><button class="btn-del-track" onclick="event.stopPropagation();removeTrackFromPlaylist('${escapeText(p.id)}','${escapeText(t.id)}')" title="プレイリストから削除"><i class="fa-solid fa-xmark"></i></button></div>`).join(''):'<div style="color:var(--text-sub);font-size:.8rem;padding:8px 2px;">曲はまだありません。</div>'}</div></div>`;}).join('');}
+    function closeModal(id){document.getElementById(id)?.classList.remove('show');}
+    function addCurrentToPlaylist(){if(currentTrackIndex<0||!songs[currentTrackIndex])return;openPlaylistPicker(currentTrackIndex);}
+    function openPlaylistPicker(index){const c=document.getElementById('playlistModalContent');const t=songs[index];if(!c||!t)return;c.innerHTML=(playlists.length?playlists.map(p=>`<button class="playlist-chip" style="display:block;width:100%;text-align:left;margin-bottom:8px;" onclick="addTrackToPlaylist('${p.id}',${index})"><i class="fa-solid fa-music"></i> ${escapeText(p.name)}</button>`).join(''):'<div class="empty-state">先にプレイリストを作成してください。</div>')+'<button class="inline-btn" onclick="closeModal(\'playlistModal\');openCreatePlaylistModal()">＋ 新規プレイリストを作成</button>';document.getElementById('playlistModal').classList.add('show');}
+    function addTrackToPlaylist(pid,index){const p=playlists.find(x=>x.id===pid);if(!p||!songs[index])return;const id=String(songs[index].id);if(!p.trackIds.some(x=>String(x)===id))p.trackIds.push(id);persistAll();closeModal('playlistModal');renderAllLibraryUI();alert(`「${p.name}」に追加しました。`);}
+    function showTrackDetails(index){const t=songs[index];if(!t)return;const c=document.getElementById('detailsContent');c.innerHTML=`<img class="modal-cover" src="${escapeText(t.cover||'')}" onerror="this.style.display='none'"><h3 style="font-size:1.2rem;margin-bottom:6px;">${escapeText(t.title)}</h3><p style="color:var(--accent-color);font-weight:600;margin-bottom:12px;">${escapeText(t.artist||'')}</p><p style="color:var(--text-sub);font-size:.85rem;line-height:1.6;">ライブラリ登録済みの曲です。お気に入り：${t.favorite?'はい':'いいえ'}<br>オフライン保存：${t.local?'済み':'未保存'}</p><div style="clear:both;display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;"><button class="inline-btn" onclick="addToQueue(${index});closeModal('detailsModal')">次に再生</button><button class="inline-btn" onclick="openPlaylistPicker(${index});closeModal('detailsModal')">プレイリストに追加</button></div>`;document.getElementById('detailsModal').classList.add('show');}
+    function searchFromHistory(q){document.getElementById('searchInput').value=q;document.getElementById('btnSearch').click();}
+    async function downloadTrack(index) {
+      if (!requireLogin('オフライン保存')) return;
+
+      const track = songs[index];
+      if (!track?.id) {
+        alert('この曲のIDが取得できません。');
+        return;
+      }
+
+      const status = document.getElementById('searchResultGrid');
+      status.innerHTML = '<p style="padding:20px;">端末に保存しています...</p>';
+
+      try {
+        const streamUrl = await getAudioStreamUrl(track.id);
+        if (!streamUrl) throw new Error('音源URLを取得できませんでした');
+
+        const res = await fetch(streamUrl);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const blob = await res.blob();
+        const used = await getLocalBytes();
+
+        if (used + blob.size > LOCAL_LIMIT) {
+          alert('端末側の500MB無料保存容量を超えるため保存できません。');
+          renderSearchResults(window._searchResults || []);
+          return;
+        }
+
+        await saveLocalTrack(track, blob);
+        updateLocalStorageFlag(track.id, true);
+        renderTrackList();
+        renderHomeGrid();
+        renderSearchResults(window._searchResults || []);
+        alert('この端末に保存しました。オフライン再生できます。');
+      } catch (e) {
+        console.error(e);
+        alert('保存できませんでした。この曲は、配信元の制限でオフライン保存に対応していない可能性があります。');
+        renderSearchResults(window._searchResults || []);
+      }
+    }
+
+    function renderSearchResults(items) {
+      const grid = document.getElementById('searchResultGrid');
+
+      if (!items.length) {
+        grid.innerHTML = '<p style="padding:20px;">検索結果がありません。</p>';
+        return;
+      }
+
+      grid.innerHTML = items.map((item, idx) => {
+        const existing = songs.find(s => String(s.id) === String(item.id));
+        return `
+          <div class="card">
+            <img src="${escapeText(item.cover || '')}" class="card-img">
+            <div class="card-info">
+              <div class="card-title">${escapeText(item.title)}</div>
+              <div class="card-desc">${escapeText(item.artist || 'Unknown Artist')}</div>
+            </div>
+            <button class="btn-search" onclick="addServerTrack(${idx})">${existing ? '再生' : '追加'}</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function searchServer(query) {
+      const grid = document.getElementById('searchResultGrid');
+      grid.innerHTML = '<p style="padding:20px;">YouTubeから曲を検索中...</p>';
+
+      // solOS版と同じ方式: 公開されているPiped APIミラーへ直接問い合わせる。
+      // 複数のミラーを順番に試し、最初に成功したものを使う。
+      let success = false;
+
+      for (const base of PIPED_INSTANCES) {
+        try {
+          const res = await fetch(`${base}/search?q=${encodeURIComponent(query)}&filter=music_songs`);
+          if (!res.ok) continue;
+
+          const data = await res.json();
+          const items = data.items || data;
+          if (!items || items.length === 0) continue;
+
+          const videos = items.filter(item => item.type === 'stream' || item.url);
+          if (videos.length === 0) continue;
+
+          // v4.0: 音源URLはここでは取得せず、再生・保存する瞬間に毎回Pipedへ取りに行く
+          // (時間制限つきのURLのため、先に取得して保存しておくと後で使えなくなることがある)
+          window._searchResults = videos.slice(0, 20).map(item => {
+            const videoId = item.url ? item.url.replace('/watch?v=', '') : item.id;
+            return {
+              id: videoId,
+              title: item.title || 'Unknown Title',
+              artist: item.uploaderName || item.artist || 'Unknown Artist',
+              cover: item.thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+            };
+          });
+
+          renderSearchResults(window._searchResults);
+          success = true;
+          break;
+        } catch (err) {
+          console.warn('Search API Error:', err);
+        }
+      }
+
+      if (!success) {
+        grid.innerHTML = '<p style="padding:20px;">検索結果を取得できませんでした。別のキーワードでお試しください。</p>';
+      }
+    }
+
+    // ---- 歌詞: AI取得 / 手動編集 / 一括タイミング調整 ----
+    let currentLyricsLines = [];
+    let lyricsEditMode = false;
+    let lyricsOverrides = JSON.parse(localStorage.getItem('sounddeck_lyrics_overrides') || '{}');
+    if (typeof lyricsOverrides !== 'object' || lyricsOverrides === null) lyricsOverrides = {};
+
+    function saveLyricsOverridesToStorage() {
+      localStorage.setItem('sounddeck_lyrics_overrides', JSON.stringify(lyricsOverrides));
+    }
+
+    async function loadAiLyrics() {
+      const box = document.getElementById('lyricsBox');
+      if (!box) return;
+
+      const track = songs[currentTrackIndex];
+      if (!track) {
+        box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">曲を再生してから試してください。</p>';
+        return;
+      }
+
+      // 自分で編集して保存した歌詞があれば、それを優先する(AIを呼び直さない)
+      const override = lyricsOverrides[String(track.id)];
+      if (override && override.length) {
+        currentLyricsLines = override.map(l => ({ ...l }));
+        renderLyricsReadView();
+        document.getElementById('btnEditLyrics').style.display = 'inline-flex';
+        return;
+      }
+
+      const lyricsApi = apiBase();
+      if (!lyricsApi) {
+        box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">設定タブで「歌詞AI API」のURLを入力してください。</p>';
+        return;
+      }
+
+      box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">✨ 音源を取得しています...</p>';
+      document.getElementById('btnEditLyrics').style.display = 'none';
+
+      try {
+        // 端末に保存済みならそれを使い、無ければPiped経由で取得する(サーバーには送るだけで保存はしない)
+        const local = await getLocalTrack(track.id);
+        let blob = local?.blob;
+
+        if (!blob) {
+          const streamUrl = await getAudioStreamUrl(track.id);
+          if (!streamUrl) throw new Error('音源を取得できませんでした');
+          const audioRes = await fetch(streamUrl);
+          if (!audioRes.ok) throw new Error(`音源の取得に失敗しました (HTTP ${audioRes.status})`);
+          blob = await audioRes.blob();
+        }
+
+        box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">✨ AIが歌詞を聞き取り中...(初回は数十秒かかることがあります。サーバーが休止中の場合はさらに時間がかかります)</p>';
+
+        const formData = new FormData();
+        formData.append('audio', blob, 'audio.mp3');
+
+        const res = await fetch(`${lyricsApi}/api/lyrics`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        const lines = Array.isArray(data.lyrics) ? data.lyrics : [];
+
+        if (!lines.length) {
+          box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">歌詞を聞き取れませんでした(インストゥルメンタル曲の可能性があります)。</p>';
+          currentLyricsLines = [];
+          return;
+        }
+
+        currentLyricsLines = lines.map(l => ({ time: Number(l.time) || 0, text: String(l.text || '') }));
+        renderLyricsReadView();
+        document.getElementById('btnEditLyrics').style.display = 'inline-flex';
+      } catch (err) {
+        console.warn('AI lyrics error:', err);
+        box.innerHTML = `<p style="padding:20px;color:var(--text-sub);">歌詞を取得できませんでした。(${escapeText(err.message || '')})</p>`;
+      }
+    }
+
+    function renderLyricsReadView() {
+      const box = document.getElementById('lyricsBox');
+      if (!box) return;
+      box.className = 'lyrics-box';
+
+      if (!currentLyricsLines.length) {
+        box.innerHTML = '<p style="padding:20px;color:var(--text-sub);">歌詞がありません。</p>';
+        return;
+      }
+
+      box.innerHTML = currentLyricsLines.map(line => `
+        <div class="l-line" data-time="${line.time}">${escapeText(line.text)}</div>
+      `).join('');
+
+      box.querySelectorAll('.l-line').forEach(el => {
+        el.addEventListener('click', () => {
+          const t = Number(el.dataset.time) || 0;
+          audio.currentTime = t;
+          if (audio.paused) audio.play();
+        });
+      });
+
+      updateLyricsHighlight();
+    }
+
+    // 再生位置に合わせて、今のフレーズの歌詞行をハイライトし、自動スクロールする(編集中は行わない)
+    function updateLyricsHighlight() {
+      if (lyricsEditMode) return;
+      const box = document.getElementById('lyricsBox');
+      if (!box) return;
+
+      const lines = box.querySelectorAll('.l-line');
+      if (!lines.length) return;
+
+      const current = audio.currentTime || 0;
+      let activeIndex = -1;
+
+      lines.forEach((el, i) => {
+        const t = Number(el.dataset.time) || 0;
+        if (t <= current) activeIndex = i;
+      });
+
+      lines.forEach((el, i) => {
+        el.classList.toggle('active', i === activeIndex);
+      });
+
+      if (activeIndex >= 0) {
+        lines[activeIndex].scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+    }
+
+    function enterLyricsEditMode() {
+      if (!currentLyricsLines.length) {
+        alert('先に「AIで歌詞を取得」を押してください。');
+        return;
+      }
+      lyricsEditMode = true;
+      const toolbar = document.getElementById('lyricsToolbar');
+      if (toolbar) toolbar.style.display = 'flex';
+      document.getElementById('btnEditLyrics').innerHTML = '<i class="fa-solid fa-check"></i> 完了';
+      renderLyricsEditView();
+    }
+
+    function exitLyricsEditMode() {
+      lyricsEditMode = false;
+      const toolbar = document.getElementById('lyricsToolbar');
+      if (toolbar) toolbar.style.display = 'none';
+      const btn = document.getElementById('btnEditLyrics');
+      if (btn) btn.innerHTML = '<i class="fa-solid fa-pen"></i> 編集';
+    }
+
+    function toggleLyricsEditMode() {
+      if (lyricsEditMode) {
+        saveLyricsEdits();
+      } else {
+        enterLyricsEditMode();
+      }
+    }
+
+    function renderLyricsEditView() {
+      const box = document.getElementById('lyricsBox');
+      if (!box) return;
+      box.className = 'lyrics-box lyrics-edit-box';
+
+      if (!currentLyricsLines.length) {
+        box.innerHTML = '<p style="color:var(--text-sub);">行がありません。「行を追加」から作成してください。</p>';
+        return;
+      }
+
+      box.innerHTML = currentLyricsLines.map((line, i) => `
+        <div class="lyrics-edit-row">
+          <input type="number" step="0.1" min="0" value="${line.time}" onchange="updateLyricsLineTime(${i}, this.value)" title="秒数">
+          <input type="text" value="${escapeText(line.text)}" onchange="updateLyricsLineText(${i}, this.value)" placeholder="歌詞の内容">
+          <button onclick="removeLyricsLine(${i})" title="この行を削除"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `).join('');
+    }
+
+    function updateLyricsLineTime(i, value) {
+      if (!currentLyricsLines[i]) return;
+      currentLyricsLines[i].time = Math.max(0, Number(value) || 0);
+    }
+
+    function updateLyricsLineText(i, value) {
+      if (!currentLyricsLines[i]) return;
+      currentLyricsLines[i].text = value;
+    }
+
+    function removeLyricsLine(i) {
+      currentLyricsLines.splice(i, 1);
+      renderLyricsEditView();
+    }
+
+    function addLyricsLine() {
+      const t = Math.round((audio.currentTime || 0) * 10) / 10;
+      currentLyricsLines.push({ time: t, text: '' });
+      currentLyricsLines.sort((a, b) => a.time - b.time);
+      renderLyricsEditView();
+    }
+
+    // 歌詞全体のタイミングを、まとめて前後にずらす(曲の後半でズレてきた時などに使う)
+    function shiftAllLyrics(deltaSeconds) {
+      if (!currentLyricsLines.length) return;
+      currentLyricsLines = currentLyricsLines.map(l => ({
+        ...l,
+        time: Math.max(0, Math.round((l.time + deltaSeconds) * 10) / 10)
+      }));
+      if (lyricsEditMode) renderLyricsEditView();
+      else renderLyricsReadView();
+    }
+
+    function saveLyricsEdits() {
+      const track = songs[currentTrackIndex];
+      if (!track) return;
+
+      currentLyricsLines = currentLyricsLines
+        .filter(l => l.text && l.text.trim())
+        .sort((a, b) => a.time - b.time);
+
+      lyricsOverrides[String(track.id)] = currentLyricsLines.map(l => ({ ...l }));
+      saveLyricsOverridesToStorage();
+
+      exitLyricsEditMode();
+      renderLyricsReadView();
+    }
+
+    function resetLyricsToAI() {
+      const track = songs[currentTrackIndex];
+      if (!track) return;
+      if (!confirm('自分で編集した歌詞を消して、AIの結果に戻しますか？')) return;
+
+      delete lyricsOverrides[String(track.id)];
+      saveLyricsOverridesToStorage();
+      exitLyricsEditMode();
+      loadAiLyrics();
+    }
+
+    document.getElementById('btnAiLyrics')?.addEventListener('click', loadAiLyrics);
+    document.getElementById('btnEditLyrics')?.addEventListener('click', toggleLyricsEditMode);
+    document.getElementById('btnAddLyricsLine')?.addEventListener('click', addLyricsLine);
+    document.getElementById('btnResetLyrics')?.addEventListener('click', resetLyricsToAI);
+    document.getElementById('btnSaveLyrics')?.addEventListener('click', saveLyricsEdits);
+    document.getElementById('btnShiftPlus')?.addEventListener('click', () => {
+      const amt = Number(document.getElementById('lyricsShiftAmount').value) || 0.5;
+      shiftAllLyrics(amt);
+    });
+    document.getElementById('btnShiftMinus')?.addEventListener('click', () => {
+      const amt = Number(document.getElementById('lyricsShiftAmount').value) || 0.5;
+      shiftAllLyrics(-amt);
+    });
+
+    document.querySelectorAll('.pl-subtab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pl-subtab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelector('.playlist-layout-v06')?.setAttribute('data-plview', btn.dataset.plview);
+      });
+    });
+
+    async function addServerTrack(index) {
+      const item = window._searchResults?.[index];
+      if (!item) return;
+
+      const track = {
+        id: String(item.id || item.videoId || crypto.randomUUID()),
+        title: item.title || 'Unknown Title',
+        artist: item.artist || item.uploader || 'Unknown Artist',
+        cover: item.cover || item.thumbnail || '',
+        local: false
+      };
+
+      const existingIndex = songs.findIndex(s => String(s.id) === track.id);
+
+      if (existingIndex >= 0) {
+        await loadTrack(existingIndex);
+        document.querySelector('.nav-tab[data-tab="playlist"]').click();
+        return;
+      }
+
+      songs.push(track);
+      saveSongsToStorage();
+      renderTrackList();
+      renderHomeGrid();
+
+      await loadTrack(songs.length - 1);
+      document.querySelector('.nav-tab[data-tab="playlist"]').click();
+    }
+
+    function deleteTrack(event, index) {
+      event.stopPropagation();
+      const id = songs[index]?.id;
+      songs.splice(index, 1);
+      saveSongsToStorage();
+
+      if (currentTrackIndex === index) {
+        audio.pause();
+        audio.removeAttribute('src');
+        currentTrackIndex = -1;
+        resetPlayerUI();
+      } else if (currentTrackIndex > index) {
+        currentTrackIndex--;
+      }
+
+      if (id) removeLocalTrack(id).catch(() => {});
+      renderTrackList();
+      renderHomeGrid();
+    }
+
+    function clearPlaylist() {
+      if (!songs.length) return;
+      if (!confirm('マイプレイリストの全楽曲を削除しますか？')) return;
+
+      songs.forEach(s => removeLocalTrack(s.id).catch(() => {}));
+      songs = [];
+      currentTrackIndex = -1;
+      audio.pause();
+      audio.removeAttribute('src');
+      saveSongsToStorage();
+      resetPlayerUI();
+      renderTrackList();
+      renderHomeGrid();
+    }
+
+    function selectTrack(i) {
+      loadTrack(i);
+      document.querySelector('.nav-tab[data-tab="playlist"]').click();
+    }
+    document.getElementById('btnTrackFavorite')?.addEventListener('click',()=>{if(currentTrackIndex>=0){toggleFavorite({stopPropagation(){}},currentTrackIndex);updateCurrentTrackActions();}});
+    document.getElementById('btnTrackDetails')?.addEventListener('click',()=>{if(currentTrackIndex>=0)showTrackDetails(currentTrackIndex);});
+    document.getElementById('btnAddToPlaylist')?.addEventListener('click',addCurrentToPlaylist);
+    function updateCurrentTrackActions(){const b=document.getElementById('btnTrackFavorite');const t=songs[currentTrackIndex];if(b)b.innerHTML=`<i class="fa-solid fa-star"></i> ${t?.favorite?'お気に入り済み':'お気に入り'}`;}
+
+    async function renderOfflinePanel() {
+      const local = await getAllLocalTracks();
+      const grid = document.getElementById('searchResultGrid');
+
+      if (!local.length) {
+        grid.innerHTML = '<p style="padding:20px;">この端末に保存された曲はありません。</p>';
+        return;
+      }
+
+      grid.innerHTML = local.map((s, i) => `
+        <div class="card" onclick="playLocalById('${encodeURIComponent(s.id)}')">
+          <img src="${escapeText(s.cover || '')}" class="card-img">
+          <div class="card-info">
+            <div class="card-title">${escapeText(s.title)}</div>
+            <div class="card-desc">${escapeText(s.artist)}</div>
+          </div>
+          <button class="btn-del-track" onclick="event.stopPropagation();deleteOffline('${encodeURIComponent(s.id)}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function playLocalById(encoded) {
+      const id = decodeURIComponent(encoded);
+      const local = await getLocalTrack(id);
+      if (!local) return;
+
+      audio.src = URL.createObjectURL(local.blob);
+      audio.play();
+      document.getElementById('barTitle').innerText = local.title;
+      document.getElementById('barArtist').innerText = local.artist;
+      document.getElementById('barCover').src = local.cover || '';
+    }
+
+    async function deleteOffline(encoded) {
+      const id = decodeURIComponent(encoded);
+      await removeLocalTrack(id);
+      updateLocalStorageFlag(id, false);
+      renderTrackList();
+      renderHomeGrid();
+      renderOfflinePanel();
+    }
+
+    audio.addEventListener('play', updatePlayButton);
+    audio.addEventListener('pause', updatePlayButton);
+    audio.addEventListener('ended', () => {
+      if (repeatMode === 'one') {
+        audio.currentTime = 0;
+        audio.play();
+        return;
+      }
+      if (repeatMode === 'off' && !shuffleOn && currentTrackIndex === songs.length - 1) {
+        // リピートoffで最後の曲まで再生し終えたら、そこで止まる
+        updatePlayButton();
+        return;
+      }
+      nextTrack();
+    });
+    audio.addEventListener('loadedmetadata', () => {
+      document.getElementById('timeDuration').innerText = formatTime(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      const current = audio.currentTime || 0;
+      const duration = audio.duration || 0;
+      document.getElementById('timeCurrent').innerText = formatTime(current);
+      document.getElementById('timeDuration').innerText = formatTime(duration);
+      document.getElementById('progressSlider').value = duration ? (current / duration) * 100 : 0;
+      updateLyricsHighlight();
+    });
+
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', nextTrack);
+    document.getElementById('btnPrev').addEventListener('click', prevTrack);
+
+    document.getElementById('btnShuffle')?.addEventListener('click', () => {
+      shuffleOn = !shuffleOn;
+      updatePlaybackModeUI();
+    });
+
+    document.getElementById('btnRepeat')?.addEventListener('click', () => {
+      repeatMode = repeatMode === 'off' ? 'all' : (repeatMode === 'all' ? 'one' : 'off');
+      updatePlaybackModeUI();
+    });
+
+    document.getElementById('progressSlider').addEventListener('input', e => {
+      if (audio.duration) audio.currentTime = (Number(e.target.value) / 100) * audio.duration;
+    });
+
+    document.getElementById('btnSearch').addEventListener('click', () => {
+      const q = document.getElementById('searchInput').value.trim();
+      if (!q) return;
+      searchHistory = [q, ...searchHistory.filter(x => x !== q)].slice(0, 10);
+      localStorage.setItem('sounddeck_search_history', JSON.stringify(searchHistory));
+      renderSearchHistory();
+      searchServer(q);
+    });
+
+    document.getElementById('searchInput').addEventListener('keypress', e => {
+      if (e.key === 'Enter') document.getElementById('btnSearch').click();
+    });
+
+    document.getElementById('serverApi')?.addEventListener('change', e => {
+      localStorage.setItem('sounddeck_api', e.target.value.trim());
+    });
+
+    document.querySelectorAll('.nav-tab').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.view-tab').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        document.getElementById(`tab-${b.dataset.tab}`).classList.add('active');
+
+        if (b.dataset.tab === 'playlist') renderAllLibraryUI();
+        if (b.dataset.tab === 'home') { renderHomeGrid(); renderHomeExtras(); }
+        if (b.dataset.tab === 'search') renderSearchHistory();
+        if (b.dataset.tab === 'account') renderAccountPlaylists();
+      });
+    });
+
+    document.getElementById('clearSearchHistory')?.addEventListener('click',()=>{searchHistory=[];localStorage.removeItem('sounddeck_search_history');renderSearchHistory();});
+    document.getElementById('btnAccountCreatePlaylist')?.addEventListener('click',()=>{const input=document.getElementById('accountPlaylistName');createPlaylist(input.value);input.value='';});
+    document.getElementById('accountPlaylistName')?.addEventListener('keypress',e=>{if(e.key==='Enter')document.getElementById('btnAccountCreatePlaylist')?.click();});
+    document.getElementById('btnVolume')?.addEventListener('click',()=>document.getElementById('volumePopover')?.classList.toggle('show'));
+    document.getElementById('volumeSlider')?.addEventListener('input',e=>{audio.volume=Number(e.target.value);document.getElementById('volumeValue').innerText=Math.round(audio.volume*100)+'%';document.getElementById('btnVolume').innerHTML=audio.volume===0?'<i class="fa-solid fa-volume-xmark"></i>':audio.volume<.5?'<i class="fa-solid fa-volume-low"></i>':'<i class="fa-solid fa-volume-high"></i>';localStorage.setItem('sounddeck_volume',audio.volume);});
+    document.addEventListener('click',e=>{if(!e.target.closest('.volume-wrap'))document.getElementById('volumePopover')?.classList.remove('show');});
+    document.addEventListener('keydown',e=>{
+      if(e.target.matches('input,textarea'))return;
+      if(e.code==='Space'){e.preventDefault();togglePlay();}
+      if(e.key==='ArrowRight'&&audio.src)audio.currentTime=Math.min((audio.duration||0),audio.currentTime+10);
+      if(e.key==='ArrowLeft'&&audio.src)audio.currentTime=Math.max(0,audio.currentTime-10);
+      if(e.key.toLowerCase()==='n')nextTrack();
+      if(e.key.toLowerCase()==='p')prevTrack();
+      if(e.key.toLowerCase()==='m'){audio.muted=!audio.muted;}
+    });
+    const savedVolume=Number(localStorage.getItem('sounddeck_volume')); if(Number.isFinite(savedVolume)){audio.volume=savedVolume;const vs=document.getElementById('volumeSlider');if(vs)vs.value=savedVolume;const vv=document.getElementById('volumeValue');if(vv)vv.innerText=Math.round(savedVolume*100)+'%';}
+
+    document.getElementById('btnTheme').addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (dark) document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', 'dark');
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedApi = localStorage.getItem('sounddeck_api');
+      if (savedApi) document.getElementById('serverApi').value = savedApi;
+      renderAllLibraryUI();
+      updatePlaybackModeUI();
+      updateCurrentTrackActions();
+    });
+  </script>
+</body>
+</html>
